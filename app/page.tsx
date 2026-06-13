@@ -82,7 +82,7 @@ function FadeIn({
   );
 }
 
-function Toast({
+function AnimatedAlert({
   type,
   message,
   onClose
@@ -92,7 +92,7 @@ function Toast({
   onClose: () => void;
 }) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 5000);
+    const timer = setTimeout(onClose, 4000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -102,29 +102,114 @@ function Toast({
       : type === "error"
         ? "bg-wine"
         : "bg-terracotta";
+
+  const borderColor =
+    type === "success"
+      ? "border-moss"
+      : type === "error"
+        ? "border-wine"
+        : "border-terracotta";
+
   const icon =
     type === "success" ? (
-      <CheckCircle2 size={20} />
+      <motion.div
+        animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+      >
+        <CheckCircle2 size={24} className="text-ivory" />
+      </motion.div>
     ) : (
-      <AlertCircle size={20} />
+      <motion.div
+        animate={{ shake: [0, -5, 5, -5, 0] }}
+        transition={{ duration: 0.4 }}
+      >
+        <AlertCircle size={24} className="text-ivory" />
+      </motion.div>
     );
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`fixed top-20 right-5 z-50 flex items-center gap-3 ${bgColor} text-ivory px-6 py-4 rounded-full shadow-lg`}
+      initial={{ opacity: 0, y: -30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -30, scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 ${bgColor} text-ivory px-8 py-5 rounded-2xl shadow-2xl border-2 ${borderColor} backdrop-blur-sm`}
     >
-      {icon}
-      <p className="text-sm font-semibold">{message}</p>
+      <div className="flex-shrink-0">{icon}</div>
+      <p className="text-sm font-semibold leading-6 max-w-sm">{message}</p>
       <button
         onClick={onClose}
-        className="ml-2 hover:opacity-80 transition"
+        className="ml-4 flex-shrink-0 hover:opacity-80 transition"
       >
-        <X size={18} />
+        <X size={20} />
       </button>
     </motion.div>
+  );
+}
+
+function SuccessAnimation() {
+  return (
+    <div className="py-16 text-center">
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        className="inline-block mb-6"
+      >
+        <motion.div
+          animate={{ 
+            rotate: 360,
+            scale: [1, 1.05, 1]
+          }}
+          transition={{ 
+            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+            scale: { duration: 2, repeat: Infinity }
+          }}
+          className="text-6xl"
+        >
+          💍
+        </motion.div>
+      </motion.div>
+
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+        className="font-serif text-4xl text-moss mb-3"
+      >
+        You're All Set!
+      </motion.h2>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+        className="space-y-4"
+      >
+        <p className="text-lg leading-7 text-ink/75 font-medium">
+          ✓ Your RSVP has been received
+        </p>
+        <p className="leading-7 text-ink/72">
+          Thank you for confirming your attendance. A confirmation email is on its way to your inbox. We're excited to celebrate with you on August 22, 2026!
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 0.6 }}
+        className="mt-8 flex justify-center gap-2"
+      >
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            animate={{ scale: [1, 1.3, 1] }}
+            transition={{ delay: i * 0.15, duration: 1, repeat: Infinity }}
+            className="h-2 w-2 rounded-full bg-moss"
+          />
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
@@ -406,7 +491,7 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
-  const [toastMessage, setToastMessage] = useState<{
+  const [alertMessage, setAlertMessage] = useState<{
     type: "success" | "error" | "warning";
     text: string;
   } | null>(null);
@@ -416,7 +501,7 @@ export default function Home() {
     event.preventDefault();
     setStatus("loading");
     setMessage("");
-    setToastMessage(null);
+    setAlertMessage(null);
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
@@ -425,7 +510,7 @@ export default function Home() {
     if (submittedEmail) {
       setStatus("error");
       setMessage("This email has already been submitted. Please do not fill the form twice.");
-      setToastMessage({
+      setAlertMessage({
         type: "warning",
         text: "⚠️ This email has already been submitted. Please do not fill the form twice."
       });
@@ -451,7 +536,7 @@ export default function Home() {
     if (response.status === 409) {
       setStatus("closed");
       setMessage(result.message ?? "RSVP Closed - Capacity Reached");
-      setToastMessage({
+      setAlertMessage({
         type: "error",
         text: result.message ?? "RSVP capacity has been reached."
       });
@@ -461,7 +546,7 @@ export default function Home() {
     if (!response.ok) {
       setStatus("error");
       setMessage(result.message ?? "Something went wrong. Please try again.");
-      setToastMessage({
+      setAlertMessage({
         type: "error",
         text: result.message ?? "Failed to submit RSVP. Please try again."
       });
@@ -471,9 +556,9 @@ export default function Home() {
     setStatus("success");
     setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
     setSubmittedEmail(email);
-    setToastMessage({
+    setAlertMessage({
       type: "success",
-      text: "✓ You have been added! Thank you for your RSVP."
+      text: "✓ Success! You have been added to our guest list."
     });
     event.currentTarget.reset();
   }
@@ -481,11 +566,11 @@ export default function Home() {
   return (
     <main className="overflow-hidden text-ink">
       <SoundButton />
-      {toastMessage && (
-        <Toast
-          type={toastMessage.type}
-          message={toastMessage.text}
-          onClose={() => setToastMessage(null)}
+      {alertMessage && (
+        <AnimatedAlert
+          type={alertMessage.type}
+          message={alertMessage.text}
+          onClose={() => setAlertMessage(null)}
         />
       )}
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
@@ -744,20 +829,25 @@ export default function Home() {
           <FadeIn delay={0.12}>
             <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
-                <div className="py-14 text-center">
-                  <p className="font-serif text-5xl text-wine">RSVP Closed</p>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="py-14 text-center"
+                >
+                  <motion.div
+                    animate={{ shake: [0, -5, 5, -5, 0] }}
+                    transition={{ duration: 0.5 }}
+                    className="text-6xl mb-4"
+                  >
+                    🛑
+                  </motion.div>
+                  <p className="font-serif text-4xl text-wine">RSVP Closed</p>
                   <p className="mt-3 leading-7 text-ink/72">
                     {message || "Capacity has been reached."}
                   </p>
-                </div>
+                </motion.div>
               ) : status === "success" ? (
-                <div className="py-14 text-center">
-                  <CheckCircle2 size={48} className="mx-auto text-moss mb-4" />
-                  <p className="font-serif text-3xl text-moss">You're All Set!</p>
-                  <p className="mt-3 leading-7 text-ink/72">
-                    {message}
-                  </p>
-                </div>
+                <SuccessAnimation />
               ) : (
                 <>
                   <div className="grid gap-5 sm:grid-cols-2">
@@ -798,9 +888,11 @@ export default function Home() {
                     <span className="label">Message (optional)</span>
                     <textarea className="field min-h-32 resize-y" name="note" />
                   </label>
-                  <button
+                  <motion.button
                     type="submit"
                     disabled={status === "loading"}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-wine/90 disabled:opacity-50"
                   >
                     {status === "loading" ? (
@@ -809,12 +901,7 @@ export default function Home() {
                       <CheckCircle2 size={17} />
                     )}
                     Submit RSVP
-                  </button>
-                  {message && status === "error" ? (
-                    <p className="mt-5 text-center text-sm leading-6 text-wine">
-                      {message}
-                    </p>
-                  ) : null}
+                  </motion.button>
                 </>
               )}
             </form>

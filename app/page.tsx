@@ -15,7 +15,9 @@ import {
   Pause,
   Send,
   Sparkles,
-  Users
+  Users,
+  X,
+  AlertCircle
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -76,6 +78,52 @@ function FadeIn({
       className={className}
     >
       {children}
+    </motion.div>
+  );
+}
+
+function Toast({
+  type,
+  message,
+  onClose
+}: {
+  type: "success" | "error" | "warning";
+  message: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor =
+    type === "success"
+      ? "bg-moss"
+      : type === "error"
+        ? "bg-wine"
+        : "bg-terracotta";
+  const icon =
+    type === "success" ? (
+      <CheckCircle2 size={20} />
+    ) : (
+      <AlertCircle size={20} />
+    );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className={`fixed top-20 right-5 z-50 flex items-center gap-3 ${bgColor} text-ivory px-6 py-4 rounded-full shadow-lg`}
+    >
+      {icon}
+      <p className="text-sm font-semibold">{message}</p>
+      <button
+        onClick={onClose}
+        className="ml-2 hover:opacity-80 transition"
+      >
+        <X size={18} />
+      </button>
     </motion.div>
   );
 }
@@ -239,7 +287,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory"
+            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-win[...]
           >
             Tap to Open
           </button>
@@ -269,7 +317,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
                 href="#rsvp"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:b[...]
               >
                 <Heart size={17} /> Reserve Your Seat
               </a>
@@ -358,16 +406,35 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState<{
+    type: "success" | "error" | "warning";
+    text: string;
+  } | null>(null);
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("loading");
     setMessage("");
+    setToastMessage(null);
 
     const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "");
+
+    // Check if email was already submitted in this session
+    if (submittedEmail) {
+      setStatus("error");
+      setMessage("This email has already been submitted. Please do not fill the form twice.");
+      setToastMessage({
+        type: "warning",
+        text: "⚠️ This email has already been submitted. Please do not fill the form twice."
+      });
+      return;
+    }
+
     const payload = {
       fullName: String(form.get("fullName") ?? ""),
-      email: String(form.get("email") ?? ""),
+      email,
       phone: String(form.get("phone") ?? ""),
       attendees: Number(form.get("attendees") ?? 1),
       attending: String(form.get("attending") ?? "yes"),
@@ -384,23 +451,43 @@ export default function Home() {
     if (response.status === 409) {
       setStatus("closed");
       setMessage(result.message ?? "RSVP Closed - Capacity Reached");
+      setToastMessage({
+        type: "error",
+        text: result.message ?? "RSVP capacity has been reached."
+      });
       return;
     }
 
     if (!response.ok) {
       setStatus("error");
       setMessage(result.message ?? "Something went wrong. Please try again.");
+      setToastMessage({
+        type: "error",
+        text: result.message ?? "Failed to submit RSVP. Please try again."
+      });
       return;
     }
 
     setStatus("success");
-    setMessage("Thank you. Your RSVP has been received and a confirmation email is on its way.");
+    setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
+    setSubmittedEmail(email);
+    setToastMessage({
+      type: "success",
+      text: "✓ You have been added! Thank you for your RSVP."
+    });
     event.currentTarget.reset();
   }
 
   return (
     <main className="overflow-hidden text-ink">
       <SoundButton />
+      {toastMessage && (
+        <Toast
+          type={toastMessage.type}
+          message={toastMessage.text}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">
@@ -526,7 +613,7 @@ export default function Home() {
             <FadeIn delay={0.12}>
               <div className="min-h-80 overflow-hidden bg-ivory shadow-soft">
                 <iframe
-                title="Camp Young Ede map"
+                  title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
                   className="h-80 w-full border-0"
                   loading="lazy"
@@ -663,23 +750,31 @@ export default function Home() {
                     {message || "Capacity has been reached."}
                   </p>
                 </div>
+              ) : status === "success" ? (
+                <div className="py-14 text-center">
+                  <CheckCircle2 size={48} className="mx-auto text-moss mb-4" />
+                  <p className="font-serif text-3xl text-moss">You're All Set!</p>
+                  <p className="mt-3 leading-7 text-ink/72">
+                    {message}
+                  </p>
+                </div>
               ) : (
                 <>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label>
-                      <span className="label">Full name</span>
+                      <span className="label">Full name *</span>
                       <input className="field" name="fullName" required />
                     </label>
                     <label>
-                      <span className="label">Email</span>
+                      <span className="label">Email *</span>
                       <input className="field" type="email" name="email" required />
                     </label>
                     <label>
-                      <span className="label">WhatsApp number (optional)</span>
-                      <input className="field" name="phone" inputMode="tel" />
+                      <span className="label">WhatsApp number *</span>
+                      <input className="field" name="phone" inputMode="tel" required />
                     </label>
                     <label>
-                      <span className="label">Number attending</span>
+                      <span className="label">Number attending *</span>
                       <input
                         className="field"
                         type="number"
@@ -692,20 +787,21 @@ export default function Home() {
                     </label>
                   </div>
                   <label className="mt-5 block">
-                    <span className="label">Attendance</span>
+                    <span className="label">Attendance *</span>
                     <select className="field" name="attending" required>
+                      <option value="">Select an option</option>
                       <option value="yes">Joyfully attending</option>
                       <option value="no">Regretfully unable to attend</option>
                     </select>
                   </label>
                   <label className="mt-5 block">
-                    <span className="label">Message optional</span>
+                    <span className="label">Message (optional)</span>
                     <textarea className="field min-h-32 resize-y" name="note" />
                   </label>
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-moss disabled:cursor-not-allowed disabled:opacity-65"
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-wine/90 disabled:opacity-50"
                   >
                     {status === "loading" ? (
                       <Loader2 className="animate-spin" size={17} />
@@ -714,12 +810,8 @@ export default function Home() {
                     )}
                     Submit RSVP
                   </button>
-                  {message ? (
-                    <p
-                      className={`mt-5 text-center text-sm leading-6 ${
-                        status === "error" ? "text-wine" : "text-moss"
-                      }`}
-                    >
+                  {message && status === "error" ? (
+                    <p className="mt-5 text-center text-sm leading-6 text-wine">
                       {message}
                     </p>
                   ) : null}

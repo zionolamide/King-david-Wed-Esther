@@ -120,7 +120,7 @@ function AnimatedAlert({
       </motion.div>
     ) : (
       <motion.div
-        animate={{ shake: [0, -5, 5, -5, 0] }}
+        animate={{ x: [0, -5, 5, -5, 0] }}
         transition={{ duration: 0.4 }}
       >
         <AlertCircle size={24} className="text-ivory" />
@@ -372,7 +372,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-win[...]
+            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine/90"
           >
             Tap to Open
           </button>
@@ -402,13 +402,13 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
                 href="#rsvp"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:b[...]
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-wine/90"
               >
                 <Heart size={17} /> Reserve Your Seat
               </a>
               <a
                 href="#details"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-moss/25 bg-ivory/70 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-moss"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-moss/25 bg-ivory/70 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-moss hover:bg-ivory/80 transition"
               >
                 <MapPin size={17} /> Details
               </a>
@@ -706,7 +706,7 @@ export default function Home() {
                 />
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${encodedVenue}`}
-                  className="flex items-center justify-center gap-2 bg-champagne px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-moss"
+                  className="flex items-center justify-center gap-2 bg-champagne px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-moss hover:bg-champagne/80 transition"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -835,7 +835,7 @@ export default function Home() {
                   className="py-14 text-center"
                 >
                   <motion.div
-                    animate={{ shake: [0, -5, 5, -5, 0] }}
+                    animate={{ x: [0, -5, 5, -5, 0] }}
                     transition={{ duration: 0.5 }}
                     className="text-6xl mb-4"
                   >

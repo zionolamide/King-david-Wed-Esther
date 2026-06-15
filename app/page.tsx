@@ -335,20 +335,34 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         {/* Valance bar across full top */}
         <div className="curtain-valance pointer-events-none" />
 
-        {/* Left curtain panel */}
+        {/* LEFT main panel — slides fully off left */}
         <motion.div
           className="curtain-panel left-0"
           animate={{ x: opened ? "-100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
+        />
+
+        {/* LEFT gathered edge — wavy bunched fabric stays at left side */}
+        <motion.div
+          className="curtain-edge curtain-edge-left"
+          animate={{ x: opened ? "0%" : "-100%" }}
+          transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
 
-        {/* Right curtain panel */}
+        {/* RIGHT main panel — slides fully off right */}
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
           animate={{ x: opened ? "100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
+        />
+
+        {/* RIGHT gathered edge — wavy bunched fabric stays at right side */}
+        <motion.div
+          className="curtain-edge curtain-edge-right"
+          animate={{ x: opened ? "0%" : "100%" }}
+          transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>

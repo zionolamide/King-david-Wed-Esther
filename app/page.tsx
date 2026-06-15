@@ -1,25 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Flower2,
-  Gift,
-  Heart,
-  Info,
-  Loader2,
-  MapPin,
-  Music2,
-  Navigation,
-  Pause,
-  Send,
-  Sparkles,
-  Users,
-  X,
-  AlertCircle
-} from "lucide-react";
+import { CalendarDays, CircleCheck as CheckCircle2, Clock, Flower2, Gift, Heart, Info, Loader as Loader2, MapPin, Music2, Navigation, Pause, Send, Sparkles, Users, X, CircleAlert as AlertCircle } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 const weddingDate = new Date("2026-08-22T11:00:00+01:00");
@@ -266,7 +248,7 @@ function StoryArch() {
       <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
         <p className="font-script text-4xl sm:text-5xl">A Garden Promise</p>
         <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em]">
-          King David &amp; Esther
+          King David & Esther
         </p>
       </div>
     </div>
@@ -371,7 +353,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
 
-        {/* Tap to Open overlay */}
+        {/* "Tap to Open" overlay */}
         <motion.div
           className="absolute inset-x-6 top-[35%] z-30 text-center sm:inset-x-12 sm:top-[40%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
@@ -379,7 +361,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
           <p className="font-script text-5xl leading-none text-moss sm:text-7xl">
-            King David &amp; Esther
+            King David & Esther
           </p>
           <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-wine/80 sm:text-sm">
             22 · August · 2026
@@ -407,7 +389,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             </p>
             <h1 className="hero-title font-script leading-[0.82] text-moss">
               King David
-              <span className="block font-serif text-2xl italic text-wine sm:text-4xl">&amp;</span>
+              <span className="block font-serif text-2xl italic text-wine sm:text-4xl">&</span>
               Esther
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-ink/74 sm:text-base lg:mx-0">
@@ -656,7 +638,7 @@ export default function Home() {
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-lg text-moss sm:text-xl">
-            King David &amp; Esther
+            King David & Esther
           </a>
           <a
             href="#rsvp"
@@ -893,7 +875,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Guest Notice before RSVP */}
+      {/* Guest Notice — before RSVP */}
       <GuestNoticeSection />
 
       {/* RSVP */}

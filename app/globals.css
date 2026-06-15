@@ -119,16 +119,20 @@ body {
   z-index: 15;
   height: 100%;
   width: 55%;
+  /* Deep red velvet with realistic fold simulation */
   background:
+    /* Top darkness under valance */
     linear-gradient(180deg,
       rgba(10, 0, 2, 0.85) 0%,
       rgba(10, 0, 2, 0.4) 6%,
       transparent 14%
     ),
+    /* Bottom fade / floor shadow */
     linear-gradient(0deg,
       rgba(10, 0, 2, 0.6) 0%,
       transparent 12%
     ),
+    /* Diagonal velvet sheen */
     linear-gradient(112deg,
       transparent 0%,
       rgba(255, 140, 110, 0.06) 30%,
@@ -136,6 +140,7 @@ body {
       rgba(255, 140, 110, 0.05) 68%,
       transparent 100%
     ),
+    /* Vertical folds — crimson velvet */
     repeating-linear-gradient(90deg,
       #1e0005 0px 5px,
       #4a000e 5px 12px,
@@ -161,6 +166,7 @@ body {
   will-change: transform;
 }
 
+/* Inner highlight band along fold peaks */
 .curtain-panel::before {
   content: "";
   position: absolute;
@@ -181,6 +187,7 @@ body {
     );
 }
 
+/* Edge shadow (inner edge of curtain) */
 .curtain-panel::after {
   content: "";
   position: absolute;
@@ -201,6 +208,7 @@ body {
   right: auto;
 }
 
+/* Gold rope tie-back */
 .curtain-tie {
   position: absolute;
   top: 58%;
@@ -221,6 +229,7 @@ body {
     inset 0 -1px 3px rgba(80, 40, 0, 0.4);
 }
 
+/* Rope twist texture */
 .curtain-tie::before {
   content: "";
   position: absolute;
@@ -234,6 +243,7 @@ body {
   border-radius: 999px;
 }
 
+/* Tassel knot at center */
 .curtain-tie::after {
   content: "";
   position: absolute;
@@ -315,6 +325,7 @@ body {
 .ribbon-field span:nth-child(5n)  { background: #eadfc9; }
 .ribbon-field span:nth-child(7n)  { background: #c89485; }
 
+/* 20-piece burst directions */
 .ribbon-field span:nth-child(1)  { --x: -140px; --y: -75px;  --r: -45deg;  }
 .ribbon-field span:nth-child(2)  { --x: -95px;  --y:  68px;  --r:  72deg;  }
 .ribbon-field span:nth-child(3)  { --x: -45px;  --y: -105px; --r:  21deg;  }
@@ -603,6 +614,10 @@ body {
 
   .scratch-card {
     min-height: 140px;
+  }
+
+  .ribbon-field span {
+    --scale: 0.7;
   }
 }
 

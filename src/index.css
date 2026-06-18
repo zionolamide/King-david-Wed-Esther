@@ -1,0 +1,137 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Wedding Design System */
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    --background: 40 50% 96%;
+    --foreground: 22 19% 15%;
+    --card: 40 50% 96%;
+    --card-foreground: 22 19% 15%;
+    --popover: 40 50% 96%;
+    --popover-foreground: 22 19% 15%;
+    --primary: 351 100% 24%;
+    --primary-foreground: 40 50% 96%;
+    --secondary: 40 50% 85%;
+    --secondary-foreground: 22 19% 15%;
+    --muted: 40 30% 90%;
+    --muted-foreground: 22 10% 40%;
+    --accent: 71 19% 41%;
+    --accent-foreground: 40 50% 96%;
+    --destructive: 0 84.2% 60.2%;
+    --border: 13 22% 75%;
+    --input: 13 22% 75%;
+    --ring: 351 100% 24%;
+    --chart-1: 71 19% 41%;
+    --chart-2: 351 100% 24%;
+    --chart-3: 14 38% 65%;
+    --chart-4: 16 48% 56%;
+    --chart-5: 13 52% 81%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 71 19% 41%;
+    --warning: 43 74% 66%;
+    --info: 220 70% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', Arial, sans-serif;
+  }
+
+  .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-script {
+    font-family: 'Great Vibes', cursive;
+  }
+
+  .font-sans {
+    font-family: 'Montserrat', Arial, sans-serif;
+  }
+
+  ::selection {
+    background: #7b0014;
+    color: #fbf6ed;
+  }
+}
+
+/* Wedding custom utilities */
+@layer utilities {
+  .section-shell {
+    width: min(1120px, calc(100% - 40px));
+    margin-inline: auto;
+  }
+
+  .invitation-border {
+    border: 1px solid rgba(123, 0, 20, 0.2);
+    outline: 1px solid rgba(115, 123, 84, 0.12);
+    outline-offset: -8px;
+  }
+
+  .shadow-soft {
+    box-shadow: 0 24px 80px rgba(86, 54, 42, 0.14);
+  }
+}
+
+/* Petal animation */
+@keyframes petal-fall {
+  0% { transform: translate3d(0, -10%, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate3d(22px, 112vh, 0) rotate(240deg); opacity: 0; }
+}
+
+.petal {
+  position: absolute;
+  top: -10%;
+  width: 13px;
+  height: 20px;
+  border-radius: 100% 0 100% 0;
+  background: rgba(233, 192, 182, 0.68);
+  box-shadow: 0 0 12px rgba(251, 246, 237, 0.7);
+  animation: petal-fall 8s linear infinite;
+}
+
+.petal:nth-child(3n) { background: rgba(234, 223, 201, 0.72); }
+.petal:nth-child(4n) { background: rgba(201, 118, 88, 0.42); }
+
+/* Ribbon burst */
+@keyframes ribbon-burst {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(0deg); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1) rotate(var(--r)); }
+}
+
+/* Scrollbar */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+}

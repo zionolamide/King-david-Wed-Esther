@@ -33,3 +33,4 @@ history/*.json
 .sync
 .vite_cache
 .next
+historical_context.txt

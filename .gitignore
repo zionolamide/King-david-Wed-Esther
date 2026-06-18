@@ -32,3 +32,4 @@ history/*.json
 
 .sync
 .vite_cache
+.next

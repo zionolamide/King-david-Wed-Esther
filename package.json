@@ -9,15 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "2.103.1",
     "framer-motion": "^11.5.4",
-    "lucide-react": "^0.468.0",
+    "lucide-react": "^0.576.0",
+    "miaoda-react-devkit": "0.1.1-beta.14",
     "next": "14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "resend": "^4.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.5",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@types/node": "^20.16.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",

@@ -179,7 +179,9 @@ export function HeroSection() {
                 { left: '78%', len: 88, color: '#f0d296', sway: 3.5, speed: 3.6 },
                 { left: '86%', len: 115, color: '#c89485', sway: 2.5, speed: 2.7 },
                 { left: '94%', len: 78, color: '#eadfc9', sway: 3, speed: 3.4 },
-              ].map((r, i) => (
+              ].map((r, i) => {
+                const heartSize = 10 + (i % 3) * 2;
+                return (
                 <motion.div
                   key={i}
                   className="absolute origin-top"
@@ -218,29 +220,36 @@ export function HeroSection() {
                       boxShadow: `0 1px 3px rgba(0,0,0,0.3)`,
                     }}
                   />
-                  {/* Bottom cute heart charm */}
+                  {/* Bottom cute heart charm — perfectly centered on ribbon endpoint */}
                   <motion.div
-                    className="absolute left-1/2 -translate-x-1/2"
-                    style={{ top: r.len - 4 }}
+                    className="absolute"
+                    style={{
+                      top: r.len - heartSize / 2,
+                      left: '50%',
+                      marginLeft: -heartSize / 2,
+                      width: heartSize,
+                      height: heartSize,
+                    }}
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2 + (i % 3) * 0.5, repeat: Infinity, ease: 'easeInOut' }}
                   >
-                    <svg width={10 + (i % 3) * 2} height={10 + (i % 3) * 2} viewBox="0 0 24 24" fill={r.color}>
+                    <svg width={heartSize} height={heartSize} viewBox="0 0 24 24" fill={r.color}>
                       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                     </svg>
                     {/* Tiny glow behind heart */}
                     <div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                       style={{
-                        width: 18,
-                        height: 18,
+                        width: heartSize + 8,
+                        height: heartSize + 8,
                         background: `radial-gradient(circle, ${r.color}66 0%, transparent 70%)`,
                         zIndex: -1,
                       }}
                     />
                   </motion.div>
                 </motion.div>
-              ))}
+                );
+              })}
             </motion.div>
           )}
         </AnimatePresence>
@@ -476,19 +485,8 @@ export function HeroSection() {
                 ))}
               </div>
 
-              {/* Button with pulse ring and sparkles */}
+              {/* Button with sparkles */}
               <div className="relative mt-7 inline-flex items-center justify-center">
-                {/* Expanding pulse rings */}
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-ivory/30"
-                  animate={{ scale: [1, 1.6, 1.6], opacity: [0.5, 0, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
-                />
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-ivory/20"
-                  animate={{ scale: [1, 1.8, 1.8], opacity: [0.4, 0, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 0.6 }}
-                />
                 <TapSparkles />
                 <motion.button
                   type="button"

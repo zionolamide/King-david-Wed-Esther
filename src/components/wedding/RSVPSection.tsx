@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, CheckCircle2, XCircle, Phone, MessageCircle, Loader2 } from 'lucide-react';
+import { Users, CheckCircle2, XCircle, Phone, MessageCircle, Loader2, Share2 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/db/supabase';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { openWhatsApp, buildGuestConfirmationMessage } from '@/lib/whatsapp';
 import {
   Select,
   SelectContent,
@@ -142,6 +143,10 @@ export function RSVPSection() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'closed' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [submittedCount, setSubmittedCount] = useState(0);
+  const [lastEntryCode, setLastEntryCode] = useState('');
+  const [lastPhone, setLastPhone] = useState('');
+  const [lastFullName, setLastFullName] = useState('');
+  const [lastAttendees, setLastAttendees] = useState(1);
   const [form, setForm] = useState<FormData>({
     title: '(No Prefix)',
     fullName: '',
@@ -255,10 +260,27 @@ export function RSVPSection() {
         console.error('Email send error:', emailErr);
       }
 
+      setLastEntryCode(entryCode);
+      setLastPhone(form.phone);
+      setLastFullName(form.fullName);
+      setLastAttendees(attendeesNum);
       setStatus('success');
     },
     [form]
   );
+
+  const handleWhatsAppShare = useCallback(() => {
+    if (!lastPhone || !lastEntryCode) return;
+    const message = buildGuestConfirmationMessage({
+      fullName: lastFullName,
+      entryCode: lastEntryCode,
+      attendees: lastAttendees,
+      date: 'Saturday, 22nd August 2026',
+      time: '11:00 AM',
+      venue: 'Camp Young, Ede',
+    });
+    openWhatsApp(lastPhone, message);
+  }, [lastPhone, lastEntryCode, lastFullName, lastAttendees]);
 
   const isClosed = status === 'closed';
 
@@ -374,6 +396,32 @@ export function RSVPSection() {
                     Your RSVP has been received. Your unique entry code will be sent to your WhatsApp
                     or Email shortly.
                   </motion.p>
+
+                  {/* WhatsApp share button */}
+                  {lastPhone && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9, duration: 0.5 }}
+                      className="mt-5"
+                    >
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppShare}
+                        className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                        style={{
+                          background: '#25D366',
+                          boxShadow: '0 2px 12px rgba(37,211,102,0.3)',
+                        }}
+                      >
+                        <Share2 size={16} />
+                        Send Entry Code to WhatsApp
+                      </button>
+                      <p className="mt-2 text-xs" style={{ color: 'rgba(45,36,31,0.45)' }}>
+                        Opens WhatsApp with your entry code pre-filled
+                      </p>
+                    </motion.div>
+                  )}
                 </motion.div>
               ) : status === 'closed' ? (
                 <motion.div

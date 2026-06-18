@@ -13,7 +13,9 @@ import {
   Filter,
   Copy,
   Check,
+  MessageCircle,
 } from 'lucide-react';
+import { openWhatsApp, buildAdminEntryCodeMessage } from '@/lib/whatsapp';
 
 const RSVP_LIMIT = 80;
 
@@ -89,6 +91,16 @@ export default function AdminPage() {
     navigator.clipboard.writeText(code).catch(() => {});
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const sendWhatsApp = (record: RsvpRecord) => {
+    if (!record.phone || !record.entry_code) return;
+    const message = buildAdminEntryCodeMessage({
+      fullName: record.full_name,
+      entryCode: record.entry_code,
+      attendees: record.attendees,
+    });
+    openWhatsApp(record.phone, message);
   };
 
   const StatCard = ({
@@ -339,29 +351,43 @@ export default function AdminPage() {
                         <span className="font-serif text-base text-moss">{record.attendees}</span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
-                        {record.entry_code ? (
-                          <button
-                            onClick={() => copyCode(record.entry_code!, record.id)}
-                            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-mono font-semibold transition hover:opacity-80"
-                            style={{
-                              background: 'rgba(123,0,20,0.08)',
-                              color: '#7b0014',
-                              border: '1px dashed rgba(123,0,20,0.25)',
-                            }}
-                            title="Click to copy"
-                          >
-                            {record.entry_code}
-                            {copiedId === record.id ? (
-                              <Check size={12} />
-                            ) : (
-                              <Copy size={12} />
-                            )}
-                          </button>
-                        ) : (
-                          <span className="text-xs italic" style={{ color: 'rgba(45,36,31,0.35)' }}>
-                            —
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {record.entry_code ? (
+                            <>
+                              <button
+                                onClick={() => copyCode(record.entry_code!, record.id)}
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-mono font-semibold transition hover:opacity-80"
+                                style={{
+                                  background: 'rgba(123,0,20,0.08)',
+                                  color: '#7b0014',
+                                  border: '1px dashed rgba(123,0,20,0.25)',
+                                }}
+                                title="Click to copy"
+                              >
+                                {record.entry_code}
+                                {copiedId === record.id ? (
+                                  <Check size={12} />
+                                ) : (
+                                  <Copy size={12} />
+                                )}
+                              </button>
+                              {record.phone && (
+                                <button
+                                  onClick={() => sendWhatsApp(record)}
+                                  className="inline-flex items-center rounded-md p-1.5 transition hover:opacity-80"
+                                  style={{ background: 'rgba(37,211,102,0.1)' }}
+                                  title="Send entry code via WhatsApp"
+                                >
+                                  <MessageCircle size={14} style={{ color: '#25D366' }} />
+                                </button>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-xs italic" style={{ color: 'rgba(45,36,31,0.35)' }}>
+                              —
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
                         <div className="flex items-center gap-1.5" style={{ color: 'rgba(45,36,31,0.5)' }}>

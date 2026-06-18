@@ -1,23 +1,5 @@
 {
   "compilerOptions": {
-<<<<<<< HEAD
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
-}
-=======
     "target": "es2019",
     "lib": [
       "dom",
@@ -51,4 +33,3 @@
     "node_modules"
   ]
 }
->>>>>>> 2d0289d (Initial commit - wedding site UI + RSVP API)

@@ -1,11 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-<<<<<<< HEAD
-  content: ["./pages/**/*.{js,ts,jsx,tsx}", "./_app_source/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
-=======
   content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
->>>>>>> 2d0289d (Initial commit - wedding site UI + RSVP API)
   theme: {
     extend: {
       colors: {

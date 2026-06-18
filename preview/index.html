@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>King-David &amp; Esther | Wedding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ivory: '#fbf6ed', champagne: '#eadfc9', blush: '#e9c0b6',
+        rose: '#c89485', sage: '#737b54', moss: '#3f481f',
+        terracotta: '#c97658', wine: '#7b0014', ink: '#2d241f'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+        script: ['Great Vibes', 'cursive'],
+        sans: ['Montserrat', 'Arial', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;font-family:'Montserrat',Arial,sans-serif;color:#2d241f;
+  background:radial-gradient(circle at 18% 8%,rgba(233,192,182,.34),transparent 28rem),
+    radial-gradient(circle at 88% 18%,rgba(115,123,84,.18),transparent 22rem),
+    linear-gradient(180deg,#fbf6ed 0%,#f4eadc 45%,#fbf6ed 100%);
+}
+::selection{background:#7b0014;color:#fbf6ed}
+.section-shell{width:min(1120px,calc(100% - 40px));margin-inline:auto}
+.invitation-border{border:1px solid rgba(123,0,20,.2);outline:1px solid rgba(115,123,84,.12);outline-offset:-8px}
+.shadow-soft{box-shadow:0 24px 80px rgba(86,54,42,.14)}
+.font-serif{font-family:'Cormorant Garamond',Georgia,serif}
+.font-script{font-family:'Great Vibes',cursive}
+.font-sans{font-family:'Montserrat',Arial,sans-serif}
+
+/* Curtain */
+.curtain-valance{
+  position:absolute;top:0;left:0;right:0;z-index:20;height:72px;
+  background:linear-gradient(180deg,#1a0004 0%,#3d000a 40%,#5c0010 70%,transparent 100%),
+    repeating-linear-gradient(90deg,#1a0004 0px 10px,#3d000a 10px 22px,#5c0012 22px 34px,#3d000a 34px 46px);
+  box-shadow:0 6px 24px rgba(10,0,2,.5)
+}
+.curtain-valance::after{
+  content:"";position:absolute;bottom:-10px;left:0;right:0;height:10px;
+  background:repeating-linear-gradient(90deg,transparent 0px,transparent 18px,rgba(240,210,150,.55) 18px,rgba(240,210,150,.55) 22px,transparent 22px,transparent 40px)
+}
+.curtain-panel{
+  position:absolute;top:0;z-index:15;height:100%;width:55%;
+  background:repeating-linear-gradient(90deg,#1e0005 0px 5px,#4a000e 5px 12px,#830018 12px 19px,#b8001e 19px 24px,#d40024 24px 27px,#c20020 27px 32px,#8a0018 32px 39px,#4a000e 39px 46px,#1e0005 46px 52px,#320009 52px 60px,#6a0014 60px 68px,#a6001c 68px 74px,#c00022 74px 77px,#a6001c 77px 83px,#6a0014 83px 91px,#320009 91px 98px);
+  box-shadow:inset -36px 0 80px rgba(8,0,2,.75),6px 0 28px rgba(0,0,0,.55);
+  transition:transform 2.4s cubic-bezier(0.16,1,0.3,1)
+}
+.curtain-left{left:0}
+.curtain-right{right:0;transform:scaleX(-1)}
+.curtain-left.opened{transform:translateX(-100%)}
+.curtain-right.opened{transform:scaleX(-1) translateX(-100%)}
+.curtain-tie{
+  position:absolute;top:58%;z-index:3;width:78px;height:22px;right:8%;
+  background:linear-gradient(180deg,#f7e5a8 0%,#d4a830 30%,#a87820 50%,#d4a830 70%,#f7e5a8 100%);
+  border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.55),inset 0 1px 3px rgba(255,255,255,.55)
+}
+.curtain-tie::after{
+  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle,#f7e5a8 0%,#b88a18 50%,#8a6010 100%);
+  box-shadow:0 1px 4px rgba(0,0,0,.5)
+}
+
+/* Tap overlay */
+#tap-overlay{position:absolute;inset-x-6;top:38%;z-index:30;text-align:center;transition:opacity .7s,transform .7s}
+#tap-overlay.hidden-overlay{opacity:0;pointer-events:none;transform:translateY(-18px)}
+
+/* Hero content */
+#hero-content{opacity:0;transform:translateY(38px) scale(.98);transition:opacity 1s .8s,transform 1s .8s;pointer-events:none}
+#hero-content.revealed{opacity:1;transform:none;pointer-events:auto}
+
+/* Petal */
+.petal{
+  position:absolute;top:-10%;width:13px;height:20px;
+  border-radius:100% 0 100% 0;background:rgba(233,192,182,.68);
+  box-shadow:0 0 12px rgba(251,246,237,.7);
+  animation:petal-fall 8s linear infinite
+}
+.petal:nth-child(3n){background:rgba(234,223,201,.72)}
+.petal:nth-child(4n){background:rgba(201,118,88,.42)}
+
+/* Scratch card */
+.scratch-cover{
+  cursor:pointer;transition:opacity .5s,transform .5s;
+  background:repeating-linear-gradient(45deg,#eadfc9 0 12px,#e9c0b6 12px 24px,#fbf6ed 24px 38px)
+}
+.scratch-cover.gone{opacity:0;transform:scale(1.04);pointer-events:none}
+
+/* Ribbon */
+.ribbon-piece{
+  position:absolute;left:50%;top:50%;width:7px;height:22px;
+  border-radius:999px;background:#7b0014;
+  animation:ribbon-burst 1.5s ease-out forwards
+}
+
+/* Story arch */
+.story-arch{
+  position:relative;border:10px solid rgba(251,246,237,.76);
+  border-radius:999px 999px 0 0;overflow:hidden
+}
+.story-arch::before{
+  content:"";position:absolute;inset:18px;border:1px solid rgba(251,246,237,.62);
+  border-radius:999px 999px 0 0;z-index:2
+}
+
+/* Floral frame */
+.floral-frame{position:relative;overflow:hidden}
+.floral-frame::before,.floral-frame::after{
+  content:"";position:absolute;width:190px;height:190px;pointer-events:none;
+  background:radial-gradient(circle at 42% 44%,rgba(255,255,255,.82) 0 14%,transparent 15%),
+    radial-gradient(circle at 58% 43%,rgba(233,192,182,.8) 0 13%,transparent 14%),
+    radial-gradient(circle at 48% 60%,rgba(200,148,133,.75) 0 14%,transparent 15%),
+    radial-gradient(circle at 62% 62%,rgba(201,118,88,.72) 0 11%,transparent 12%),
+    radial-gradient(ellipse at 30% 60%,rgba(115,123,84,.45) 0 16%,transparent 17%);
+  filter:blur(.2px);opacity:.58
+}
+.floral-frame::before{top:-52px;left:-58px;transform:rotate(-18deg)}
+.floral-frame::after{right:-58px;bottom:-56px;transform:rotate(152deg)}
+
+/* Photo placeholder */
+.photo-placeholder{transition:transform .5s,box-shadow .5s}
+.photo-placeholder:hover{transform:translateY(-8px);box-shadow:0 30px 90px rgba(86,54,42,.2)}
+
+/* Form */
+.field{
+  width:100%;border:1px solid rgba(63,72,31,.18);background:rgba(255,252,246,.76);
+  padding:.9rem 1rem;color:#2d241f;outline:none;font-family:'Montserrat',sans-serif;font-size:.9rem;
+  transition:border-color .18s,box-shadow .18s,background .18s
+}
+.field:focus{border-color:rgba(123,0,20,.55);background:#fffaf3;box-shadow:0 0 0 4px rgba(123,0,20,.08)}
+.label{display:block;margin-bottom:.45rem;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#3f481f}
+
+/* Attire illustration */
+.attire-illus{position:relative;overflow:hidden;outline:1px solid rgba(123,0,20,.12);outline-offset:-8px}
+
+/* Keyframes */
+@keyframes petal-fall{
+  0%{transform:translate3d(0,-10%,0) rotate(0deg);opacity:0}
+  12%{opacity:1}
+  100%{transform:translate3d(22px,112vh,0) rotate(240deg);opacity:0}
+}
+@keyframes ribbon-burst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0deg)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1) rotate(var(--r))}
+}
+@keyframes soft-float{
+  0%,100%{transform:translate3d(0,0,0) rotate(-4deg)}
+  50%{transform:translate3d(0,-10px,0) rotate(4deg)}
+}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(28px)}
+  to{opacity:1;transform:none}
+}
+.fade-in{animation:fadeInUp .75s ease-out both}
+
+/* Nav */
+nav{position:fixed;inset-x:0;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.3);background:rgba(251,246,237,.82);backdrop-filter:blur(20px)}
+
+@media(max-width:640px){
+  .hero-title{font-size:clamp(2.8rem,14vw,4.5rem)!important}
+  .curtain-valance{height:44px}
+  .curtain-tie{width:48px;height:16px;top:62%}
+  .section-shell{width:min(100% - 24px,1120px)}
+}
+</style>
+</head>
+<body class="font-sans">
+
+<!-- NAV -->
+<nav>
+  <div class="section-shell flex h-16 items-center justify-between">
+    <a href="#home" class="font-serif text-lg text-moss sm:text-xl">King David &amp; Esther</a>
+    <a href="#rsvp" class="inline-flex items-center gap-1.5 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[.16em] text-ivory shadow-soft transition hover:opacity-90">
+      ✉ RSVP
+    </a>
+  </div>
+</nav>
+
+<!-- HERO / CURTAIN -->
+<section id="home" class="relative min-h-screen">
+  <div id="hero-wrap" class="relative flex min-h-screen items-center overflow-hidden pt-16 sm:pt-20">
+    <div class="absolute inset-0 -z-20" style="background:linear-gradient(rgba(251,246,237,.58),rgba(251,246,237,.86)),linear-gradient(135deg,#e9c0b6 0%,#eadfc9 50%,#d4c9a8 100%);background-size:cover"></div>
+
+    <!-- Petals -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <span class="petal" style="left:8%;animation-delay:0s;animation-duration:8s"></span>
+      <span class="petal" style="left:16%;animation-delay:.55s;animation-duration:9s"></span>
+      <span class="petal" style="left:24%;animation-delay:1.1s;animation-duration:7s"></span>
+      <span class="petal" style="left:32%;animation-delay:1.65s;animation-duration:10s"></span>
+      <span class="petal" style="left:40%;animation-delay:2.2s;animation-duration:8s"></span>
+      <span class="petal" style="left:48%;animation-delay:2.75s;animation-duration:9s"></span>
+      <span class="petal" style="left:56%;animation-delay:3.3s;animation-duration:7s"></span>
+      <span class="petal" style="left:64%;animation-delay:3.85s;animation-duration:10s"></span>
+      <span class="petal" style="left:72%;animation-delay:4.4s;animation-duration:8s"></span>
+      <span class="petal" style="left:80%;animation-delay:4.95s;animation-duration:9s"></span>
+      <span class="petal" style="left:88%;animation-delay:5.5s;animation-duration:7s"></span>
+      <span class="petal" style="left:94%;animation-delay:6.05s;animation-duration:10s"></span>
+    </div>
+
+    <!-- Valance -->
+    <div class="curtain-valance pointer-events-none"></div>
+
+    <!-- Left curtain -->
+    <div id="curtain-left" class="curtain-panel curtain-left">
+      <span class="curtain-tie"></span>
+    </div>
+    <!-- Right curtain -->
+    <div id="curtain-right" class="curtain-panel curtain-right">
+      <span class="curtain-tie"></span>
+    </div>
+
+    <!-- Tap overlay -->
+    <div id="tap-overlay" class="absolute inset-x-6 top-[38%] z-30 text-center sm:inset-x-12">
+      <p class="font-script text-5xl leading-none text-moss sm:text-7xl">King David &amp; Esther</p>
+      <p class="mt-3 text-xs font-semibold uppercase tracking-[.2em] text-wine sm:text-sm" style="opacity:.8">22 · August · 2026</p>
+      <button onclick="openCurtain()" class="mt-6 rounded-full border border-ivory bg-ivory px-6 py-3 text-xs font-semibold uppercase tracking-[.28em] text-wine shadow-soft transition hover:bg-wine hover:text-ivory sm:px-7 sm:py-4" style="background:rgba(251,246,237,.86);backdrop-filter:blur(8px)">
+        Tap to Open
+      </button>
+    </div>
+
+    <!-- Hero content (revealed after curtain) -->
+    <div id="hero-content" class="section-shell relative z-10 grid gap-6 py-6 sm:gap-10 sm:py-10 lg:grid-cols-2 lg:items-center">
+      <div class="text-center lg:text-left">
+        <p class="mb-4 text-xs font-semibold uppercase tracking-[.34em] text-wine">Formal Garden Elegance</p>
+        <h1 class="font-script leading-none text-moss" style="font-size:clamp(3.8rem,17vw,7.5rem)">
+          King David
+          <span class="block font-serif text-2xl italic text-wine sm:text-4xl">&amp;</span>
+          Esther
+        </h1>
+        <p class="mx-auto mt-5 max-w-xl text-sm leading-7 lg:mx-0" style="color:rgba(45,36,31,.74)">
+          With grateful hearts, we invite you to celebrate a warm garden wedding at Camp Young, Ede. Reception follows immediately.
+        </p>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <a href="#date-reveal" class="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[.18em] text-ivory shadow-soft hover:opacity-90 sm:px-7 sm:py-4">
+            ♥ Your Invitation
+          </a>
+          <a href="#details" class="inline-flex items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold uppercase tracking-[.18em] text-moss hover:bg-ivory sm:px-7 sm:py-4" style="border-color:rgba(63,72,31,.25);background:rgba(251,246,237,.7)">
+            📍 Details
+          </a>
+        </div>
+      </div>
+
+      <!-- Countdown card -->
+      <div class="invitation-border rounded-3xl shadow-soft p-4 sm:p-5" style="background:rgba(251,246,237,.8);backdrop-filter:blur(8px)">
+        <div class="rounded-2xl p-4 text-center sm:p-5" style="background:rgba(234,223,201,.45)">
+          <p class="mb-4 text-xs font-semibold uppercase tracking-[.28em] text-moss sm:mb-5">Countdown to our day</p>
+          <div class="grid grid-cols-4 gap-1 sm:gap-2" id="countdown-grid">
+            <div class="px-1 py-3 sm:px-2 sm:py-4" style="background:rgba(251,246,237,.8)">
+              <strong id="cd-days" class="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">--</strong>
+              <span class="text-xs uppercase tracking-[.14em]" style="font-size:.55rem;color:rgba(45,36,31,.62)">days</span>
+            </div>
+            <div class="px-1 py-3 sm:px-2 sm:py-4" style="background:rgba(251,246,237,.8)">
+              <strong id="cd-hours" class="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">--</strong>
+              <span style="font-size:.55rem;color:rgba(45,36,31,.62)" class="text-xs uppercase tracking-[.14em]">hours</span>
+            </div>
+            <div class="px-1 py-3 sm:px-2 sm:py-4" style="background:rgba(251,246,237,.8)">
+              <strong id="cd-mins" class="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">--</strong>
+              <span style="font-size:.55rem;color:rgba(45,36,31,.62)" class="text-xs uppercase tracking-[.14em]">minutes</span>
+            </div>
+            <div class="px-1 py-3 sm:px-2 sm:py-4" style="background:rgba(251,246,237,.8)">
+              <strong id="cd-secs" class="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">--</strong>
+              <span style="font-size:.55rem;color:rgba(45,36,31,.62)" class="text-xs uppercase tracking-[.14em]">seconds</span>
+            </div>
+          </div>
+          <div class="mt-5 flex justify-center gap-2 sm:mt-6 sm:gap-3">
+            <span title="Sage" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#737b54"></span>
+            <span title="Wine" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#7b0014"></span>
+            <span title="Dusty Rose" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#c89485"></span>
+            <span title="Terracotta" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#c97658"></span>
+            <span title="Blush" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#e9c0b6"></span>
+            <span title="Champagne" class="h-6 w-6 rounded-full border-2 border-white shadow sm:h-8 sm:w-8" style="background:#eadfc9"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATE REVEAL / SCRATCH CARD -->
+<section id="date-reveal" class="py-16 sm:py-24" style="position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(233,192,182,.45),transparent 55%)">
+  <div class="section-shell">
+    <div class="fade-in mx-auto max-w-2xl text-center">
+      <p class="text-xs font-semibold uppercase tracking-[.28em] text-wine">Your Invitation</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl">Reveal your special date</h2>
+      <p class="mx-auto mt-4 max-w-md text-sm leading-7" style="color:rgba(45,36,31,.7)">Scratch or tap the card below to unveil the details of our special day.</p>
+    </div>
+
+    <div class="fade-in mt-10 flex justify-center" style="animation-delay:.15s">
+      <div id="scratch-card" class="invitation-border relative mx-auto w-full max-w-lg overflow-hidden p-7 text-center shadow-soft" style="background:rgba(251,246,237,.84);min-height:160px">
+        <!-- Ribbon container -->
+        <div id="ribbons" class="pointer-events-none absolute inset-0 hidden"></div>
+        <p class="relative z-10 text-xs font-semibold uppercase tracking-[.22em] text-wine">Wedding Date</p>
+        <p class="relative z-10 mt-3 font-serif text-3xl leading-relaxed text-moss sm:text-4xl">Saturday, 22 August 2026</p>
+        <p class="relative z-10 mt-2 font-serif text-base italic" style="color:rgba(45,36,31,.6)">Camp Young, Ede, Osun State</p>
+        <!-- Cover -->
+        <div id="scratch-cover" class="scratch-cover absolute inset-0 z-20 flex flex-col items-center justify-center" onclick="revealDate()">
+          <span class="font-script text-5xl text-moss sm:text-6xl">Scratch to reveal</span>
+          <span class="mt-2 text-xs font-semibold uppercase tracking-[.24em] text-wine">rub or tap gently</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-in mt-8 flex justify-center" style="animation-delay:.25s">
+      <a href="#rsvp" class="inline-flex items-center gap-2 rounded-full bg-moss px-7 py-4 text-sm font-semibold uppercase tracking-[.18em] text-ivory shadow-soft transition hover:opacity-90">
+        ✉ Reserve Your Seat
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- OUR STORY -->
+<section id="story" class="py-16 sm:py-24">
+  <div class="section-shell grid gap-10 lg:grid-cols-2 lg:items-center">
+    <div class="fade-in flex justify-center">
+      <div class="story-arch h-96 w-64 sm:h-[30rem] sm:w-72" style="background:linear-gradient(rgba(251,246,237,.12),rgba(63,72,31,.42)),linear-gradient(135deg,#c89485,#e9c0b6,#737b54)">
+        <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(251,246,237,.2),rgba(200,148,133,.2),rgba(63,72,31,.58))"></div>
+        <div class="absolute inset-x-6 bottom-8 text-center text-ivory z-10">
+          <p class="font-script text-4xl sm:text-5xl">A Garden Promise</p>
+          <p class="mt-2 text-xs font-semibold uppercase tracking-[.22em]">King David &amp; Esther</p>
+        </div>
+      </div>
+    </div>
+    <div class="fade-in" style="animation-delay:.12s">
+      <p class="text-xs font-semibold uppercase tracking-[.28em] text-wine">Our Story</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">A love rooted in grace, friendship and promise.</h2>
+      <p class="mt-6 text-base leading-8" style="color:rgba(45,36,31,.75)">
+        Our journey has been shaped by faith, laughter, family and the quiet certainty of choosing each other. As we begin this new chapter, we are honoured to gather the people we love for a celebration filled with warmth, beauty and thanksgiving.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- PRE-WEDDING GALLERY -->
+<section id="pre-wedding" class="relative bg-ivory py-16 sm:py-24">
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <span class="petal" style="left:10%;animation-delay:0s"></span>
+    <span class="petal" style="left:35%;animation-delay:1.5s"></span>
+    <span class="petal" style="left:65%;animation-delay:3s"></span>
+    <span class="petal" style="left:85%;animation-delay:2s"></span>
+  </div>
+  <div class="section-shell relative z-10">
+    <div class="fade-in mx-auto max-w-3xl text-center">
+      <p class="text-xs font-semibold uppercase tracking-[.28em] text-wine">Pre-Wedding Portraits</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">A quiet gallery for the memories before the day.</h2>
+      <p class="mx-auto mt-5 max-w-2xl leading-8" style="color:rgba(45,36,31,.72)">Portraits will be added here soon. For now, these soft editorial frames hold the space for the couple's pre-wedding moments.</p>
+    </div>
+    <div class="mt-12 grid gap-5 sm:grid-cols-3">
+      <div class="fade-in" style="animation-delay:0s">
+        <div class="photo-placeholder relative h-80 overflow-hidden bg-champagne shadow-soft sm:h-[28rem]">
+          <div class="absolute inset-0" style="background:linear-gradient(145deg,rgba(251,246,237,.86),rgba(233,192,182,.44),rgba(115,123,84,.24))"></div>
+          <div class="absolute inset-6 border border-ivory" style="opacity:.7"></div>
+          <div class="absolute left-6 right-6 top-8 h-32 rounded-t-full sm:h-40" style="background:rgba(251,246,237,.46)"></div>
+          <div class="absolute bottom-8 left-6 right-6 text-center">
+            <p class="font-script text-4xl text-moss sm:text-5xl">Garden Walk</p>
+            <p class="mt-3 text-xs font-semibold uppercase tracking-[.22em] text-wine">Coming soon</p>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in" style="animation-delay:.08s">
+        <div class="photo-placeholder relative h-80 overflow-hidden bg-champagne shadow-soft sm:h-[28rem]">
+          <div class="absolute inset-0" style="background:linear-gradient(145deg,rgba(233,192,182,.6),rgba(251,246,237,.44),rgba(200,148,133,.3))"></div>
+          <div class="absolute inset-6 border border-ivory" style="opacity:.7"></div>
+          <div class="absolute left-6 right-6 top-8 h-32 rounded-t-full sm:h-40" style="background:rgba(233,192,182,.36)"></div>
+          <div class="absolute bottom-8 left-6 right-6 text-center">
+            <p class="font-script text-4xl text-moss sm:text-5xl">Soft Portrait</p>
+            <p class="mt-3 text-xs font-semibold uppercase tracking-[.22em] text-wine">Coming soon</p>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in" style="animation-delay:.16s">
+        <div class="photo-placeholder relative h-80 overflow-hidden shadow-soft sm:h-[28rem]" style="background:#d4c5b2">
+          <div class="absolute inset-0" style="background:linear-gradient(145deg,rgba(115,123,84,.3),rgba(234,223,201,.5),rgba(251,246,237,.4))"></div>
+          <div class="absolute inset-6 border border-ivory" style="opacity:.7"></div>
+          <div class="absolute left-6 right-6 top-8 h-32 rounded-t-full sm:h-40" style="background:rgba(234,223,201,.46)"></div>
+          <div class="absolute bottom-8 left-6 right-6 text-center">
+            <p class="font-script text-4xl text-moss sm:text-5xl">Evening Promise</p>
+            <p class="mt-3 text-xs font-semibold uppercase tracking-[.22em] text-wine">Coming soon</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEDDING DETAILS -->
+<section id="details" class="bg-moss py-16 text-ivory sm:py-24">
+  <div class="section-shell">
+    <div class="fade-in mx-auto max-w-3xl text-center">
+      <p class="text-xs font-semibold uppercase tracking-[.28em]" style="color:#e9c0b6">Wedding Details</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">Saturday, 22 August 2026</h2>
+    </div>
+    <div class="mt-10 grid gap-4 sm:grid-cols-3">
+      <div class="fade-in h-full p-6 backdrop-blur sm:p-7" style="border:1px solid rgba(251,246,237,.18);background:rgba(251,246,237,.08)">
+        <div class="mb-4 text-2xl" style="color:#e9c0b6">📅</div>
+        <p class="text-xs font-semibold uppercase tracking-[.2em]" style="color:#eadfc9">Date</p>
+        <p class="mt-3 font-serif text-2xl sm:text-3xl">Saturday, 22 Aug 2026</p>
+      </div>
+      <div class="fade-in h-full p-6 backdrop-blur sm:p-7" style="border:1px solid rgba(251,246,237,.18);background:rgba(251,246,237,.08);animation-delay:.1s">
+        <div class="mb-4 text-2xl" style="color:#e9c0b6">📍</div>
+        <p class="text-xs font-semibold uppercase tracking-[.2em]" style="color:#eadfc9">Venue</p>
+        <p class="mt-3 font-serif text-2xl sm:text-3xl">Camp Young, Ede</p>
+      </div>
+      <div class="fade-in h-full p-6 backdrop-blur sm:p-7" style="border:1px solid rgba(251,246,237,.18);background:rgba(251,246,237,.08);animation-delay:.2s">
+        <div class="mb-4 text-2xl" style="color:#e9c0b6">🕐</div>
+        <p class="text-xs font-semibold uppercase tracking-[.2em]" style="color:#eadfc9">Reception</p>
+        <p class="mt-3 font-serif text-2xl sm:text-3xl">Follows immediately</p>
+      </div>
+    </div>
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+      <div class="fade-in bg-ivory p-6 text-ink shadow-soft sm:p-7">
+        <h3 class="font-serif text-3xl text-moss sm:text-4xl">Order of Celebration</h3>
+        <div class="mt-6 space-y-5">
+          <div class="grid gap-1 border-b pb-4 sm:grid-cols-2 sm:gap-4" style="border-color:rgba(63,72,31,.1)">
+            <span class="text-xs font-semibold uppercase tracking-[.14em] text-wine">11:00 AM</span>
+            <span class="font-serif text-xl text-ink sm:text-2xl">Wedding ceremony</span>
+          </div>
+          <div class="grid gap-1 border-b pb-4 sm:grid-cols-2 sm:gap-4" style="border-color:rgba(63,72,31,.1)">
+            <span class="text-xs font-semibold uppercase tracking-[.14em] text-wine">Immediately after</span>
+            <span class="font-serif text-xl text-ink sm:text-2xl">Reception celebration</span>
+          </div>
+          <div class="grid gap-1 border-b pb-4 sm:grid-cols-2 sm:gap-4" style="border-color:rgba(63,72,31,.1)">
+            <span class="text-xs font-semibold uppercase tracking-[.14em] text-wine">Evening</span>
+            <span class="font-serif text-xl text-ink sm:text-2xl">Dinner, music and memories</span>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in overflow-hidden bg-ivory shadow-soft" style="animation-delay:.12s">
+        <iframe
+          title="Camp Young Ede map"
+          src="https://www.google.com/maps?q=Camp+Young%2C+Ede%2C+Osun+State%2C+Nigeria&output=embed"
+          class="w-full border-0" style="height:18rem" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=Camp+Young%2C+Ede%2C+Osun+State%2C+Nigeria"
+          class="flex items-center justify-center gap-2 bg-champagne px-5 py-4 text-sm font-semibold uppercase tracking-[.16em] text-moss transition hover:opacity-80" target="_blank" rel="noreferrer">
+          🧭 Open Directions
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DRESS CODE -->
+<section id="dress-code" class="py-16 sm:py-24">
+  <div class="section-shell">
+    <div class="fade-in floral-frame invitation-border bg-ivory p-6 shadow-soft sm:p-12" style="background:rgba(251,246,237,.78)">
+      <div class="relative z-10 mx-auto max-w-4xl text-center">
+        <p class="font-script text-4xl text-sage sm:text-5xl lg:text-6xl">Style Inspiration</p>
+        <h2 class="mt-2 font-serif text-4xl italic leading-tight text-moss sm:text-5xl lg:text-7xl">Formal Garden Elegance</h2>
+        <p class="mx-auto mt-6 max-w-3xl leading-8" style="color:rgba(45,36,31,.76)">
+          In honour of this special occasion, guests are kindly requested to dress in modest, elegant, and formal outfits inspired by our curated color palette.
+        </p>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[.22em] text-wine">Please note this is just a guide and absolutely not mandatory</p>
+        <!-- Palette swatches -->
+        <div class="mt-6 flex justify-center gap-3 flex-wrap">
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#737b54"></span>Sage</span>
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#7b0014"></span>Wine</span>
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#c89485"></span>Dusty Rose</span>
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#c97658"></span>Terracotta</span>
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#e9c0b6"></span>Blush</span>
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ink"><span class="h-6 w-6 rounded-full border-2 border-white shadow" style="background:#eadfc9"></span>Champagne</span>
+        </div>
+      </div>
+      <div class="relative z-10 mt-10 grid gap-6 sm:grid-cols-2">
+        <!-- Ladies -->
+        <div class="p-6 sm:p-7" style="background:rgba(234,223,201,.56)">
+          <div class="attire-illus mb-6 h-56 overflow-hidden sm:h-64" style="background:rgba(251,246,237,.7)">
+            <div class="absolute inset-x-8 bottom-0 h-32 rounded-t-full" style="background:rgba(115,123,84,.12)"></div>
+            <div class="absolute top-9 h-12 w-12 rounded-full" style="left:35%;background:#8b5c4c"></div>
+            <div class="absolute top-20 h-28 w-24 rounded-t-full" style="left:31%;background:#e9c0b6"></div>
+            <div class="absolute bottom-0 h-40 w-36 rounded-t-[5rem]" style="left:24%;background:#c89485;opacity:.9"></div>
+            <div class="absolute top-12 h-9 w-28 rotate-[-8deg] rounded-full border" style="right:25%;border-color:rgba(123,0,20,.2);background:#eadfc9"></div>
+            <div class="absolute top-[4.4rem] h-4 w-20 rotate-[-8deg]" style="right:28%;background:rgba(123,0,20,.7)"></div>
+            <div class="absolute bottom-5 right-5 flex gap-1">
+              <span class="h-4 w-4 rounded-full" style="background:#737b54"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#7b0014"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#c89485"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#c97658"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#e9c0b6"></span>
+            </div>
+          </div>
+          <div class="mb-4 text-wine text-2xl">🌸</div>
+          <h3 class="font-serif text-3xl text-moss sm:text-4xl">Ladies</h3>
+          <p class="mt-4 leading-8" style="color:rgba(45,36,31,.76)">Long dresses or refined midi-length dresses with tasteful coverage and soft, elegant detailing. Fascinators or subtle headpieces are welcome to complement the overall look.</p>
+        </div>
+        <!-- Gentlemen -->
+        <div class="p-6 sm:p-7" style="background:rgba(233,192,182,.34)">
+          <div class="attire-illus mb-6 h-56 overflow-hidden sm:h-64" style="background:rgba(251,246,237,.7)">
+            <div class="absolute inset-x-8 bottom-0 h-32 rounded-t-full" style="background:rgba(115,123,84,.12)"></div>
+            <div class="absolute top-9 h-12 w-12 rounded-full" style="left:42%;background:#7a513f"></div>
+            <div class="absolute top-20 h-32 w-28 rounded-t-3xl" style="left:35%;background:#3f481f"></div>
+            <div class="absolute top-[5.5rem] h-28 w-16" style="left:38%;background:#fbf6ed"></div>
+            <div class="absolute top-[6rem] h-24 w-8" style="left:42%;background:#7b0014"></div>
+            <div class="absolute bottom-0 h-24 w-10" style="left:34%;background:#2f3420"></div>
+            <div class="absolute bottom-0 h-24 w-10" style="right:35%;background:#2f3420"></div>
+            <div class="absolute bottom-5 right-5 flex gap-1">
+              <span class="h-4 w-4 rounded-full" style="background:#3f481f"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#7b0014"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#fbf6ed"></span>
+              <span class="h-4 w-4 rounded-full" style="background:#eadfc9"></span>
+            </div>
+          </div>
+          <div class="mb-4 text-wine text-2xl">✨</div>
+          <h3 class="font-serif text-3xl text-moss sm:text-4xl">Gentlemen</h3>
+          <p class="mt-4 leading-8" style="color:rgba(45,36,31,.76)">Well-tailored suits or blazers with dress trousers. Those who prefer not to wear suits may opt for a neatly styled long-sleeved shirt paired with formal trousers and polished shoes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GIFTS -->
+<section id="gifts" class="relative bg-moss py-16 text-ivory sm:py-24">
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <span class="petal" style="left:15%;animation-delay:.5s"></span>
+    <span class="petal" style="left:55%;animation-delay:2s"></span>
+    <span class="petal" style="left:80%;animation-delay:3.5s"></span>
+  </div>
+  <div class="section-shell relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
+    <div class="fade-in">
+      <p class="text-xs font-semibold uppercase tracking-[.28em]" style="color:#e9c0b6">Gifts</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">Your presence is our greatest gift.</h2>
+    </div>
+    <div class="fade-in" style="animation-delay:.12s">
+      <div class="invitation-border bg-ivory p-6 text-ink shadow-soft sm:p-10">
+        <div class="mb-5 text-wine text-3xl">🎁</div>
+        <h3 class="font-serif text-3xl text-moss sm:text-4xl">Gifts</h3>
+        <p class="mt-4 leading-8" style="color:rgba(45,36,31,.74)">Your presence on our special day is the greatest gift we could ask for. But if your heart feels called to give more, a monetary gift would be received with deep gratitude and love.</p>
+        <div class="mt-7 grid gap-4 sm:grid-cols-2">
+          <div class="p-5" style="background:rgba(234,223,201,.6)">
+            <p class="font-serif text-xl text-moss sm:text-2xl">King-David Duruihuoma</p>
+            <p class="mt-3 text-sm uppercase tracking-[.16em] text-wine">Guaranty Trust Bank</p>
+            <p class="mt-2 font-serif text-2xl text-ink sm:text-3xl">0012782278</p>
+          </div>
+          <div class="p-5" style="background:rgba(233,192,182,.32)">
+            <p class="font-serif text-xl text-moss sm:text-2xl">Blessing Timehin</p>
+            <p class="mt-3 text-sm uppercase tracking-[.16em] text-wine">Access Bank</p>
+            <p class="mt-2 font-serif text-2xl text-ink sm:text-3xl">0733934621</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUEST NOTICE -->
+<section class="py-14 sm:py-20" style="background:#f1e5d2">
+  <div class="section-shell">
+    <div class="fade-in">
+      <div class="invitation-border mx-auto max-w-3xl bg-ivory p-8 shadow-soft sm:p-12">
+        <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+          <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full text-2xl" style="background:rgba(123,0,20,.1)">ℹ️</div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[.28em] text-wine">Important Guest Notice</p>
+            <h2 class="mt-2 font-serif text-3xl leading-tight text-moss sm:text-4xl">Adults only celebration</h2>
+            <p class="mt-3 leading-8" style="color:rgba(45,36,31,.74)">Due to limited space, attendance is reserved for adult guests only. We kindly ask that children remain at home for this occasion so that every guest can enjoy a relaxed and comfortable celebration.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RSVP -->
+<section id="rsvp" class="py-16 sm:py-24" style="background:#ede0cc">
+  <div class="section-shell grid gap-10 lg:grid-cols-2 lg:items-start">
+    <div class="fade-in">
+      <p class="text-xs font-semibold uppercase tracking-[.28em] text-wine">RSVP</p>
+      <h2 class="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">Kindly reserve your place.</h2>
+      <p class="mt-6 leading-8" style="color:rgba(45,36,31,.74)">Please respond early so we can prepare a warm and comfortable celebration for every guest. Capacity is limited to 100 guests.</p>
+      <div class="mt-7 flex items-center gap-3 text-moss">
+        <span class="text-xl">👥</span>
+        <span class="font-serif text-xl sm:text-2xl">Maximum guest limit: 100</span>
+      </div>
+    </div>
+    <div class="fade-in" style="animation-delay:.12s">
+      <div id="rsvp-form-wrap">
+        <form id="rsvp-form" class="invitation-border bg-ivory p-6 shadow-soft sm:p-9" onsubmit="handleRsvp(event)">
+          <div class="grid gap-4 sm:grid-cols-2 sm:gap-5">
+            <label>
+              <span class="label">Full name *</span>
+              <input class="field" name="fullName" required placeholder="Your full name"/>
+            </label>
+            <label>
+              <span class="label">Email *</span>
+              <input class="field" type="email" name="email" required placeholder="your@email.com"/>
+            </label>
+            <label>
+              <span class="label">WhatsApp number *</span>
+              <input class="field" name="phone" inputmode="tel" required placeholder="+234..."/>
+            </label>
+            <label>
+              <span class="label">Number attending *</span>
+              <input class="field" type="number" name="attendees" min="1" max="10" value="1" required/>
+            </label>
+          </div>
+          <label class="mt-4 block sm:mt-5">
+            <span class="label">Attendance *</span>
+            <select class="field" name="attending" required>
+              <option value="">Select an option</option>
+              <option value="yes">Joyfully attending</option>
+              <option value="no">Regretfully unable to attend</option>
+            </select>
+          </label>
+          <label class="mt-4 block sm:mt-5">
+            <span class="label">Message (optional)</span>
+            <textarea class="field" name="note" style="min-height:7rem;resize:vertical" placeholder="A note for the couple..."></textarea>
+          </label>
+          <button type="submit" id="rsvp-btn" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[.18em] text-ivory transition hover:opacity-90 disabled:opacity-50">
+            ✓ Submit RSVP
+          </button>
+          <p class="mt-3 text-center text-xs text-ink/60" style="color:rgba(45,36,31,.5)">Note: RSVP submission requires the live site with Supabase configured.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-moss py-10 text-center text-ivory">
+  <p class="font-script text-4xl">King David &amp; Esther</p>
+  <p class="mt-2 text-xs font-semibold uppercase tracking-[.28em]" style="color:rgba(233,192,182,.7)">22 · August · 2026 · Camp Young, Ede</p>
+  <p class="mt-4 text-xs" style="color:rgba(251,246,237,.4)">Made with love ♥</p>
+</footer>
+
+<script>
+// Countdown
+function updateCountdown(){
+  const target = new Date('2026-08-22T11:00:00+01:00').getTime();
+  const now = Date.now();
+  const diff = Math.max(target - now, 0);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff / 3600000) % 24);
+  const mins = Math.floor((diff / 60000) % 60);
+  const secs = Math.floor((diff / 1000) % 60);
+  document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// Curtain open
+function openCurtain(){
+  document.getElementById('curtain-left').classList.add('opened');
+  document.getElementById('curtain-right').classList.add('opened');
+  document.getElementById('tap-overlay').classList.add('hidden-overlay');
+  setTimeout(()=>{
+    document.getElementById('hero-content').classList.add('revealed');
+  }, 800);
+}
+
+// Scratch card
+let scratchCount = 0;
+function revealDate(){
+  scratchCount++;
+  if(scratchCount >= 3){
+    const cover = document.getElementById('scratch-cover');
+    cover.classList.add('gone');
+    // show ribbons
+    const rb = document.getElementById('ribbons');
+    rb.classList.remove('hidden');
+    const ribbonData = [
+      {x:'-140px',y:'-75px',r:'-45deg'},{x:'-95px',y:'68px',r:'72deg'},
+      {x:'-45px',y:'-105px',r:'21deg'},{x:'30px',y:'90px',r:'-82deg'},
+      {x:'90px',y:'-85px',r:'105deg'},{x:'138px',y:'52px',r:'-18deg'},
+      {x:'-160px',y:'12px',r:'140deg'},{x:'162px',y:'-10px',r:'-136deg'},
+      {x:'-16px',y:'-125px',r:'64deg'},{x:'12px',y:'118px',r:'-32deg'},
+      {x:'-115px',y:'-55px',r:'88deg'},{x:'115px',y:'75px',r:'-95deg'},
+      {x:'-68px',y:'110px',r:'30deg'},{x:'68px',y:'-110px',r:'-30deg'},
+      {x:'-175px',y:'45px',r:'160deg'},{x:'175px',y:'-42px',r:'-155deg'},
+      {x:'-50px',y:'135px',r:'-55deg'},{x:'50px',y:'-138px',r:'55deg'},
+      {x:'-130px',y:'-105px',r:'10deg'},{x:'130px',y:'105px',r:'-10deg'}
+    ];
+    const colors = ['#7b0014','#c97658','#737b54','#e9c0b6','#eadfc9','#c89485'];
+    ribbonData.forEach((d,i)=>{
+      const span = document.createElement('span');
+      span.className = 'ribbon-piece';
+      span.style.cssText = `--x:${d.x};--y:${d.y};--r:${d.r};background:${colors[i%colors.length]};animation-delay:${i*0.07}s`;
+      rb.appendChild(span);
+    });
+  }
+}
+document.getElementById('scratch-cover').addEventListener('pointermove', e=>{
+  if(e.buttons===1) revealDate();
+});
+
+// RSVP form (preview only)
+function handleRsvp(e){
+  e.preventDefault();
+  const btn = document.getElementById('rsvp-btn');
+  btn.textContent = '⏳ Submitting...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    document.getElementById('rsvp-form-wrap').innerHTML = `
+      <div class="invitation-border bg-ivory p-10 shadow-soft text-center">
+        <div class="text-5xl mb-4">🎉</div>
+        <p class="font-serif text-3xl text-moss">Thank you!</p>
+        <p class="mt-3 leading-7" style="color:rgba(45,36,31,.72)">Your RSVP has been received.<br/>A confirmation email is on its way.</p>
+        <p class="mt-4 text-xs" style="color:rgba(45,36,31,.5)">(This is a preview — actual submission requires the live Supabase backend)</p>
+      </div>`;
+  }, 1200);
+}
+</script>
+</body>
+</html>

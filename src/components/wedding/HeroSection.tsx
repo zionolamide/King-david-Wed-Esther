@@ -13,6 +13,162 @@ const palette = [
   ['Champagne', '#eadfc9'],
 ];
 
+function CurtainOpenTitle({ active }: { active: boolean }) {
+  const palette = ['#e9c0b6', '#eadfc9', '#f0d296', '#c89485', '#7b0014'];
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-[30] flex flex-col items-center justify-center overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, delay: 6 }}
+        >
+          {/* Orbiting mini hearts */}
+          {Array.from({ length: 10 }).map((_, i) => {
+            const angle = (i / 10) * Math.PI * 2;
+            const radius = 60 + (i % 3) * 20;
+            const color = palette[i % palette.length];
+            const size = 10 + (i % 4) * 3;
+            return (
+              <motion.div
+                key={i}
+                className="absolute"
+                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 0.8, 0.6, 0],
+                  scale: [0, 1, 0.8, 0],
+                  x: [0, Math.cos(angle) * radius * 0.5, Math.cos(angle) * radius],
+                  y: [0, Math.sin(angle) * radius * 0.5, Math.sin(angle) * radius],
+                }}
+                transition={{
+                  duration: 2.5,
+                  delay: 0.8 + i * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+              >
+                <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+              </motion.div>
+            );
+          })}
+
+          {/* Central big heart — bouncy squash and stretch */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0, rotate: -20 }}
+            animate={{
+              opacity: [0, 1, 1, 1, 0],
+              scale: [0, 1.4, 0.9, 1.05, 0.95, 1, 0.8, 0],
+              rotate: [-20, 10, -5, 2, 0, 0, 0, 0],
+            }}
+            transition={{
+              duration: 5.5,
+              times: [0, 0.15, 0.25, 0.35, 0.45, 0.7, 0.9, 1],
+              ease: 'easeOut',
+            }}
+          >
+            <svg width={80} height={80} viewBox="0 0 24 24" fill="#7b0014">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            {/* Heart glow */}
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                background: 'radial-gradient(circle, rgba(233,192,182,0.5) 0%, transparent 70%)',
+              }}
+              initial={{ width: 0, height: 0 }}
+              animate={{ width: 200, height: 200 }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
+            />
+          </motion.div>
+
+          {/* "Love" text — blooms in */}
+          <motion.p
+            className="absolute mt-28 font-script text-5xl text-wine sm:text-6xl"
+            style={{ textShadow: '0 2px 16px rgba(123,0,20,0.2)' }}
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+            animate={{
+              opacity: [0, 1, 1, 0],
+              scale: [0.5, 1.1, 1, 0.9],
+              y: [20, -5, 0, 10],
+            }}
+            transition={{
+              duration: 4,
+              delay: 1.2,
+              times: [0, 0.2, 0.7, 1],
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            Love
+          </motion.p>
+
+          {/* Floating bubbles / confetti dots */}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <motion.div
+              key={`bubble-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: 6 + (i % 3) * 4,
+                height: 6 + (i % 3) * 4,
+                background: palette[i % palette.length],
+                left: `${10 + Math.random() * 80}%`,
+                bottom: '-20px',
+              }}
+              initial={{ opacity: 0, y: 0, scale: 0 }}
+              animate={{
+                opacity: [0, 0.7, 0.4, 0],
+                y: [0, -window.innerHeight * 0.5, -window.innerHeight * 0.85],
+                scale: [0, 1, 0.8, 0.4],
+                x: [0, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 80],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                delay: 0.5 + i * 0.1,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+
+          {/* Swirling ribbons in pastel */}
+          {[
+            { color: '#e9c0b6', delay: 0.3, x: -80 },
+            { color: '#eadfc9', delay: 0.6, x: 80 },
+            { color: '#f0d296', delay: 0.9, x: -40 },
+            { color: '#c89485', delay: 1.2, x: 40 },
+          ].map((ribbon, i) => (
+            <motion.div
+              key={`ribbon-${i}`}
+              className="absolute"
+              style={{
+                width: 4,
+                height: 160,
+                background: `linear-gradient(180deg, ${ribbon.color} 0%, transparent 100%)`,
+                borderRadius: 4,
+                left: `calc(50% + ${ribbon.x}px)`,
+                top: '30%',
+                opacity: 0.7,
+              }}
+              initial={{ opacity: 0, scaleY: 0, rotate: 0 }}
+              animate={{
+                opacity: [0, 0.8, 0.6, 0],
+                scaleY: [0, 1, 1.2, 0.8],
+                rotate: [0, (i % 2 === 0 ? 1 : -1) * 15, 0, (i % 2 === 0 ? -1 : 1) * 10],
+              }}
+              transition={{
+                duration: 3.5,
+                delay: ribbon.delay,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function LoveBurst({ active }: { active: boolean }) {
   const colors = ['#7b0014', '#c89485', '#e9c0b6', '#eadfc9', '#c97658', '#737b54'];
   const hearts = Array.from({ length: 16 }).map((_, i) => {
@@ -528,6 +684,9 @@ export function HeroSection() {
 
         {/* Love burst when curtains open */}
         <LoveBurst active={opened} />
+
+        {/* Cute love fever title sequence on curtain open */}
+        <CurtainOpenTitle active={opened} />
 
         {/* Hero content */}
         <motion.div

@@ -92,6 +92,7 @@ body {
     inset -34px 0 80px rgba(31, 0, 6, 0.42),
     inset 24px 0 55px rgba(255, 220, 205, 0.08);
   will-change: transform;
+  transform-style: preserve-3d;
 }
 
 .curtain-panel::before {
@@ -146,6 +147,64 @@ body {
 
 .curtain-tie-right {
   right: 5%;
+}
+
+.curtain-valance {
+  background:
+    linear-gradient(180deg, #1a0004 0%, #3d000a 42%, #5c0010 72%, transparent 100%),
+    repeating-linear-gradient(90deg, #1a0004 0 10px, #3d000a 10px 22px, #5c0012 22px 34px, #3d000a 34px 46px);
+  box-shadow: 0 6px 24px rgba(10, 0, 2, 0.5);
+}
+
+.curtain-valance::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 18px,
+    rgba(240, 210, 150, 0.55) 18px 22px,
+    transparent 22px 40px
+  );
+}
+
+.curtain-title {
+  text-shadow:
+    0 2px 24px rgba(0, 0, 0, 0.7),
+    0 0 34px rgba(240, 210, 150, 0.28);
+  animation: title-glow 3s ease-in-out infinite;
+}
+
+.floating-heart {
+  position: absolute;
+  bottom: -36px;
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  background: rgba(240, 210, 150, 0.64);
+  animation: heart-rise 5.8s ease-out infinite;
+  opacity: 0;
+}
+
+.floating-heart::before,
+.floating-heart::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.floating-heart::before {
+  left: -9px;
+}
+
+.floating-heart::after {
+  top: -9px;
 }
 
 .hero-title {
@@ -356,6 +415,34 @@ body {
   }
   50% {
     transform: translateY(-4px);
+  }
+}
+
+@keyframes heart-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(45deg) scale(0.55);
+  }
+  18% {
+    opacity: 0.84;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(28px, -88vh, 0) rotate(45deg) scale(0.9);
+  }
+}
+
+@keyframes title-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 2px 24px rgba(0, 0, 0, 0.7),
+      0 0 34px rgba(240, 210, 150, 0.28);
+  }
+  50% {
+    text-shadow:
+      0 2px 28px rgba(0, 0, 0, 0.78),
+      0 0 46px rgba(240, 210, 150, 0.48);
   }
 }
 

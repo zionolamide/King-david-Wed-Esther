@@ -10,12 +10,15 @@ import {
   Heart,
   Loader2,
   MapPin,
+  MessageCircle,
   Music2,
   Navigation,
   Pause,
   Send,
+  Share2,
   Sparkles,
-  Users
+  Users,
+  XCircle
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -39,6 +42,21 @@ const schedule = [
   { time: "Immediately after", title: "Reception celebration" },
   { time: "Evening", title: "Dinner, music and memories" }
 ];
+
+const titleOptions = ["Mr.", "Mrs.", "Miss.", "Dr.", "Prof.", "Pastor", "Evang.", "(No Prefix)"];
+const rsvpContacts = [
+  { name: "Sister Rhoda", phone: "08106993435" },
+  { name: "Brother Joe", phone: "0812765976" },
+  { name: "Bro Zion", phone: "09135037695" }
+];
+
+function buildWhatsAppUrl(phone: string, message: string) {
+  const cleanPhone = phone.replace(/\D/g, "");
+  const normalizedPhone = cleanPhone.startsWith("0")
+    ? `234${cleanPhone.slice(1)}`
+    : cleanPhone;
+  return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+}
 
 function useCountdown() {
   const [now, setNow] = useState(() => new Date());
@@ -157,6 +175,26 @@ function FloatingPetals() {
   );
 }
 
+function FloatingHearts({ active }: { active: boolean }) {
+  if (!active) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[18] overflow-hidden">
+      {Array.from({ length: 18 }).map((_, index) => (
+        <span
+          key={index}
+          className="floating-heart"
+          style={{
+            left: `${6 + ((index * 17) % 88)}%`,
+            animationDelay: `${index * 0.32}s`,
+            animationDuration: `${4.8 + (index % 5) * 0.8}s`
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function ScratchDateCard() {
   const [progress, setProgress] = useState(0);
   const revealed = progress >= 4;
@@ -207,41 +245,53 @@ function ScratchDateCard() {
 function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown> }) {
   const [opened, setOpened] = useState(false);
 
+  useEffect(() => {
+    document.body.style.overflow = opened ? "" : "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [opened]);
+
   return (
     <section id="home" className="relative min-h-[100svh]">
       <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20">
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),url('/garden-palette.jpg')] bg-cover bg-center" />
         <FloatingPetals />
+        <FloatingHearts active={!opened} />
+
+        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-20" />
 
         <motion.div
           className="curtain-panel left-0"
-          animate={{ x: opened ? "-55%" : "0%" }}
-          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "-100%" : "0%", rotateY: opened ? 55 : 0, scale: opened ? 0.82 : 1 }}
+          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
-          animate={{ x: opened ? "55%" : "0%" }}
-          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "100%" : "0%", rotateY: opened ? -55 : 0, scale: opened ? 0.82 : 1 }}
+          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
         <motion.div
-          className="absolute inset-x-8 top-[36%] z-30 text-center sm:top-[40%]"
+          className="absolute inset-x-8 top-[35%] z-30 text-center sm:top-[38%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
           transition={{ duration: 0.7 }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
-          <p className="font-script text-6xl leading-none text-moss sm:text-7xl">
-            King-David & Esther
+          <p className="font-script text-6xl leading-none text-ivory sm:text-7xl curtain-title">
+            King David & Esther
           </p>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory"
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/60 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur transition hover:bg-wine"
           >
+            <Sparkles size={14} />
             Tap to Open
+            <Sparkles size={14} />
           </button>
         </motion.div>
 
@@ -257,7 +307,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
               Formal Garden Elegance
             </p>
             <h1 className="hero-title font-script leading-[0.78] text-moss">
-              King-David
+              King David
               <span className="block font-serif text-3xl italic text-wine sm:text-5xl">&</span>
               Esther
             </h1>
@@ -358,6 +408,12 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
+  const [lastRsvp, setLastRsvp] = useState<{
+    fullName: string;
+    phone: string;
+    attendees: number;
+    entryCode: string;
+  } | null>(null);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -365,11 +421,16 @@ export default function Home() {
     setMessage("");
 
     const form = new FormData(event.currentTarget);
+    const title = String(form.get("title") ?? "(No Prefix)");
+    const fullName = String(form.get("fullName") ?? "");
+    const phone = String(form.get("phone") ?? "");
+    const attendees = Number(form.get("attendees") ?? 1);
     const payload = {
-      fullName: String(form.get("fullName") ?? ""),
+      title,
+      fullName,
       email: String(form.get("email") ?? ""),
-      phone: String(form.get("phone") ?? ""),
-      attendees: Number(form.get("attendees") ?? 1),
+      phone,
+      attendees,
       attending: String(form.get("attending") ?? "yes"),
       note: String(form.get("note") ?? "")
     };
@@ -394,7 +455,17 @@ export default function Home() {
     }
 
     setStatus("success");
-    setMessage("Thank you. Your RSVP has been received and a confirmation email is on its way.");
+    setLastRsvp({
+      fullName,
+      phone,
+      attendees,
+      entryCode: String(result.entryCode ?? "")
+    });
+    setMessage(
+      result.entryCode
+        ? `Thank you. Your RSVP has been received. Your entry code is ${result.entryCode}.`
+        : "Thank you. Your RSVP has been received and a confirmation email is on its way."
+    );
     event.currentTarget.reset();
   }
 
@@ -652,20 +723,78 @@ export default function Home() {
               <Users />
               <span className="font-serif text-2xl">Maximum guest limit: {rsvpLimit}</span>
             </div>
+            <div className="mt-8 rounded-xl border border-wine/10 bg-ivory/72 p-5">
+              <div className="flex items-center gap-2">
+                <MessageCircle size={18} className="text-moss" />
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                  For RSVP Inquiries
+                </p>
+              </div>
+              <div className="mt-4 grid gap-2">
+                {rsvpContacts.map((contact) => (
+                  <a
+                    key={contact.name}
+                    href={`tel:${contact.phone}`}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition hover:bg-wine/5"
+                  >
+                    <span className="font-medium text-ink">{contact.name}</span>
+                    <span className="text-ink/62">{contact.phone}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
           </FadeIn>
 
           <FadeIn delay={0.12}>
             <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
                 <div className="py-14 text-center">
+                  <XCircle className="mx-auto mb-4 h-14 w-14 text-wine" />
                   <p className="font-serif text-5xl text-wine">RSVP Closed</p>
                   <p className="mt-3 leading-7 text-ink/72">
                     {message || "Capacity has been reached."}
                   </p>
                 </div>
+              ) : status === "success" ? (
+                <div className="py-12 text-center">
+                  <CheckCircle2 className="mx-auto h-16 w-16 text-moss" />
+                  <p className="mt-4 font-serif text-4xl text-moss">Thank you!</p>
+                  <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-ink/68">{message}</p>
+                  {lastRsvp?.entryCode ? (
+                    <div className="mx-auto mt-5 max-w-xs rounded-xl border border-dashed border-wine/30 bg-champagne/50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-wine">
+                        Entry Code
+                      </p>
+                      <p className="mt-2 font-serif text-3xl text-moss">{lastRsvp.entryCode}</p>
+                    </div>
+                  ) : null}
+                  {lastRsvp?.phone && lastRsvp.entryCode ? (
+                    <a
+                      href={buildWhatsAppUrl(
+                        lastRsvp.phone,
+                        `Hello ${lastRsvp.fullName},\n\nYour entry code for King David & Esther's wedding is:\n\n${lastRsvp.entryCode}\n\nGuests: ${lastRsvp.attendees}\nDate: Saturday, 22nd August 2026\nTime: 11:00 AM\nVenue: Camp Young, Ede\n\nPlease keep this code safe and present it at the entrance.`
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:opacity-90"
+                    >
+                      <Share2 size={16} /> Send Entry Code to WhatsApp
+                    </a>
+                  ) : null}
+                </div>
               ) : (
                 <>
                   <div className="grid gap-5 sm:grid-cols-2">
+                    <label>
+                      <span className="label">Title</span>
+                      <select className="field" name="title" defaultValue="(No Prefix)" required>
+                        {titleOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <label>
                       <span className="label">Full name</span>
                       <input className="field" name="fullName" required />
@@ -675,8 +804,8 @@ export default function Home() {
                       <input className="field" type="email" name="email" required />
                     </label>
                     <label>
-                      <span className="label">WhatsApp number (optional)</span>
-                      <input className="field" name="phone" inputMode="tel" />
+                      <span className="label">WhatsApp number</span>
+                      <input className="field" name="phone" inputMode="tel" placeholder="+234..." required />
                     </label>
                     <label>
                       <span className="label">Number attending</span>

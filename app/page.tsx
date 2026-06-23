@@ -8,7 +8,6 @@ import {
   Flower2,
   Gift,
   Heart,
-  Info,
   Loader2,
   MapPin,
   Music2,
@@ -16,9 +15,7 @@ import {
   Pause,
   Send,
   Sparkles,
-  Users,
-  X,
-  AlertCircle
+  Users
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -74,143 +71,12 @@ function FadeIn({
     <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.75, delay, ease: "easeOut" }}
       className={className}
     >
       {children}
     </motion.div>
-  );
-}
-
-function AnimatedAlert({
-  type,
-  message,
-  onClose
-}: {
-  type: "success" | "error" | "warning";
-  message: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  const bgColor =
-    type === "success"
-      ? "bg-moss"
-      : type === "error"
-        ? "bg-wine"
-        : "bg-terracotta";
-
-  const borderColor =
-    type === "success"
-      ? "border-moss"
-      : type === "error"
-        ? "border-wine"
-        : "border-terracotta";
-
-  const icon =
-    type === "success" ? (
-      <motion.div
-        animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
-      >
-        <CheckCircle2 size={22} className="text-ivory" />
-      </motion.div>
-    ) : (
-      <motion.div
-        animate={{ x: [0, -5, 5, -5, 0] }}
-        transition={{ duration: 0.4 }}
-      >
-        <AlertCircle size={22} className="text-ivory" />
-      </motion.div>
-    );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -30, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`fixed top-20 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 flex items-center gap-3 ${bgColor} text-ivory px-5 py-4 sm:px-8 sm:py-5 rounded-2xl shadow-2xl border-2 ${borderColor} backdrop-blur-sm max-w-md mx-auto`}
-    >
-      <div className="flex-shrink-0">{icon}</div>
-      <p className="text-sm font-semibold leading-6 flex-1">{message}</p>
-      <button
-        onClick={onClose}
-        className="ml-2 flex-shrink-0 hover:opacity-80 transition"
-      >
-        <X size={18} />
-      </button>
-    </motion.div>
-  );
-}
-
-function SuccessAnimation() {
-  return (
-    <div className="py-12 text-center">
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        className="inline-block mb-6"
-      >
-        <motion.div
-          animate={{
-            rotate: 360,
-            scale: [1, 1.05, 1]
-          }}
-          transition={{
-            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-            scale: { duration: 2, repeat: Infinity }
-          }}
-          className="text-5xl sm:text-6xl"
-        >
-          💍
-        </motion.div>
-      </motion.div>
-
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-        className="font-serif text-3xl sm:text-4xl text-moss mb-3"
-      >
-        You&apos;re All Set!
-      </motion.h2>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="space-y-3"
-      >
-        <p className="text-base leading-7 text-ink/75 font-medium">
-          ✓ Your RSVP has been received
-        </p>
-        <p className="text-sm leading-7 text-ink/72">
-          Thank you for confirming your attendance. A confirmation email is on its way. We&apos;re excited to celebrate with you on August 22, 2026!
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.6 }}
-        className="mt-8 flex justify-center gap-2"
-      >
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            animate={{ scale: [1, 1.3, 1] }}
-            transition={{ delay: i * 0.15, duration: 1, repeat: Infinity }}
-            className="h-2 w-2 rounded-full bg-moss"
-          />
-        ))}
-      </motion.div>
-    </div>
   );
 }
 
@@ -260,13 +126,13 @@ function SoundButton() {
 
 function StoryArch() {
   return (
-    <div className="story-arch relative mx-auto h-[28rem] max-w-xs overflow-hidden rounded-t-full bg-champagne shadow-soft sm:h-[30rem] sm:max-w-sm">
+    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-t-full bg-champagne shadow-soft">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(251,246,237,0.12),rgba(63,72,31,0.42)),url('/garden-palette.jpg')] bg-cover bg-center" />
       <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/58" />
       <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
-        <p className="font-script text-4xl sm:text-5xl">A Garden Promise</p>
+        <p className="font-script text-5xl">A Garden Promise</p>
         <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em]">
-          King David &amp; Esther
+          King-David & Esther
         </p>
       </div>
     </div>
@@ -301,7 +167,7 @@ function ScratchDateCard() {
 
   return (
     <div
-      className={`scratch-card invitation-border relative mx-auto w-full max-w-lg overflow-hidden bg-ivory/84 p-7 text-center shadow-soft ${
+      className={`scratch-card invitation-border relative mx-auto mt-7 max-w-xl overflow-hidden bg-ivory/84 p-5 text-center shadow-soft lg:mx-0 ${
         revealed ? "is-revealed" : ""
       }`}
       onPointerDown={scratch}
@@ -311,19 +177,16 @@ function ScratchDateCard() {
     >
       {revealed ? (
         <div className="ribbon-field pointer-events-none absolute inset-0">
-          {Array.from({ length: 20 }).map((_, index) => (
-            <span key={index} style={{ animationDelay: `${index * 0.07}s` }} />
+          {Array.from({ length: 10 }).map((_, index) => (
+            <span key={index} style={{ animationDelay: `${index * 0.12}s` }} />
           ))}
         </div>
       ) : null}
       <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
         Wedding Date
       </p>
-      <p className="relative z-10 mt-3 font-serif text-3xl leading-relaxed text-moss sm:text-4xl">
+      <p className="relative z-10 mt-2 font-serif text-3xl leading-relaxed text-moss">
         Saturday, 22 August 2026
-      </p>
-      <p className="relative z-10 mt-2 font-serif text-base italic text-ink/60">
-        Camp Young, Ede, Osun State
       </p>
       {!revealed ? (
         <button
@@ -331,7 +194,7 @@ function ScratchDateCard() {
           className="scratch-cover absolute inset-0 z-20 flex flex-col items-center justify-center bg-champagne text-moss"
           onClick={scratch}
         >
-          <span className="font-script text-5xl sm:text-6xl">Scratch to reveal</span>
+          <span className="font-script text-5xl">Scratch to reveal</span>
           <span className="mt-2 text-xs font-semibold uppercase tracking-[0.24em] text-wine">
             rub or tap gently
           </span>
@@ -350,52 +213,40 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),url('/garden-palette.jpg')] bg-cover bg-center" />
         <FloatingPetals />
 
-        {/* Valance bar across full top */}
-        <div className="curtain-valance pointer-events-none" />
-
-        {/* Left curtain panel */}
         <motion.div
           className="curtain-panel left-0"
-          animate={{ x: opened ? "-100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "-55%" : "0%" }}
+          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
-
-        {/* Right curtain panel */}
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
-          animate={{ x: opened ? "100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "55%" : "0%" }}
+          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
-
-        {/* Tap to Open overlay */}
         <motion.div
-          className="absolute inset-x-6 top-[35%] z-30 text-center sm:inset-x-12 sm:top-[40%]"
+          className="absolute inset-x-8 top-[36%] z-30 text-center sm:top-[40%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
           transition={{ duration: 0.7 }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
-          <p className="font-script text-5xl leading-none text-moss sm:text-7xl">
-            King David &amp; Esther
-          </p>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-wine/80 sm:text-sm">
-            22 · August · 2026
+          <p className="font-script text-6xl leading-none text-moss sm:text-7xl">
+            King-David & Esther
           </p>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-6 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory sm:px-7 sm:py-4"
+            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory"
           >
             Tap to Open
           </button>
         </motion.div>
 
-        {/* Hero content revealed after curtain opens */}
         <motion.div
-          className="hero-content section-shell relative z-10 grid gap-6 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
+          className="hero-content section-shell relative z-10 grid gap-5 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
           initial={false}
           animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 38, scale: opened ? 1 : 0.98 }}
           transition={{ duration: 1, delay: opened ? 1.2 : 0 }}
@@ -405,54 +256,55 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.34em] text-wine">
               Formal Garden Elegance
             </p>
-            <h1 className="hero-title font-script leading-[0.82] text-moss">
-              King David
-              <span className="block font-serif text-2xl italic text-wine sm:text-4xl">&amp;</span>
+            <h1 className="hero-title font-script leading-[0.78] text-moss">
+              King-David
+              <span className="block font-serif text-3xl italic text-wine sm:text-5xl">&</span>
               Esther
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-ink/74 sm:text-base lg:mx-0">
+            <ScratchDateCard />
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-ink/74 lg:mx-0">
               With grateful hearts, we invite you to celebrate a warm garden wedding
               at Camp Young, Ede. Reception follows immediately.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
-                href="#date-reveal"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-wine/90 sm:px-7 sm:py-4"
+                href="#rsvp"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss"
               >
-                <Heart size={16} /> Your Invitation
+                <Heart size={17} /> Reserve Your Seat
               </a>
               <a
                 href="#details"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-moss/25 bg-ivory/70 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-moss transition hover:bg-ivory/80 sm:px-7 sm:py-4"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-moss/25 bg-ivory/70 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-moss"
               >
-                <MapPin size={16} /> Details
+                <MapPin size={17} /> Details
               </a>
             </div>
           </div>
 
           <div className="countdown-card invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
-            <div className="rounded-[1.5rem] bg-champagne/45 p-4 text-center sm:p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-moss sm:mb-5">
+            <div className="rounded-[1.5rem] bg-champagne/45 p-5 text-center">
+              <p className="mb-5 text-xs font-semibold uppercase tracking-[0.28em] text-moss">
                 Countdown to our day
               </p>
-              <div className="grid grid-cols-4 gap-1 sm:gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {Object.entries(countdown).map(([label, value]) => (
-                  <div key={label} className="bg-ivory/80 px-1 py-3 sm:px-2 sm:py-4">
-                    <strong className="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">
+                  <div key={label} className="bg-ivory/80 px-2 py-3 sm:py-4">
+                    <strong className="block font-serif text-3xl text-wine sm:text-4xl">
                       {String(value).padStart(2, "0")}
                     </strong>
-                    <span className="text-[0.55rem] uppercase tracking-[0.14em] text-ink/62 sm:text-[0.62rem] sm:tracking-[0.18em]">
+                    <span className="text-[0.62rem] uppercase tracking-[0.18em] text-ink/62">
                       {label}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 flex justify-center gap-2 sm:mt-6 sm:gap-3">
+              <div className="mt-6 flex justify-center gap-3">
                 {palette.map(([name, color]) => (
                   <span
                     key={name}
                     title={name}
-                    className="h-6 w-6 rounded-full border-2 border-ivory shadow sm:h-8 sm:w-8"
+                    className="h-8 w-8 rounded-full border-2 border-ivory shadow"
                     style={{ backgroundColor: color }}
                   />
                 ))}
@@ -465,43 +317,10 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
   );
 }
 
-function DateRevealSection() {
-  return (
-    <section id="date-reveal" className="date-reveal-section py-16 sm:py-24">
-      <div className="section-shell">
-        <FadeIn className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
-            Your Invitation
-          </p>
-          <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl">
-            Reveal your special date
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-ink/70">
-            Scratch or tap the card below to unveil the details of our special day.
-          </p>
-        </FadeIn>
-
-        <FadeIn delay={0.15} className="mt-10 flex justify-center">
-          <ScratchDateCard />
-        </FadeIn>
-
-        <FadeIn delay={0.25} className="mt-8 flex justify-center">
-          <a
-            href="#rsvp"
-            className="inline-flex items-center gap-2 rounded-full bg-moss px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss/90"
-          >
-            <Send size={15} /> Reserve Your Seat
-          </a>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
 function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
   const isLadies = type === "ladies";
   return (
-    <div className="attire-illustration relative mb-6 h-56 overflow-hidden bg-ivory/70 sm:h-64">
+    <div className="attire-illustration relative mb-6 h-64 overflow-hidden bg-ivory/70">
       <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
       {isLadies ? (
         <>
@@ -533,71 +352,22 @@ function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
   );
 }
 
-function GuestNoticeSection() {
-  return (
-    <section className="guest-notice-section bg-[#f1e5d2] py-14 sm:py-20">
-      <div className="section-shell">
-        <FadeIn>
-          <div className="invitation-border mx-auto max-w-3xl bg-ivory p-8 shadow-soft sm:p-12">
-            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-wine/10">
-                <Info className="text-wine" size={28} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
-                  Important Guest Notice
-                </p>
-                <h2 className="mt-2 font-serif text-3xl leading-tight text-moss sm:text-4xl">
-                  Adults only celebration
-                </h2>
-                <p className="mt-3 leading-8 text-ink/74">
-                  Due to limited space, attendance is reserved for adult guests only.
-                  We kindly ask that children remain at home for this occasion so that
-                  every guest can enjoy a relaxed and comfortable celebration.
-                </p>
-              </div>
-            </div>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
   const countdown = useCountdown();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "closed" | "error">(
     "idle"
   );
   const [message, setMessage] = useState("");
-  const [alertMessage, setAlertMessage] = useState<{
-    type: "success" | "error" | "warning";
-    text: string;
-  } | null>(null);
-  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("loading");
     setMessage("");
-    setAlertMessage(null);
 
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "");
-
-    if (submittedEmail) {
-      setStatus("error");
-      setMessage("This email has already been submitted. Please do not fill the form twice.");
-      setAlertMessage({
-        type: "warning",
-        text: "This email has already been submitted. Please do not fill the form twice."
-      });
-      return;
-    }
-
     const payload = {
       fullName: String(form.get("fullName") ?? ""),
-      email,
+      email: String(form.get("email") ?? ""),
       phone: String(form.get("phone") ?? ""),
       attendees: Number(form.get("attendees") ?? 1),
       attending: String(form.get("attending") ?? "yes"),
@@ -614,67 +384,40 @@ export default function Home() {
     if (response.status === 409) {
       setStatus("closed");
       setMessage(result.message ?? "RSVP Closed - Capacity Reached");
-      setAlertMessage({
-        type: "error",
-        text: result.message ?? "RSVP capacity has been reached."
-      });
       return;
     }
 
     if (!response.ok) {
       setStatus("error");
       setMessage(result.message ?? "Something went wrong. Please try again.");
-      setAlertMessage({
-        type: "error",
-        text: result.message ?? "Failed to submit RSVP. Please try again."
-      });
       return;
     }
 
     setStatus("success");
-    setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
-    setSubmittedEmail(email);
-    setAlertMessage({
-      type: "success",
-      text: "Success! You have been added to our guest list."
-    });
+    setMessage("Thank you. Your RSVP has been received and a confirmation email is on its way.");
     event.currentTarget.reset();
   }
 
   return (
     <main className="overflow-hidden text-ink">
       <SoundButton />
-      {alertMessage && (
-        <AnimatedAlert
-          type={alertMessage.type}
-          message={alertMessage.text}
-          onClose={() => setAlertMessage(null)}
-        />
-      )}
-
-      {/* Navigation */}
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
-          <a href="#home" className="font-serif text-lg text-moss sm:text-xl">
-            King David &amp; Esther
+          <a href="#home" className="font-serif text-xl text-moss">
+            K-D & Esther
           </a>
           <a
             href="#rsvp"
-            className="inline-flex items-center gap-1.5 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft transition hover:bg-wine/90"
+            className="inline-flex items-center gap-2 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft"
           >
-            <Send size={13} /> RSVP
+            <Send size={14} /> RSVP
           </a>
         </div>
       </nav>
 
-      {/* Hero with curtain */}
       <CurtainHero countdown={countdown} />
 
-      {/* Date Reveal / Scratch Card */}
-      <DateRevealSection />
-
-      {/* Our Story */}
-      <section id="story" className="py-16 sm:py-24">
+      <section id="story" className="py-20 sm:py-28">
         <div className="section-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <FadeIn>
             <StoryArch />
@@ -683,7 +426,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Our Story
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A love rooted in grace, friendship and promise.
             </h2>
             <p className="mt-6 text-base leading-8 text-ink/75">
@@ -696,32 +439,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pre-Wedding Portraits */}
-      <section id="pre-wedding" className="relative bg-ivory py-16 sm:py-24">
+      <section id="pre-wedding" className="relative bg-ivory py-20 sm:py-28">
         <FloatingPetals />
         <div className="section-shell relative z-10">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Pre-Wedding Portraits
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A quiet gallery for the memories before the day.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
               Portraits will be added here soon. For now, these soft editorial frames
-              hold the space for the couple&apos;s pre-wedding moments.
+              hold the space for the couple's pre-wedding moments.
             </p>
           </FadeIn>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
             {["Garden Walk", "Soft Portrait", "Evening Promise"].map((title, index) => (
               <FadeIn key={title} delay={index * 0.08}>
-                <div className="photo-placeholder group relative h-80 overflow-hidden bg-champagne shadow-soft sm:h-[28rem]">
+                <div className="photo-placeholder group relative h-[28rem] overflow-hidden bg-champagne shadow-soft">
                   <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(251,246,237,0.86),rgba(233,192,182,0.44),rgba(115,123,84,0.24))]" />
                   <div className="absolute inset-6 border border-ivory/70" />
-                  <div className="absolute left-6 right-6 top-8 h-32 rounded-t-full bg-ivory/46 sm:h-40" />
+                  <div className="absolute left-6 right-6 top-8 h-40 rounded-t-full bg-ivory/46" />
                   <div className="absolute bottom-8 left-6 right-6 text-center">
-                    <p className="font-script text-4xl text-moss sm:text-5xl">{title}</p>
+                    <p className="font-script text-5xl text-moss">{title}</p>
                     <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
                       Coming soon
                     </p>
@@ -733,31 +475,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Wedding Details */}
-      <section id="details" className="bg-moss py-16 text-ivory sm:py-24">
+      <section id="details" className="bg-moss py-20 text-ivory sm:py-28">
         <div className="section-shell">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
               Wedding Details
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
               Saturday, 22 August 2026
             </h2>
           </FadeIn>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 md:grid-cols-3">
             {[
               { icon: CalendarDays, label: "Date", value: "Saturday, 22 Aug 2026" },
               { icon: MapPin, label: "Venue", value: "Camp Young, Ede" },
               { icon: Clock, label: "Reception", value: "Follows immediately" }
             ].map((item) => (
               <FadeIn key={item.label}>
-                <div className="h-full border border-ivory/18 bg-ivory/8 p-6 backdrop-blur sm:p-7">
-                  <item.icon className="mb-4 text-blush sm:mb-5" size={24} />
+                <div className="h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur">
+                  <item.icon className="mb-5 text-blush" size={24} />
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne">
                     {item.label}
                   </p>
-                  <p className="mt-3 font-serif text-2xl sm:text-3xl">{item.value}</p>
+                  <p className="mt-3 font-serif text-3xl">{item.value}</p>
                 </div>
               </FadeIn>
             ))}
@@ -765,35 +506,35 @@ export default function Home() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <FadeIn>
-              <div className="bg-ivory p-6 text-ink shadow-soft sm:p-7">
-                <h3 className="font-serif text-3xl text-moss sm:text-4xl">Order of Celebration</h3>
+              <div className="bg-ivory p-7 text-ink shadow-soft">
+                <h3 className="font-serif text-4xl text-moss">Order of Celebration</h3>
                 <div className="mt-6 space-y-5">
                   {schedule.map((item) => (
                     <div
                       key={item.time}
-                      className="grid gap-1 border-b border-moss/10 pb-4 sm:grid-cols-[7rem_1fr] sm:gap-4"
+                      className="grid gap-2 border-b border-moss/10 pb-4 sm:grid-cols-[7rem_1fr] sm:gap-4"
                     >
                       <span className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
                         {item.time}
                       </span>
-                      <span className="font-serif text-xl text-ink sm:text-2xl">{item.title}</span>
+                      <span className="font-serif text-2xl text-ink">{item.title}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </FadeIn>
             <FadeIn delay={0.12}>
-              <div className="overflow-hidden bg-ivory shadow-soft">
+              <div className="min-h-80 overflow-hidden bg-ivory shadow-soft">
                 <iframe
-                  title="Camp Young Ede map"
+                title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
-                  className="h-72 w-full border-0 sm:h-80"
+                  className="h-80 w-full border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${encodedVenue}`}
-                  className="flex items-center justify-center gap-2 bg-champagne px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-moss transition hover:bg-champagne/80"
+                  className="flex items-center justify-center gap-2 bg-champagne px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-moss"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -805,13 +546,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Dress Code */}
-      <section id="dress-code" className="py-16 sm:py-24">
+      <section id="dress-code" className="py-20 sm:py-28">
         <div className="section-shell">
-          <FadeIn className="floral-frame invitation-border bg-ivory/78 p-6 shadow-soft sm:p-12">
+          <FadeIn className="floral-frame invitation-border bg-ivory/78 p-7 shadow-soft sm:p-12">
             <div className="relative z-10 mx-auto max-w-4xl text-center">
-              <p className="font-script text-4xl text-sage sm:text-5xl lg:text-6xl">Style Inspiration</p>
-              <h2 className="mt-2 font-serif text-4xl italic leading-tight text-moss sm:text-5xl lg:text-7xl">
+              <p className="font-script text-5xl text-sage sm:text-6xl">Style Inspiration</p>
+              <h2 className="mt-2 font-serif text-5xl italic leading-tight text-moss sm:text-7xl">
                 Formal Garden Elegance
               </h2>
               <p className="mx-auto mt-6 max-w-3xl leading-8 text-ink/76">
@@ -824,21 +564,21 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="relative z-10 mt-10 grid gap-6 sm:grid-cols-2">
-              <div className="bg-champagne/56 p-6 sm:p-7">
+            <div className="relative z-10 mt-10 grid gap-6 md:grid-cols-2">
+              <div className="bg-champagne/56 p-7">
                 <AttireIllustration type="ladies" />
-                <Flower2 className="mb-4 text-wine sm:mb-5" />
-                <h3 className="font-serif text-3xl text-moss sm:text-4xl">Ladies</h3>
+                <Flower2 className="mb-5 text-wine" />
+                <h3 className="font-serif text-4xl text-moss">Ladies</h3>
                 <p className="mt-4 leading-8 text-ink/76">
                   Long dresses or refined midi-length dresses with tasteful coverage
                   and soft, elegant detailing. Fascinators or subtle headpieces are
                   welcome to complement the overall look.
                 </p>
               </div>
-              <div className="bg-blush/34 p-6 sm:p-7">
+              <div className="bg-blush/34 p-7">
                 <AttireIllustration type="gentlemen" />
-                <Sparkles className="mb-4 text-wine sm:mb-5" />
-                <h3 className="font-serif text-3xl text-moss sm:text-4xl">Gentlemen</h3>
+                <Sparkles className="mb-5 text-wine" />
+                <h3 className="font-serif text-4xl text-moss">Gentlemen</h3>
                 <p className="mt-4 leading-8 text-ink/76">
                   Well-tailored suits or blazers with dress trousers. Those who prefer
                   not to wear suits may opt for a neatly styled long-sleeved shirt
@@ -850,23 +590,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Gifts */}
-      <section id="gifts" className="relative bg-moss py-16 text-ivory sm:py-24">
+      <section id="gifts" className="relative bg-moss py-20 text-ivory sm:py-28">
         <FloatingPetals />
         <div className="section-shell relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
-              Gifts
+              Guest Note & Gifts
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
               Your presence is our greatest gift.
             </h2>
+            <p className="mt-6 leading-8 text-ivory/76">
+              Due to limited space, attendance is reserved for adult guests only.
+            </p>
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <div className="invitation-border bg-ivory p-6 text-ink shadow-soft sm:p-10">
+            <div className="invitation-border bg-ivory p-7 text-ink shadow-soft sm:p-10">
               <Gift className="mb-5 text-wine" size={28} />
-              <h3 className="font-serif text-3xl text-moss sm:text-4xl">Gifts</h3>
+              <h3 className="font-serif text-4xl text-moss">Gifts</h3>
               <p className="mt-4 leading-8 text-ink/74">
                 Your presence on our special day is the greatest gift we could ask
                 for. But if your heart feels called to give more, a monetary gift
@@ -874,18 +616,18 @@ export default function Home() {
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 <div className="bg-champagne/60 p-5">
-                  <p className="font-serif text-xl text-moss sm:text-2xl">King-David Duruihuoma</p>
+                  <p className="font-serif text-2xl text-moss">King-David Duruihuoma</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Guaranty Trust Bank
                   </p>
-                  <p className="mt-2 font-serif text-2xl text-ink sm:text-3xl">0012782278</p>
+                  <p className="mt-2 font-serif text-3xl text-ink">0012782278</p>
                 </div>
                 <div className="bg-blush/32 p-5">
-                  <p className="font-serif text-xl text-moss sm:text-2xl">Blessing Timehin</p>
+                  <p className="font-serif text-2xl text-moss">Blessing Timehin</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Access Bank
                   </p>
-                  <p className="mt-2 font-serif text-2xl text-ink sm:text-3xl">0733934621</p>
+                  <p className="mt-2 font-serif text-3xl text-ink">0733934621</p>
                 </div>
               </div>
             </div>
@@ -893,17 +635,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Guest Notice before RSVP */}
-      <GuestNoticeSection />
-
-      {/* RSVP */}
-      <section id="rsvp" className="bg-[#ede0cc] py-16 sm:py-24">
+      <section id="rsvp" className="bg-[#f1e5d2] py-20 sm:py-28">
         <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               RSVP
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               Kindly reserve your place.
             </h2>
             <p className="mt-6 leading-8 text-ink/74">
@@ -911,50 +649,37 @@ export default function Home() {
               for every guest. Capacity is limited to {rsvpLimit} guests.
             </p>
             <div className="mt-7 flex items-center gap-3 text-moss">
-              <Users size={22} />
-              <span className="font-serif text-xl sm:text-2xl">Maximum guest limit: {rsvpLimit}</span>
+              <Users />
+              <span className="font-serif text-2xl">Maximum guest limit: {rsvpLimit}</span>
             </div>
           </FadeIn>
 
           <FadeIn delay={0.12}>
             <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="py-14 text-center"
-                >
-                  <motion.div
-                    animate={{ x: [0, -5, 5, -5, 0] }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-4 text-5xl sm:text-6xl"
-                  >
-                    🛑
-                  </motion.div>
-                  <p className="font-serif text-3xl text-wine sm:text-4xl">RSVP Closed</p>
+                <div className="py-14 text-center">
+                  <p className="font-serif text-5xl text-wine">RSVP Closed</p>
                   <p className="mt-3 leading-7 text-ink/72">
                     {message || "Capacity has been reached."}
                   </p>
-                </motion.div>
-              ) : status === "success" ? (
-                <SuccessAnimation />
+                </div>
               ) : (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
                     <label>
-                      <span className="label">Full name *</span>
+                      <span className="label">Full name</span>
                       <input className="field" name="fullName" required />
                     </label>
                     <label>
-                      <span className="label">Email *</span>
+                      <span className="label">Email</span>
                       <input className="field" type="email" name="email" required />
                     </label>
                     <label>
-                      <span className="label">WhatsApp number *</span>
-                      <input className="field" name="phone" inputMode="tel" required />
+                      <span className="label">WhatsApp number (optional)</span>
+                      <input className="field" name="phone" inputMode="tel" />
                     </label>
                     <label>
-                      <span className="label">Number attending *</span>
+                      <span className="label">Number attending</span>
                       <input
                         className="field"
                         type="number"
@@ -966,24 +691,21 @@ export default function Home() {
                       />
                     </label>
                   </div>
-                  <label className="mt-4 block sm:mt-5">
-                    <span className="label">Attendance *</span>
+                  <label className="mt-5 block">
+                    <span className="label">Attendance</span>
                     <select className="field" name="attending" required>
-                      <option value="">Select an option</option>
                       <option value="yes">Joyfully attending</option>
                       <option value="no">Regretfully unable to attend</option>
                     </select>
                   </label>
-                  <label className="mt-4 block sm:mt-5">
-                    <span className="label">Message (optional)</span>
-                    <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" />
+                  <label className="mt-5 block">
+                    <span className="label">Message optional</span>
+                    <textarea className="field min-h-32 resize-y" name="note" />
                   </label>
-                  <motion.button
+                  <button
                     type="submit"
                     disabled={status === "loading"}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-wine/90 disabled:opacity-50"
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-moss disabled:cursor-not-allowed disabled:opacity-65"
                   >
                     {status === "loading" ? (
                       <Loader2 className="animate-spin" size={17} />
@@ -991,7 +713,16 @@ export default function Home() {
                       <CheckCircle2 size={17} />
                     )}
                     Submit RSVP
-                  </motion.button>
+                  </button>
+                  {message ? (
+                    <p
+                      className={`mt-5 text-center text-sm leading-6 ${
+                        status === "error" ? "text-wine" : "text-moss"
+                      }`}
+                    >
+                      {message}
+                    </p>
+                  ) : null}
                 </>
               )}
             </form>

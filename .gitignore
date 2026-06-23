@@ -3,18 +3,28 @@ logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and build output
 node_modules
+.next
+dist
+dist-ssr
+
+# Local environment
+.env
+.env.*
+!.env.example
+*.local
+
+# Project/generated directories
 /.skills
 /tasks
 package.json.[0-9]*
-dist
-dist-ssr
-*.local
-package-lock.json
+history/*.json
+.sync
+.vite_cache
 
 # Editor directories and files
 .vscode/*
@@ -26,11 +36,3 @@ package-lock.json
 *.njsproj
 *.sln
 *.sw?
-
-# History and config
-history/*.json
-
-.sync
-.vite_cache
-.next
-historical_context.txt

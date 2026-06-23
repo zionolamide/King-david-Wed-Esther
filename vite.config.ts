@@ -10,17 +10,17 @@ export default defineConfig({
       svgrOptions: {
         icon: true,
         exportType: "named",
-        namedExport: "ReactComponent",
-      },
-    }),
+        namedExport: "ReactComponent"
+      }
+    })
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "./src")
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom"]
   },
   optimizeDeps: {
-    force: true,
-  },
+    force: true
+  }
 });

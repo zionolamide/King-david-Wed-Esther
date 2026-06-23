@@ -27,10 +27,8 @@ The API endpoint uses the `register_wedding_rsvp` database function so the guest
 
 ## Image Assets
 
-Place these files in `public/`:
+Place this file in `public/`:
 
 - `garden-palette.jpg`: floral palette or bouquet image for the hero and visual accents.
 
-The pre-wedding gallery currently uses elegant placeholders. When the real
-pre-wedding photos are ready, add them to `public/` and replace the placeholder
-cards in `app/page.tsx`.
+The pre-wedding gallery currently uses elegant placeholders. When the real pre-wedding photos are ready, add them to `public/` and replace the placeholder cards in `app/page.tsx`.

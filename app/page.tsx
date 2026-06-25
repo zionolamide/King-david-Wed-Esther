@@ -175,22 +175,49 @@ function FloatingPetals() {
   );
 }
 
+
 function FloatingHearts({ active }: { active: boolean }) {
   if (!active) return null;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[18] overflow-hidden">
-      {Array.from({ length: 18 }).map((_, index) => (
-        <span
-          key={index}
-          className="floating-heart"
-          style={{
-            left: `${6 + ((index * 17) % 88)}%`,
-            animationDelay: `${index * 0.32}s`,
-            animationDuration: `${4.8 + (index % 5) * 0.8}s`
-          }}
-        />
-      ))}
+      {Array.from({ length: 18 }).map((_, index) => {
+        const sizeClass = ["heart-sm", "heart-md", "heart-lg"][index % 3];
+        const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
+        return (
+          <span
+            key={index}
+            className={`floating-heart ${sizeClass} ${colorClass}`}
+            style={{
+              left: `${6 + ((index * 17) % 88)}%`,
+              animationDelay: `${index * 0.32}s`,
+              animationDuration: `${4.8 + (index % 5) * 0.8}s`
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function BackgroundHearts() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.14]">
+      {Array.from({ length: 24 }).map((_, index) => {
+        const sizeClass = ["heart-sm", "heart-md", "heart-lg"][index % 3];
+        const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
+        return (
+          <span
+            key={index}
+            className={`floating-heart ${sizeClass} ${colorClass}`}
+            style={{
+              left: `${4 + ((index * 13) % 92)}%`,
+              animationDelay: `${index * 0.45}s`,
+              animationDuration: `${7 + (index % 5) * 1.5}s`
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -205,7 +232,7 @@ function ScratchDateCard() {
 
   return (
     <div
-      className={`scratch-card invitation-border relative mx-auto mt-7 max-w-xl overflow-hidden bg-ivory/84 p-5 text-center shadow-soft lg:mx-0 ${
+      className={`scratch-card love-pulse invitation-border relative mx-auto mt-7 max-w-xl overflow-hidden bg-ivory/84 p-5 text-center shadow-soft lg:mx-0 ${
         revealed ? "is-revealed" : ""
       }`}
       onPointerDown={scratch}
@@ -223,7 +250,7 @@ function ScratchDateCard() {
       <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
         Wedding Date
       </p>
-      <p className="relative z-10 mt-2 font-serif text-3xl leading-relaxed text-moss">
+      <p className="relative z-10 mt-2 font-serif text-3xl leading-relaxed text-moss text-sparkle">
         Saturday, 22 August 2026
       </p>
       {!revealed ? (
@@ -306,7 +333,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.34em] text-wine">
               Formal Garden Elegance
             </p>
-            <h1 className="hero-title font-script leading-[0.78] text-moss">
+            <h1 className="hero-title font-script leading-[0.78] text-moss text-sparkle">
               King David
               <span className="block font-serif text-3xl italic text-wine sm:text-5xl">&</span>
               Esther
@@ -332,7 +359,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             </div>
           </div>
 
-          <div className="countdown-card invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
+          <div className="countdown-card love-pulse invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
             <div className="rounded-[1.5rem] bg-champagne/45 p-5 text-center">
               <p className="mb-5 text-xs font-semibold uppercase tracking-[0.28em] text-moss">
                 Countdown to our day
@@ -411,7 +438,6 @@ export default function Home() {
   const [lastRsvp, setLastRsvp] = useState<{
     fullName: string;
     phone: string;
-    attendees: number;
     entryCode: string;
   } | null>(null);
 
@@ -424,14 +450,11 @@ export default function Home() {
     const title = String(form.get("title") ?? "(No Prefix)");
     const fullName = String(form.get("fullName") ?? "");
     const phone = String(form.get("phone") ?? "");
-    const attendees = Number(form.get("attendees") ?? 1);
     const payload = {
       title,
       fullName,
       email: String(form.get("email") ?? ""),
       phone,
-      attendees,
-      attending: String(form.get("attending") ?? "yes"),
       note: String(form.get("note") ?? "")
     };
 
@@ -458,7 +481,6 @@ export default function Home() {
     setLastRsvp({
       fullName,
       phone,
-      attendees,
       entryCode: String(result.entryCode ?? "")
     });
     setMessage(
@@ -470,7 +492,8 @@ export default function Home() {
   }
 
   return (
-    <main className="overflow-hidden text-ink">
+    <main className="relative overflow-hidden text-ink">
+      <BackgroundHearts />
       <SoundButton />
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
@@ -489,7 +512,7 @@ export default function Home() {
       <CurtainHero countdown={countdown} />
 
       <section id="story" className="py-20 sm:py-28">
-        <div className="section-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <div className="section-shell love-section grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <FadeIn>
             <StoryArch />
           </FadeIn>
@@ -512,6 +535,7 @@ export default function Home() {
 
       <section id="pre-wedding" className="relative bg-ivory py-20 sm:py-28">
         <FloatingPetals />
+        <FloatingHearts active />
         <div className="section-shell relative z-10">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
@@ -529,7 +553,7 @@ export default function Home() {
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {["Garden Walk", "Soft Portrait", "Evening Promise"].map((title, index) => (
               <FadeIn key={title} delay={index * 0.08}>
-                <div className="photo-placeholder group relative h-[28rem] overflow-hidden bg-champagne shadow-soft">
+                <div className="photo-placeholder love-card group relative h-[28rem] overflow-hidden bg-champagne shadow-soft">
                   <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(251,246,237,0.86),rgba(233,192,182,0.44),rgba(115,123,84,0.24))]" />
                   <div className="absolute inset-6 border border-ivory/70" />
                   <div className="absolute left-6 right-6 top-8 h-40 rounded-t-full bg-ivory/46" />
@@ -564,7 +588,7 @@ export default function Home() {
               { icon: Clock, label: "Reception", value: "Follows immediately" }
             ].map((item) => (
               <FadeIn key={item.label}>
-                <div className="h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur">
+                <div className="love-card h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur">
                   <item.icon className="mb-5 text-blush" size={24} />
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne">
                     {item.label}
@@ -577,7 +601,7 @@ export default function Home() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <FadeIn>
-              <div className="bg-ivory p-7 text-ink shadow-soft">
+              <div className="love-card bg-ivory p-7 text-ink shadow-soft">
                 <h3 className="font-serif text-4xl text-moss">Order of Celebration</h3>
                 <div className="mt-6 space-y-5">
                   {schedule.map((item) => (
@@ -595,7 +619,7 @@ export default function Home() {
               </div>
             </FadeIn>
             <FadeIn delay={0.12}>
-              <div className="min-h-80 overflow-hidden bg-ivory shadow-soft">
+              <div className="love-card min-h-80 overflow-hidden bg-ivory shadow-soft">
                 <iframe
                 title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
@@ -619,7 +643,7 @@ export default function Home() {
 
       <section id="dress-code" className="py-20 sm:py-28">
         <div className="section-shell">
-          <FadeIn className="floral-frame invitation-border bg-ivory/78 p-7 shadow-soft sm:p-12">
+          <FadeIn className="floral-frame invitation-border love-card bg-ivory/78 p-7 shadow-soft sm:p-12">
             <div className="relative z-10 mx-auto max-w-4xl text-center">
               <p className="font-script text-5xl text-sage sm:text-6xl">Style Inspiration</p>
               <h2 className="mt-2 font-serif text-5xl italic leading-tight text-moss sm:text-7xl">
@@ -636,7 +660,7 @@ export default function Home() {
             </div>
 
             <div className="relative z-10 mt-10 grid gap-6 md:grid-cols-2">
-              <div className="bg-champagne/56 p-7">
+              <div className="love-card bg-champagne/56 p-7">
                 <AttireIllustration type="ladies" />
                 <Flower2 className="mb-5 text-wine" />
                 <h3 className="font-serif text-4xl text-moss">Ladies</h3>
@@ -646,7 +670,7 @@ export default function Home() {
                   welcome to complement the overall look.
                 </p>
               </div>
-              <div className="bg-blush/34 p-7">
+              <div className="love-card bg-blush/34 p-7">
                 <AttireIllustration type="gentlemen" />
                 <Sparkles className="mb-5 text-wine" />
                 <h3 className="font-serif text-4xl text-moss">Gentlemen</h3>
@@ -677,7 +701,7 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <div className="invitation-border bg-ivory p-7 text-ink shadow-soft sm:p-10">
+            <div className="invitation-border love-card bg-ivory p-7 text-ink shadow-soft sm:p-10">
               <Gift className="mb-5 text-wine" size={28} />
               <h3 className="font-serif text-4xl text-moss">Gifts</h3>
               <p className="mt-4 leading-8 text-ink/74">
@@ -746,7 +770,7 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
+            <form onSubmit={submitRsvp} className="invitation-border love-card bg-ivory p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
                 <div className="py-14 text-center">
                   <XCircle className="mx-auto mb-4 h-14 w-14 text-wine" />
@@ -772,7 +796,7 @@ export default function Home() {
                     <a
                       href={buildWhatsAppUrl(
                         lastRsvp.phone,
-                        `Hello ${lastRsvp.fullName},\n\nYour entry code for King David & Esther's wedding is:\n\n${lastRsvp.entryCode}\n\nGuests: ${lastRsvp.attendees}\nDate: Saturday, 22nd August 2026\nTime: 11:00 AM\nVenue: Camp Young, Ede\n\nPlease keep this code safe and present it at the entrance.`
+                        `Hello ${lastRsvp.fullName},\n\nYour entry code for King David & Esther's wedding is:\n\n${lastRsvp.entryCode}\n\nDate: Saturday, 22nd August 2026\nTime: 11:00 AM\nVenue: Camp Young, Ede\n\nPlease keep this code safe and present it at the entrance.`
                       )}
                       target="_blank"
                       rel="noreferrer"
@@ -807,26 +831,7 @@ export default function Home() {
                       <span className="label">WhatsApp number</span>
                       <input className="field" name="phone" inputMode="tel" placeholder="+234..." required />
                     </label>
-                    <label>
-                      <span className="label">Number attending</span>
-                      <input
-                        className="field"
-                        type="number"
-                        name="attendees"
-                        min={1}
-                        max={10}
-                        defaultValue={1}
-                        required
-                      />
-                    </label>
                   </div>
-                  <label className="mt-5 block">
-                    <span className="label">Attendance</span>
-                    <select className="field" name="attending" required>
-                      <option value="yes">Joyfully attending</option>
-                      <option value="no">Regretfully unable to attend</option>
-                    </select>
-                  </label>
                   <label className="mt-5 block">
                     <span className="label">Message optional</span>
                     <textarea className="field min-h-32 resize-y" name="note" />

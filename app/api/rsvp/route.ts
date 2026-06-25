@@ -1,14 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { randomBytes } from "crypto";
 
 type RsvpPayload = {
   title?: unknown;
   fullName?: unknown;
   email?: unknown;
   phone?: unknown;
-  attendees?: unknown;
-  attending?: unknown;
   note?: unknown;
 };
 
@@ -22,30 +21,10 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function toIntInRange(value: unknown, min: number, max: number, fallback: number) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return fallback;
-  const rounded = Math.trunc(n);
-  return Math.max(min, Math.min(max, rounded));
-}
-
 function generateEntryCode() {
-  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const digits = "0123456789";
-  const chars = [
-    letters[Math.floor(Math.random() * letters.length)],
-    letters[Math.floor(Math.random() * letters.length)],
-    digits[Math.floor(Math.random() * digits.length)],
-    digits[Math.floor(Math.random() * digits.length)],
-    digits[Math.floor(Math.random() * digits.length)]
-  ];
-
-  for (let index = chars.length - 1; index > 0; index--) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [chars[index], chars[swapIndex]] = [chars[swapIndex], chars[index]];
-  }
-
-  return `KDE-2026-${chars.join("")}`;
+  // Generate 4 random bytes, converting to an 8-character uppercase hex string (e.g. "A1B2C3D4")
+  const code = randomBytes(4).toString("hex").toUpperCase();
+  return `KDE-2026-${code}`;
 }
 
 export async function POST(request: Request) {
@@ -75,11 +54,8 @@ export async function POST(request: Request) {
   const phone = cleanText(body.phone);
   const note = cleanText(body.note);
   const entryCode = generateEntryCode();
-
-  const attending = body.attending === "no" ? false : body.attending === "yes" ? true : true;
-
-  // attendees are only meaningful when attending === true
-  const attendees = toIntInRange(body.attendees, 1, 10, 1);
+  const attendees = 1;
+  const attending = true;
 
   if (!fullName || !isEmail(email) || !phone) {
     return NextResponse.json(
@@ -99,9 +75,10 @@ export async function POST(request: Request) {
     p_full_name: title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName,
     p_email: email,
     p_phone: phone || null,
-    p_attendees: attending ? attendees : 0,
+    p_attendees: attendees,
     p_attending: attending,
-    p_note: [note, attending ? `Entry code: ${entryCode}` : ""].filter(Boolean).join("\n\n") || null,
+    p_note: note || null,
+    p_entry_code: entryCode,
     p_capacity: RSVP_LIMIT
   });
 
@@ -109,6 +86,16 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { ok: false, message: error.message ?? "RSVP failed." },
       { status: 500 }
+    );
+  }
+
+  if (data?.status === "exists") {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "This email has already been registered."
+      },
+      { status: 409 }
     );
   }
 
@@ -125,27 +112,21 @@ export async function POST(request: Request) {
 
   if (process.env.RESEND_API_KEY && process.env.RSVP_FROM_EMAIL) {
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const attendanceLine = attending
-      ? `We have reserved ${attendees} seat${attendees === 1 ? "" : "s"} for you.`
-      : "We have noted that you are unable to attend.";
+    const attendanceLine = "Your seat has been reserved.";
     const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
-    const entryCodeBlock = attending
-      ? `
+    const entryCodeBlock = `
               <div style="margin: 24px 0; padding: 18px; text-align: center; border: 2px dashed rgba(123,0,20,0.3); background: #f5efe4;">
                 <p style="letter-spacing: 2px; text-transform: uppercase; color: #7b0014; font: 11px Arial, sans-serif; margin: 0 0 8px;">Your Entry Code</p>
                 <p style="font: 700 28px 'Courier New', monospace; color: #3f481f; margin: 0;">${entryCode}</p>
               </div>
               <p style="font-size: 15px; line-height: 1.7;">Please keep this code safe and present it at the entrance.</p>
-        `
-      : "";
+        `;
 
     try {
-      await resend.emails.send({
+      const emailResponse = await resend.emails.send({
         from: process.env.RSVP_FROM_EMAIL,
         to: email,
-        subject: attending
-          ? "Your Wedding Entry Code | King David & Esther"
-          : "RSVP Confirmation | King David & Esther",
+        subject: "Your Wedding Entry Code | King David & Esther",
         html: `
           <div style="font-family: Georgia, serif; color: #2d241f; background: #fbf6ed; padding: 32px;">
             <div style="max-width: 560px; margin: auto; background: #fffaf3; border: 1px solid #eadfc9; padding: 32px;">
@@ -159,14 +140,19 @@ export async function POST(request: Request) {
           </div>
         `
       });
+      if (emailResponse.error) {
+        console.error("Resend API returned error:", emailResponse.error);
+      } else {
+        console.log("Resend email sent successfully:", emailResponse.data);
+      }
     } catch (emailError) {
-      console.error("RSVP email failed", emailError);
+      console.error("RSVP email failed to send:", emailError);
     }
   }
 
   return NextResponse.json({
     ok: true,
-    entryCode: attending ? entryCode : null,
+    entryCode,
     remaining: data?.remaining ?? null
   });
 }

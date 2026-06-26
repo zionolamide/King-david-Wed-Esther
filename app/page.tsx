@@ -144,7 +144,7 @@ function SoundButton() {
 
 function StoryArch() {
   return (
-    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-t-full bg-champagne shadow-soft">
+    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-xl bg-champagne shadow-soft love-card">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(251,246,237,0.12),rgba(63,72,31,0.42)),url('/garden-palette.jpg')] bg-cover bg-center" />
       <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/58" />
       <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
@@ -273,9 +273,16 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
   const [opened, setOpened] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = opened ? "" : "hidden";
+    if (!opened) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [opened]);
 
@@ -329,7 +336,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           className="hero-content section-shell relative z-10 grid gap-5 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
           initial={false}
           animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 38, scale: opened ? 1 : 0.98 }}
-          transition={{ duration: 1, delay: opened ? 1.2 : 0 }}
+          transition={{ duration: 0.9, delay: opened ? 1.1 : 0, ease: "easeOut" }}
           style={{ pointerEvents: opened ? "auto" : "none" }}
         >
           <div className="text-center lg:text-left">
@@ -498,6 +505,15 @@ export default function Home() {
     <main className="relative overflow-hidden text-ink">
       <BackgroundHearts />
       <SoundButton />
+      {/* Dangling rope animation when curtain is closed */}
+      <style>{`
+        @keyframes rope-sway {
+          0%, 100% { transform: rotate(-1deg); transform-origin: center top; }
+          50% { transform: rotate(1deg); transform-origin: center top; }
+        }
+        .curtain-rope { animation: rope-sway 2.2s ease-in-out infinite; }
+        .curtain-heart { animation: rope-sway 2.2s ease-in-out infinite; animation-delay: 0.1s; }
+      `}</style>
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">
@@ -524,16 +540,13 @@ export default function Home() {
           </FadeIn>
           <FadeIn delay={0.12}>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
-              Our Story
+              Our Journey
             </p>
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A love rooted in grace, friendship and promise.
             </h2>
             <p className="mt-6 text-base leading-8 text-ink/75">
-              Our journey has been shaped by faith, laughter, family and the quiet
-              certainty of choosing each other. As we begin this new chapter, we are
-              honoured to gather the people we love for a celebration filled with
-              warmth, beauty and thanksgiving.
+              Our journey began with a simple hello, grew through friendship, laughter, prayers, and love. Through every season, we found in each other a forever kind of love. From two different tribes, God beautifully brought us together, uniting our hearts in His perfect plan. As we step into forever together, we invite you to celebrate this moment with us.
             </p>
           </FadeIn>
         </div>
@@ -709,11 +722,9 @@ export default function Home() {
           <FadeIn delay={0.12}>
             <div className="invitation-border love-card bg-ivory p-7 text-ink shadow-soft sm:p-10">
               <Gift className="mb-5 text-wine" size={28} />
-              <h3 className="font-serif text-4xl text-moss">Gifts</h3>
+              <h3 className="font-serif text-4xl text-moss">Gifts & Blessings</h3>
               <p className="mt-4 leading-8 text-ink/74">
-                Your presence on our special day is the greatest gift we could ask
-                for. But if your heart feels called to give more, a monetary gift
-                would be received with deep gratitude and love.
+                Your presence on our special day is the greatest gift we could ask for. But if your heart feels called to give more, a monetary gift would be received with deep gratitude and love.
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 <div className="bg-champagne/60 p-5">
@@ -745,6 +756,12 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               Kindly reserve your place.
             </h2>
+            <div className="love-card mt-6 rounded-lg border border-wine/20 bg-wine/8 p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-wine">👨‍👩‍👧 Adults Only</p>
+              <p className="mt-3 text-base leading-7 text-ink/76">
+                This celebration is exclusively for adults. Due to the nature of our venue and activities, we kindly request that children are not brought to this event. Thank you for understanding.
+              </p>
+            </div>
             <p className="mt-6 leading-8 text-ink/74">
               Please respond early so we can prepare a warm and comfortable celebration
               for every guest. Capacity is limited to {rsvpLimit} guests.
@@ -841,6 +858,17 @@ export default function Home() {
                   <label className="mt-5 block">
                     <span className="label">Message optional</span>
                     <textarea className="field min-h-32 resize-y" name="note" />
+                  </label>
+                  <label className="mt-5 flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      name="adultAgreement"
+                      required
+                      className="mt-1 h-5 w-5 cursor-pointer rounded border-[1.5px] border-wine/40 bg-ivory accent-wine"
+                    />
+                    <span className="text-sm leading-6 text-ink/76">
+                      I understand this invite is strictly for me alone and my unique code will only grant access to <strong>one adult</strong>.
+                    </span>
                   </label>
                   <button
                     type="submit"

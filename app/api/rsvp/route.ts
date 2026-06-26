@@ -9,6 +9,7 @@ type RsvpPayload = {
   email?: unknown;
   phone?: unknown;
   note?: unknown;
+  adultAgreement?: unknown;
 };
 
 const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
@@ -53,15 +54,16 @@ export async function POST(request: Request) {
   const email = cleanText(body.email).toLowerCase();
   const phone = cleanText(body.phone);
   const note = cleanText(body.note);
+  const adultAgreement = body.adultAgreement === true || body.adultAgreement === "true";
   const entryCode = generateEntryCode();
   const attendees = 1;
   const attending = true;
 
-  if (!fullName || !isEmail(email) || !phone) {
+  if (!fullName || !isEmail(email) || !phone || !adultAgreement) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Please enter your full name, WhatsApp number and a valid email address."
+        message: "Please enter your full name, WhatsApp number, valid email address and confirm the adult-only agreement."
       },
       { status: 400 }
     );
@@ -79,7 +81,9 @@ export async function POST(request: Request) {
     p_attending: attending,
     p_note: note || null,
     p_entry_code: entryCode,
-    p_capacity: RSVP_LIMIT
+    p_capacity: RSVP_LIMIT,
+    p_title: title || null,
+    p_adult_agreement: adultAgreement
   });
 
   if (error) {

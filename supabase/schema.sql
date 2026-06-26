@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS public.rsvp_submissions (
   note text,
   entry_code text UNIQUE,
   title text,
-  created_at timestamptz NOT NULL DEFAULT now()
+  adult_agreement boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS rsvp_submissions_created_at_idx ON public.rsvp_submissions (created_at DESC);
@@ -25,7 +27,9 @@ CREATE OR REPLACE FUNCTION public.register_wedding_rsvp(
   p_attending boolean,
   p_note text,
   p_entry_code text,
-  p_capacity integer
+  p_capacity integer,
+  p_title text DEFAULT NULL,
+  p_adult_agreement boolean DEFAULT false
 )
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -83,7 +87,9 @@ BEGIN
     attendees,
     attending,
     note,
-    entry_code
+    entry_code,
+    title,
+    adult_agreement
   ) VALUES (
     trim(p_full_name),
     lower(trim(p_email)),
@@ -91,7 +97,9 @@ BEGIN
     normalized_attendees,
     v_attending_text,
     nullif(trim(coalesce(p_note, '')), ''),
-    trim(p_entry_code)
+    trim(p_entry_code),
+    nullif(trim(coalesce(p_title, '')), ''),
+    p_adult_agreement
   );
 
   RETURN jsonb_build_object(

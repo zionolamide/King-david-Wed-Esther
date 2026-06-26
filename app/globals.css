@@ -180,31 +180,82 @@ body {
 
 .floating-heart {
   position: absolute;
-  bottom: -36px;
-  width: 18px;
-  height: 18px;
+  bottom: -40px;
   transform: rotate(45deg);
-  background: rgba(240, 210, 150, 0.64);
-  animation: heart-rise 5.8s ease-out infinite;
+  animation: heart-rise 8s ease-out infinite;
   opacity: 0;
+  will-change: transform, opacity;
 }
 
 .floating-heart::before,
 .floating-heart::after {
   content: "";
   position: absolute;
-  width: 18px;
-  height: 18px;
   border-radius: 50%;
   background: inherit;
 }
 
-.floating-heart::before {
-  left: -9px;
+/* Floating Heart Sizes */
+.heart-sm {
+  width: 10px;
+  height: 10px;
+}
+.heart-sm::before,
+.heart-sm::after {
+  width: 10px;
+  height: 10px;
+}
+.heart-sm::before {
+  left: -5px;
+}
+.heart-sm::after {
+  top: -5px;
 }
 
-.floating-heart::after {
-  top: -9px;
+.heart-md {
+  width: 16px;
+  height: 16px;
+}
+.heart-md::before,
+.heart-md::after {
+  width: 16px;
+  height: 16px;
+}
+.heart-md::before {
+  left: -8px;
+}
+.heart-md::after {
+  top: -8px;
+}
+
+.heart-lg {
+  width: 24px;
+  height: 24px;
+}
+.heart-lg::before,
+.heart-lg::after {
+  width: 24px;
+  height: 24px;
+}
+.heart-lg::before {
+  left: -12px;
+}
+.heart-lg::after {
+  top: -12px;
+}
+
+/* Floating Heart Colors */
+.heart-wine {
+  background: rgba(123, 0, 20, 0.72) !important;
+}
+.heart-rose {
+  background: rgba(200, 148, 133, 0.76) !important;
+}
+.heart-blush {
+  background: rgba(233, 192, 182, 0.8) !important;
+}
+.heart-champagne {
+  background: rgba(234, 223, 201, 0.76) !important;
 }
 
 .hero-title {
@@ -370,6 +421,76 @@ body {
   transform: translateX(45%) rotate(12deg);
 }
 
+.love-section {
+  position: relative;
+}
+
+.love-section::before {
+  content: "";
+  position: absolute;
+  inset: -3rem -1rem auto auto;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(251, 246, 237, 0.9), transparent 22%),
+    radial-gradient(circle, rgba(233, 192, 182, 0.42), transparent 68%);
+  filter: blur(1px);
+  pointer-events: none;
+  animation: soft-float 7s ease-in-out infinite;
+}
+
+.love-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 420ms ease,
+    box-shadow 420ms ease,
+    border-color 420ms ease;
+}
+
+.love-card::after {
+  content: "";
+  position: absolute;
+  inset: -45% auto auto -30%;
+  width: 65%;
+  height: 180%;
+  background: linear-gradient(120deg, transparent 30%, rgba(251, 246, 237, 0.36), transparent 70%);
+  transform: translateX(-100%) rotate(12deg);
+  transition: transform 700ms ease;
+  pointer-events: none;
+}
+
+.love-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 90px rgba(86, 54, 42, 0.18);
+}
+
+.love-card:hover::after {
+  transform: translateX(240%) rotate(12deg);
+}
+
+a,
+button {
+  transition:
+    transform 280ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 280ms ease,
+    background-color 220ms ease,
+    color 220ms ease,
+    opacity 220ms ease;
+}
+
+a:hover,
+button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(123, 0, 20, 0.16);
+}
+
+button:active,
+a:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
 @keyframes petal-fall {
   0% {
     transform: translate3d(0, -10%, 0) rotate(0deg);
@@ -421,15 +542,52 @@ body {
 @keyframes heart-rise {
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0) rotate(45deg) scale(0.55);
+    transform: translateY(0) rotate(45deg) scale(0.4);
   }
-  18% {
-    opacity: 0.84;
+  12% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateY(-45vh) translateX(30px) rotate(35deg) scale(0.8);
   }
   100% {
     opacity: 0;
-    transform: translate3d(28px, -88vh, 0) rotate(45deg) scale(0.9);
+    transform: translateY(-95vh) translateX(-30px) rotate(55deg) scale(1.1);
   }
+}
+
+@keyframes love-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 30px rgba(123, 0, 20, 0.08);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 15px 40px rgba(123, 0, 20, 0.16);
+    border-color: rgba(123, 0, 20, 0.28);
+  }
+}
+
+@keyframes text-sparkle {
+  0%, 100% {
+    opacity: 0.82;
+    text-shadow: 0 0 6px rgba(233, 192, 182, 0.24);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 
+      0 0 14px rgba(233, 192, 182, 0.88), 
+      0 0 24px rgba(123, 0, 20, 0.32);
+  }
+}
+
+.love-pulse {
+  animation: love-pulse 4s ease-in-out infinite;
+}
+
+.text-sparkle {
+  animation: text-sparkle 3s ease-in-out infinite;
 }
 
 @keyframes title-glow {
@@ -470,6 +628,100 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #3f481f;
+}
+
+/* Love Fever Animations */
+
+@keyframes romantic-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(123, 0, 20, 0.25), 0 0 40px rgba(233, 192, 182, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(123, 0, 20, 0.35), 0 0 60px rgba(233, 192, 182, 0.25);
+  }
+}
+
+@keyframes smooth-hover-lift {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentle-sparkle {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes romantic-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+@keyframes heart-pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+.romantic-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.romantic-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(233, 192, 182, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 600ms, height 600ms;
+  pointer-events: none;
+}
+
+.romantic-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.romantic-button:hover {
+  animation: romantic-glow 1.5s ease-in-out infinite;
+}
+
+.smooth-section-transition {
+  animation: romantic-float 3s ease-in-out infinite;
+}
+
+.love-fever-text {
+  animation: gentle-sparkle 2.5s ease-in-out infinite;
+  background: linear-gradient(120deg, #7b0014, #c89485, #7b0014);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @media (max-width: 640px) {

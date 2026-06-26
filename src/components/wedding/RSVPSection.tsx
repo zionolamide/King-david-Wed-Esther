@@ -107,7 +107,6 @@ interface FormData {
   fullName: string;
   email: string;
   phone: string;
-  attendees: string;
   note: string;
 }
 
@@ -152,7 +151,6 @@ export function RSVPSection() {
     fullName: '',
     email: '',
     phone: '',
-    attendees: '1',
     note: '',
   });
 
@@ -185,8 +183,6 @@ export function RSVPSection() {
       setStatus('loading');
       setErrorMsg('');
 
-      const attendeesNum = parseInt(form.attendees, 10);
-
       // Validate
       if (!form.fullName || !form.email || !form.phone) {
         setErrorMsg('Please fill in all required fields.');
@@ -197,7 +193,7 @@ export function RSVPSection() {
       // Check capacity again before submitting
       const { data: allRsvps } = await supabase.from('rsvp_submissions').select('attendees');
       const total = (allRsvps || []).reduce((sum, r) => sum + (r.attendees || 0), 0);
-      if (total + attendeesNum > RSVP_LIMIT) {
+      if (total + 1 > RSVP_LIMIT) {
         setStatus('closed');
         return;
       }
@@ -224,7 +220,7 @@ export function RSVPSection() {
         full_name: form.fullName,
         email: form.email,
         phone: form.phone,
-        attendees: attendeesNum,
+        attendees: 1,
         attending: 'yes',
         note: form.note || null,
         entry_code: entryCode,
@@ -251,7 +247,7 @@ export function RSVPSection() {
             email: form.email,
             title: form.title === '(No Prefix)' ? undefined : form.title,
             entry_code: entryCode,
-            attendees: attendeesNum,
+            attendees: 1,
             phone: form.phone,
           }),
         });
@@ -263,7 +259,7 @@ export function RSVPSection() {
       setLastEntryCode(entryCode);
       setLastPhone(form.phone);
       setLastFullName(form.fullName);
-      setLastAttendees(attendeesNum);
+      setLastAttendees(1);
       setStatus('success');
     },
     [form]
@@ -500,7 +496,7 @@ export function RSVPSection() {
                         className="mt-1 border-[rgba(63,72,31,0.18)] bg-[rgba(255,252,246,0.76)] px-3 py-5 text-ink focus:border-wine/55 focus:ring-wine/10"
                       />
                     </div>
-                    <div>
+                    <div className="sm:col-span-2">
                       <Label className="text-xs font-semibold uppercase tracking-[0.12em] text-moss">
                         WhatsApp number *
                       </Label>
@@ -510,20 +506,6 @@ export function RSVPSection() {
                         required
                         inputMode="tel"
                         placeholder="+234..."
-                        className="mt-1 border-[rgba(63,72,31,0.18)] bg-[rgba(255,252,246,0.76)] px-3 py-5 text-ink focus:border-wine/55 focus:ring-wine/10"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs font-semibold uppercase tracking-[0.12em] text-moss">
-                        Number attending *
-                      </Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={10}
-                        value={form.attendees}
-                        onChange={(e) => handleChange('attendees', e.target.value)}
-                        required
                         className="mt-1 border-[rgba(63,72,31,0.18)] bg-[rgba(255,252,246,0.76)] px-3 py-5 text-ink focus:border-wine/55 focus:ring-wine/10"
                       />
                     </div>
@@ -558,7 +540,7 @@ export function RSVPSection() {
                   <Button
                     type="submit"
                     disabled={status === 'loading' || isClosed}
-                    className="w-full rounded-full bg-wine px-7 py-6 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50"
+                    className="w-full rounded-full bg-wine px-7 py-6 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:opacity-90 hover:shadow-lg disabled:opacity-50 romantic-button smooth-section-transition"
                   >
                     {status === 'loading' ? (
                       <span className="flex items-center justify-center gap-2">

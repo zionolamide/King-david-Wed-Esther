@@ -286,7 +286,10 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <FloatingPetals />
         <FloatingHearts active={!opened} />
 
-        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-20" />
+        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-24">
+          <span className="curtain-rope" />
+          <span className="curtain-heart" />
+        </div>
 
         <motion.div
           className="curtain-panel left-0"
@@ -314,7 +317,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/60 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur transition hover:bg-wine"
+            className="romantic-button mt-7 inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/60 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur"
           >
             <Sparkles size={14} />
             Tap to Open
@@ -346,7 +349,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
                 href="#rsvp"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss"
+                className="romantic-button inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft"
               >
                 <Heart size={17} /> Reserve Your Seat
               </a>
@@ -498,11 +501,14 @@ export default function Home() {
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">
+            <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-wine/10 text-wine">
+              <Heart size={14} />
+            </span>
             K-D & Esther
           </a>
           <a
             href="#rsvp"
-            className="inline-flex items-center gap-2 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft"
+            className="romantic-pill inline-flex items-center gap-2 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory"
           >
             <Send size={14} /> RSVP
           </a>
@@ -800,7 +806,7 @@ export default function Home() {
                       )}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:opacity-90"
+                      className="romantic-button mt-5 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-soft"
                     >
                       <Share2 size={16} /> Send Entry Code to WhatsApp
                     </a>
@@ -839,7 +845,7 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-moss disabled:cursor-not-allowed disabled:opacity-65"
+                    className="romantic-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory disabled:cursor-not-allowed disabled:opacity-65"
                   >
                     {status === "loading" ? (
                       <Loader2 className="animate-spin" size={17} />

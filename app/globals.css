@@ -5,9 +5,9 @@
 :root {
   color: #2d241f;
   background: #fbf6ed;
-  --font-cormorant: Georgia, "Times New Roman", serif;
-  --font-great-vibes: "Brush Script MT", "Segoe Script", cursive;
-  --font-montserrat: Arial, Helvetica, sans-serif;
+  --font-sans: "Montserrat", Arial, Helvetica, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-script: "Great Vibes", "Brush Script MT", "Segoe Script", cursive;
 }
 
 * {
@@ -25,7 +25,9 @@ body {
     radial-gradient(circle at 18% 8%, rgba(233, 192, 182, 0.34), transparent 28rem),
     radial-gradient(circle at 88% 18%, rgba(115, 123, 84, 0.18), transparent 22rem),
     linear-gradient(180deg, #fbf6ed 0%, #f4eadc 45%, #fbf6ed 100%);
-  font-family: var(--font-montserrat), Arial, sans-serif;
+  font-family: var(--font-sans), Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
@@ -36,6 +38,64 @@ body {
 .section-shell {
   width: min(1120px, calc(100% - 32px));
   margin-inline: auto;
+}
+
+.font-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.font-script {
+  font-family: var(--font-script), "Brush Script MT", cursive;
+}
+
+.love-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+}
+
+.love-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, rgba(255,255,255,0.18), transparent 45%, rgba(233,192,182,0.16));
+  opacity: 0;
+  transition: opacity 280ms ease;
+  pointer-events: none;
+}
+
+.love-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(123, 0, 20, 0.12);
+  border-color: rgba(123, 0, 20, 0.24);
+}
+
+.love-card:hover::before {
+  opacity: 1;
+}
+
+.romantic-pill {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(123, 0, 20, 0.16);
+  box-shadow: 0 10px 28px rgba(123, 0, 20, 0.08);
+  transition: transform 260ms ease, box-shadow 260ms ease;
+}
+
+.romantic-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(123, 0, 20, 0.16);
+}
+
+.romantic-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 250ms ease, box-shadow 250ms ease, background-color 250ms ease;
+}
+
+.romantic-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 14px 28px rgba(123, 0, 20, 0.18);
 }
 
 .invitation-border {
@@ -150,10 +210,23 @@ body {
 }
 
 .curtain-valance {
+  position: relative;
   background:
     linear-gradient(180deg, #1a0004 0%, #3d000a 42%, #5c0010 72%, transparent 100%),
     repeating-linear-gradient(90deg, #1a0004 0 10px, #3d000a 10px 22px, #5c0012 22px 34px, #3d000a 34px 46px);
   box-shadow: 0 6px 24px rgba(10, 0, 2, 0.5);
+}
+
+.curtain-valance::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, transparent 0 10px, rgba(255,241,221,0.8) 10px 14px, transparent 14px 28px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.23);
 }
 
 .curtain-valance::after {
@@ -176,6 +249,48 @@ body {
     0 2px 24px rgba(0, 0, 0, 0.7),
     0 0 34px rgba(240, 210, 150, 0.28);
   animation: title-glow 3s ease-in-out infinite;
+}
+
+.curtain-rope {
+  position: absolute;
+  inset: 0 8% auto 8%;
+  height: 18px;
+  top: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,241,221,0.9), rgba(200,148,133,0.8), rgba(255,241,221,0.9));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+}
+
+.curtain-rope::before,
+.curtain-rope::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 18px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255,241,221,0.9);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.16);
+}
+
+.curtain-rope::before {
+  left: 8%;
+}
+
+.curtain-rope::after {
+  right: 8%;
+}
+
+.curtain-heart {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translateX(-50%);
+  background: rgba(255,241,221,0.98);
+  clip-path: path("M15 3c-2.2 0-4.2 1.2-5.2 3.1C8.8 4.2 6.8 3 4.6 3 1.9 3 0 5 0 7.8c0 3.6 3.1 6.3 7.7 10.3L15 21l7.3-2.9C26.9 14.1 30 11.4 30 7.8 30 5 28.1 3 25.4 3c-2.2 0-4.2 1.2-5.2 3.1C19.2 4.2 17.2 3 15 3z");
+  box-shadow: 0 8px 18px rgba(123, 0, 20, 0.2);
 }
 
 .floating-heart {

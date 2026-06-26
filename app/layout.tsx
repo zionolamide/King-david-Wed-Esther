@@ -1,5 +1,26 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Great_Vibes, Montserrat } from "next/font/google";
 import "./globals.css";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap"
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-serif",
+  display: "swap"
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-script",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   title: "King-David & Esther | Wedding",
@@ -21,7 +42,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${montserrat.variable} ${cormorant.variable} ${greatVibes.variable}`}>
       <body>{children}</body>
     </html>
   );

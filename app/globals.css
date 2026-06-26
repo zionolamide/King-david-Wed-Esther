@@ -630,6 +630,100 @@ a:active {
   color: #3f481f;
 }
 
+/* Love Fever Animations */
+
+@keyframes romantic-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(123, 0, 20, 0.25), 0 0 40px rgba(233, 192, 182, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(123, 0, 20, 0.35), 0 0 60px rgba(233, 192, 182, 0.25);
+  }
+}
+
+@keyframes smooth-hover-lift {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentle-sparkle {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes romantic-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+@keyframes heart-pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+.romantic-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.romantic-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(233, 192, 182, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 600ms, height 600ms;
+  pointer-events: none;
+}
+
+.romantic-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.romantic-button:hover {
+  animation: romantic-glow 1.5s ease-in-out infinite;
+}
+
+.smooth-section-transition {
+  animation: romantic-float 3s ease-in-out infinite;
+}
+
+.love-fever-text {
+  animation: gentle-sparkle 2.5s ease-in-out infinite;
+  background: linear-gradient(120deg, #7b0014, #c89485, #7b0014);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 @media (max-width: 640px) {
   .section-shell {
     width: min(100% - 24px, 1120px);

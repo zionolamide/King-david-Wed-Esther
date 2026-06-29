@@ -59,15 +59,17 @@ function buildWhatsAppUrl(phone: string, message: string) {
 }
 
 function useCountdown() {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
   return useMemo(() => {
-    const difference = Math.max(weddingDate.getTime() - now.getTime(), 0);
+    const reference = now ?? weddingDate;
+    const difference = Math.max(weddingDate.getTime() - reference.getTime(), 0);
     const days = Math.floor(difference / 86_400_000);
     const hours = Math.floor((difference / 3_600_000) % 24);
     const minutes = Math.floor((difference / 60_000) % 60);

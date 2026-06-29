@@ -98,6 +98,25 @@ function FadeIn({
   );
 }
 
+function SectionFlourish({
+  align = "center",
+  tone = "wine"
+}: {
+  align?: "center" | "left";
+  tone?: "wine" | "blush";
+}) {
+  return (
+    <div
+      aria-hidden
+      className={`section-flourish flourish-${tone} ${align === "center" ? "is-center" : ""}`}
+    >
+      <span />
+      <Heart size={14} fill="currentColor" />
+      <span />
+    </div>
+  );
+}
+
 function SoundButton() {
   const [playing, setPlaying] = useState(false);
   const [audio, setAudio] = useState<AudioContext | null>(null);
@@ -293,9 +312,28 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <FloatingPetals />
         <FloatingHearts active={!opened} />
 
-        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-24">
-          <span className="curtain-rope" />
-          <span className="curtain-heart" />
+        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-30 h-24">
+          <motion.div
+            className="pull-cord-anchor"
+            initial={false}
+            animate={{ opacity: opened ? 0 : 1, y: opened ? -48 : 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{ pointerEvents: opened ? "none" : "auto" }}
+          >
+            <button
+              type="button"
+              onClick={() => setOpened(true)}
+              className="pull-cord"
+              aria-label="Pull the ribbon to open the curtains"
+            >
+              <span className="pull-cord-line" />
+              <span className="pull-cord-bow">
+                <span className="bow-knot" />
+              </span>
+              <span className="pull-cord-heart" />
+              <span className="pull-cord-hint">pull</span>
+            </button>
+          </motion.div>
         </div>
 
         <motion.div
@@ -505,15 +543,6 @@ export default function Home() {
     <main className="relative overflow-hidden text-ink">
       <BackgroundHearts />
       <SoundButton />
-      {/* Dangling rope animation when curtain is closed */}
-      <style>{`
-        @keyframes rope-sway {
-          0%, 100% { transform: rotate(-1deg); transform-origin: center top; }
-          50% { transform: rotate(1deg); transform-origin: center top; }
-        }
-        .curtain-rope { animation: rope-sway 2.2s ease-in-out infinite; }
-        .curtain-heart { animation: rope-sway 2.2s ease-in-out infinite; animation-delay: 0.1s; }
-      `}</style>
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">
@@ -545,6 +574,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A love rooted in grace, friendship and promise.
             </h2>
+            <SectionFlourish align="left" />
             <p className="mt-6 text-base leading-8 text-ink/75">
               Our journey began with a simple hello, grew through friendship, laughter, prayers, and love. Through every season, we found in each other a forever kind of love. From two different tribes, God beautifully brought us together, uniting our hearts in His perfect plan. As we step into forever together, we invite you to celebrate this moment with us.
             </p>
@@ -563,6 +593,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A quiet gallery for the memories before the day.
             </h2>
+            <SectionFlourish />
             <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
               Portraits will be added here soon. For now, these soft editorial frames
               hold the space for the couple's pre-wedding moments.
@@ -598,6 +629,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
               Saturday, 22 August 2026
             </h2>
+            <SectionFlourish tone="blush" />
           </FadeIn>
 
           <div className="mt-12 grid gap-4 md:grid-cols-3">
@@ -668,6 +700,7 @@ export default function Home() {
               <h2 className="mt-2 font-serif text-5xl italic leading-tight text-moss sm:text-7xl">
                 Formal Garden Elegance
               </h2>
+              <SectionFlourish />
               <p className="mx-auto mt-6 max-w-3xl leading-8 text-ink/76">
                 In honour of this special occasion, guests are kindly requested to
                 dress in modest, elegant, and formal outfits inspired by our curated
@@ -714,6 +747,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
               Your presence is our greatest gift.
             </h2>
+            <SectionFlourish align="left" tone="blush" />
             <p className="mt-6 leading-8 text-ivory/76">
               Due to limited space, attendance is reserved for adult guests only.
             </p>
@@ -756,6 +790,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               Kindly reserve your place.
             </h2>
+            <SectionFlourish align="left" />
             <div className="love-card mt-6 rounded-lg border border-wine/20 bg-wine/8 p-5">
               <p className="text-sm font-semibold uppercase tracking-[0.12em] text-wine">👨‍👩‍👧 Adults Only</p>
               <p className="mt-3 text-base leading-7 text-ink/76">

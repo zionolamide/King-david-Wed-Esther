@@ -210,7 +210,6 @@ body {
 }
 
 .curtain-valance {
-  position: relative;
   background:
     linear-gradient(180deg, #1a0004 0%, #3d000a 42%, #5c0010 72%, transparent 100%),
     repeating-linear-gradient(90deg, #1a0004 0 10px, #3d000a 10px 22px, #5c0012 22px 34px, #3d000a 34px 46px);
@@ -251,46 +250,140 @@ body {
   animation: title-glow 3s ease-in-out infinite;
 }
 
-.curtain-rope {
+/* Dangling pull cord: rope + satin bow + heart pendant */
+.pull-cord-anchor {
   position: absolute;
-  inset: 0 8% auto 8%;
-  height: 18px;
-  top: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255,241,221,0.9), rgba(200,148,133,0.8), rgba(255,241,221,0.9));
-  box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+  top: 100%;
+  left: 50%;
+  margin-left: -45px;
+  width: 90px;
+  z-index: 30;
+  will-change: transform, opacity;
 }
 
-.curtain-rope::before,
-.curtain-rope::after {
+.pull-cord {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90px;
+  padding: 0 0 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transform-origin: 50% 0;
+  animation: cord-sway 4.6s ease-in-out infinite;
+}
+
+.pull-cord:hover,
+.pull-cord:active {
+  box-shadow: none;
+}
+
+.pull-cord-line {
+  width: 6px;
+  height: 86px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4a000b, #c79a5a 34%, #f6e3b0 50%, #c79a5a 66%, #4a000b);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+}
+
+.pull-cord-bow {
+  position: relative;
+  width: 58px;
+  height: 30px;
+  margin-top: -1px;
+}
+
+.pull-cord-bow::before,
+.pull-cord-bow::after {
   content: "";
   position: absolute;
-  top: 10px;
-  width: 18px;
-  height: 24px;
-  border-radius: 999px;
-  background: rgba(255,241,221,0.9);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.16);
+  top: 2px;
+  width: 26px;
+  height: 26px;
+  background: radial-gradient(circle at 32% 38%, #b32a3a, #7b0014 72%);
+  box-shadow: inset 0 0 7px rgba(31, 0, 6, 0.45);
 }
 
-.curtain-rope::before {
-  left: 8%;
+.pull-cord-bow::before {
+  left: 0;
+  border-radius: 100% 42% 100% 42%;
+  transform: rotate(-7deg);
 }
 
-.curtain-rope::after {
-  right: 8%;
+.pull-cord-bow::after {
+  right: 0;
+  border-radius: 42% 100% 42% 100%;
+  transform: rotate(7deg);
 }
 
-.curtain-heart {
+.bow-knot {
   position: absolute;
-  top: 0;
   left: 50%;
+  top: 50%;
+  width: 15px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, #cf3a4b, #6e0012);
+  box-shadow: 0 2px 6px rgba(31, 0, 6, 0.4);
+  z-index: 2;
+}
+
+.pull-cord-heart {
   width: 30px;
   height: 30px;
-  transform: translateX(-50%);
-  background: rgba(255,241,221,0.98);
+  margin-top: 7px;
+  background: linear-gradient(135deg, #f6e3b0, #c79a5a);
   clip-path: path("M15 3c-2.2 0-4.2 1.2-5.2 3.1C8.8 4.2 6.8 3 4.6 3 1.9 3 0 5 0 7.8c0 3.6 3.1 6.3 7.7 10.3L15 21l7.3-2.9C26.9 14.1 30 11.4 30 7.8 30 5 28.1 3 25.4 3c-2.2 0-4.2 1.2-5.2 3.1C19.2 4.2 17.2 3 15 3z");
-  box-shadow: 0 8px 18px rgba(123, 0, 20, 0.2);
+  box-shadow: 0 6px 14px rgba(123, 0, 20, 0.3);
+  animation: heart-pulse-soft 2.8s ease-in-out infinite;
+}
+
+.pull-cord-hint {
+  margin-top: 10px;
+  font-family: var(--font-script), cursive;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: rgba(246, 227, 176, 0.95);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes cord-sway {
+  0%, 100% { transform: rotate(-2.6deg); }
+  50% { transform: rotate(2.6deg); }
+}
+
+/* Section heading flourish */
+.section-flourish {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+}
+
+.section-flourish.is-center {
+  justify-content: center;
+}
+
+.section-flourish span {
+  display: block;
+  height: 1px;
+  width: 2.75rem;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.section-flourish svg {
+  animation: heart-pulse-soft 3s ease-in-out infinite;
+}
+
+.flourish-wine {
+  color: #7b0014;
+}
+
+.flourish-blush {
+  color: #e9c0b6;
 }
 
 .floating-heart {

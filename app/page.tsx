@@ -11,16 +11,14 @@ import {
   Loader2,
   MapPin,
   MessageCircle,
-  Music2,
   Navigation,
-  Pause,
   Send,
   Share2,
   Sparkles,
   Users,
   XCircle
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { CSSProperties, FormEvent, useEffect, useMemo, useState } from "react";
 
 const weddingDate = new Date("2026-08-22T11:00:00+01:00");
 const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
@@ -119,50 +117,6 @@ function SectionFlourish({
   );
 }
 
-function SoundButton() {
-  const [playing, setPlaying] = useState(false);
-  const [audio, setAudio] = useState<AudioContext | null>(null);
-
-  async function toggleSound() {
-    if (playing && audio) {
-      await audio.close();
-      setAudio(null);
-      setPlaying(false);
-      return;
-    }
-
-    const context = new AudioContext();
-    const gain = context.createGain();
-    gain.gain.value = 0.028;
-    gain.connect(context.destination);
-
-    [196, 246.94, 293.66, 392].forEach((frequency, index) => {
-      const osc = context.createOscillator();
-      const toneGain = context.createGain();
-      osc.type = "sine";
-      osc.frequency.value = frequency;
-      toneGain.gain.value = index === 0 ? 0.8 : 0.42;
-      osc.connect(toneGain);
-      toneGain.connect(gain);
-      osc.start();
-    });
-
-    setAudio(context);
-    setPlaying(true);
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={toggleSound}
-      className="fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-wine text-ivory shadow-soft transition hover:bg-moss"
-      aria-label={playing ? "Pause romantic background sound" : "Play romantic background sound"}
-    >
-      {playing ? <Pause size={18} /> : <Music2 size={18} />}
-    </button>
-  );
-}
-
 function StoryArch() {
   return (
     <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-xl bg-champagne shadow-soft love-card">
@@ -223,7 +177,7 @@ function FloatingHearts({ active }: { active: boolean }) {
 
 function BackgroundHearts() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.14]">
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.22]">
       {Array.from({ length: 24 }).map((_, index) => {
         const sizeClass = ["heart-sm", "heart-md", "heart-lg"][index % 3];
         const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
@@ -237,6 +191,34 @@ function BackgroundHearts() {
               animationDuration: `${7 + (index % 5) * 1.5}s`
             }}
           />
+        );
+      })}
+    </div>
+  );
+}
+
+function DanglingHearts() {
+  const cords = Array.from({ length: 11 });
+  return (
+    <div className="dangle-row" aria-hidden>
+      {cords.map((_, index) => {
+        const ropeLen = 46 + (index % 4) * 26;
+        const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
+        return (
+          <span
+            key={index}
+            className="dangle"
+            style={{
+              animationDelay: `${(index % 5) * 0.45}s`,
+              animationDuration: `${4 + (index % 4) * 0.6}s`
+            }}
+          >
+            <span className="dangle-rope" style={{ height: `${ropeLen}px` }} />
+            <span
+              className={`dangle-heart ${colorClass}`}
+              style={{ animationDelay: `${(index % 6) * 0.3}s` }}
+            />
+          </span>
         );
       })}
     </div>
@@ -263,9 +245,23 @@ function ScratchDateCard() {
     >
       {revealed ? (
         <div className="ribbon-field pointer-events-none absolute inset-0">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <span key={index} style={{ animationDelay: `${index * 0.12}s` }} />
-          ))}
+          {Array.from({ length: 28 }).map((_, index) => {
+            const angle = (index / 28) * Math.PI * 2;
+            const spread = 120 + (index % 5) * 34;
+            return (
+              <span
+                key={index}
+                style={
+                  {
+                    "--x": `${Math.cos(angle) * spread}px`,
+                    "--y": `${Math.sin(angle) * spread - 20}px`,
+                    "--r": `${(index % 2 ? 1 : -1) * (40 + index * 11)}deg`,
+                    animationDelay: `${(index % 6) * 0.05}s`
+                  } as CSSProperties
+                }
+              />
+            );
+          })}
         </div>
       ) : null}
       <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
@@ -277,10 +273,13 @@ function ScratchDateCard() {
       {!revealed ? (
         <button
           type="button"
-          className="scratch-cover absolute inset-0 z-20 flex flex-col items-center justify-center bg-champagne text-moss"
+          className="scratch-cover scratch-shimmer absolute inset-0 z-20 flex flex-col items-center justify-center bg-champagne text-moss"
           onClick={scratch}
         >
-          <span className="font-script text-5xl">Scratch to reveal</span>
+          <span className="scratch-coin">
+            <Heart size={20} fill="currentColor" />
+          </span>
+          <span className="font-script text-5xl scratch-bob">Scratch to reveal</span>
           <span className="mt-2 text-xs font-semibold uppercase tracking-[0.24em] text-wine">
             rub or tap gently
           </span>
@@ -314,44 +313,25 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <FloatingPetals />
         <FloatingHearts active={!opened} />
 
-        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-30 h-24">
-          <motion.div
-            className="pull-cord-anchor"
-            initial={false}
-            animate={{ opacity: opened ? 0 : 1, y: opened ? -48 : 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            style={{ pointerEvents: opened ? "none" : "auto" }}
-          >
-            <button
-              type="button"
-              onClick={() => setOpened(true)}
-              className="pull-cord"
-              aria-label="Pull the ribbon to open the curtains"
-            >
-              <span className="pull-cord-line" />
-              <span className="pull-cord-bow">
-                <span className="bow-knot" />
-              </span>
-              <span className="pull-cord-heart" />
-              <span className="pull-cord-hint">pull</span>
-            </button>
-          </motion.div>
-        </div>
+        <motion.div
+          className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-30 h-24"
+          initial={false}
+          animate={{ opacity: opened ? 0 : 1, y: opened ? -40 : 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <DanglingHearts />
+        </motion.div>
 
         <motion.div
           className="curtain-panel left-0"
           animate={{ x: opened ? "-100%" : "0%", rotateY: opened ? 55 : 0, scale: opened ? 0.82 : 1 }}
           transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="curtain-tie curtain-tie-left" />
-        </motion.div>
+        />
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
           animate={{ x: opened ? "100%" : "0%", rotateY: opened ? -55 : 0, scale: opened ? 0.82 : 1 }}
           transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="curtain-tie curtain-tie-right" />
-        </motion.div>
+        />
         <motion.div
           className="absolute inset-x-8 top-[35%] z-30 text-center sm:top-[38%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
@@ -544,7 +524,6 @@ export default function Home() {
   return (
     <main className="relative overflow-hidden text-ink">
       <BackgroundHearts />
-      <SoundButton />
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">

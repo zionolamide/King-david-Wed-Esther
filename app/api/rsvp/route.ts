@@ -29,7 +29,7 @@ function generateEntryCode() {
 }
 
 export async function POST(request: Request) {
-  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
@@ -56,8 +56,6 @@ export async function POST(request: Request) {
   const note = cleanText(body.note);
   const adultAgreement = body.adultAgreement === true || body.adultAgreement === "true";
   const entryCode = generateEntryCode();
-  const attendees = 1;
-  const attending = true;
 
   if (!fullName || !isEmail(email) || !phone || !adultAgreement) {
     return NextResponse.json(
@@ -73,27 +71,20 @@ export async function POST(request: Request) {
     auth: { persistSession: false }
   });
 
-  const { data, error } = await supabase.rpc("register_wedding_rsvp", {
-    p_full_name: title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName,
-    p_email: email,
-    p_phone: phone || null,
-    p_attendees: attendees,
-    p_attending: attending,
-    p_note: note || null,
-    p_entry_code: entryCode,
-    p_capacity: RSVP_LIMIT,
-    p_title: title || null,
-    p_adult_agreement: adultAgreement
-  });
+  const { data: existing, error: existsError } = await supabase
+    .from("rsvp_submissions")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
 
-  if (error) {
+  if (existsError) {
     return NextResponse.json(
-      { ok: false, message: error.message ?? "RSVP failed." },
+      { ok: false, message: existsError.message ?? "RSVP validation failed." },
       { status: 500 }
     );
   }
 
-  if (data?.status === "exists") {
+  if (existing) {
     return NextResponse.json(
       {
         ok: false,
@@ -103,14 +94,20 @@ export async function POST(request: Request) {
     );
   }
 
-  if (data?.status === "closed") {
+  const { data, error } = await supabase.from("rsvp_submissions").insert({
+    title: title === "(No Prefix)" ? null : title,
+    full_name: fullName,
+    email,
+    phone: phone || null,
+    note: note || null,
+    adult_agreement: adultAgreement,
+    entry_code: entryCode,
+  });
+
+  if (error) {
     return NextResponse.json(
-      {
-        ok: false,
-        message: "RSVP Closed - Capacity Reached",
-        remaining: data?.remaining ?? null
-      },
-      { status: 409 }
+      { ok: false, message: error.message ?? "RSVP failed." },
+      { status: 500 }
     );
   }
 

@@ -140,7 +140,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    entryCode,
-    remaining: data?.remaining ?? null
+    entryCode
   });
 }

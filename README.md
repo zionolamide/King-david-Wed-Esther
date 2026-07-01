@@ -1,6 +1,6 @@
 # King-David & Esther Wedding Website
 
-Luxury one-page wedding website with mobile-first layout, RSVP capacity control, Supabase storage, and Resend email confirmations.
+Luxury one-page wedding website with mobile-first layout, RSVP capacity control, Supabase storage, and RSVP email confirmations.
 
 ## Run Locally
 
@@ -19,8 +19,8 @@ Open `http://localhost:3000`.
 4. Fill in:
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `RESEND_API_KEY`
-   - `RSVP_FROM_EMAIL`
+   - `EMAIL_USER`
+   - `EMAIL_APP_PASSWORD`
 5. Set `NEXT_PUBLIC_RSVP_LIMIT=100` or your preferred capacity.
 
 The API endpoint uses the `register_wedding_rsvp` database function so the guest limit is enforced in the database with an advisory transaction lock.

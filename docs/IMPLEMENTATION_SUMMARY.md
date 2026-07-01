@@ -300,10 +300,11 @@ const { data, error } = await supabase.rpc("register_wedding_rsvp", {
 
 **Added:**
 ```
-RESEND_API_KEY=re_VjUwebb5_9yy21Gzpq4U7aCdXHAPcjzAB
+EMAIL_USER=your.email@gmail.com
+EMAIL_APP_PASSWORD=your-app-password
 ```
 
-This enables transactional emails to be sent to RSVP confirmations through the Resend service.
+This enables Nodemailer to send RSVP confirmation emails through Gmail.
 
 ---
 
@@ -321,7 +322,7 @@ Directory ready for couples pre-wedding photos. Add images here to integrate int
 - ✅ All form validation: Includes adult agreement check
 - ✅ Database schema: Updated with new field
 - ✅ API routes: Accept and validate new field
-- ✅ Environment variables: Resend API key configured
+- ✅ Environment variables: Gmail email user and app password configured
 - ✅ Git: All changes committed and pushed to main branch
 - ✅ Vercel: Automatic redeploy triggers on push to main
 
@@ -377,7 +378,7 @@ Before going live, test:
 - [ ] Submit RSVP without checking adult agreement - form should reject
 - [ ] Submit RSVP with all fields including agreement - should succeed
 - [ ] View entry code after successful submission
-- [ ] Check Resend email delivery for confirmation
+- [ ] Check email delivery via Nodemailer/Gmail
 - [ ] Verify database entries include adult_agreement value
 
 ---
@@ -395,8 +396,8 @@ Before going live, test:
 ## Files Modified
 
 - ✏️ [app/page.tsx](../app/page.tsx) - Hero, content, form fields
-- ✏️ [app/api/rsvp/route.ts](../app/api/rsvp/route.ts) - API validation
-- ✏️ [.env]../.env) - Resend API key
+- ✏️ [app/api/rsvp/route.ts](../app/api/rsvp/route.ts) - API validation and Nodemailer email delivery
+- ✏️ [.env]../.env) - EMAIL_USER and EMAIL_APP_PASSWORD
 - ✏️ [supabase/schema.sql](../supabase/schema.sql) - Database schema
 - 📁 [public/images/couples/](../public/images/couples/) - New directory
 

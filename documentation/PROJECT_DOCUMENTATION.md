@@ -6,7 +6,7 @@ This repository contains a **luxury one-page wedding website** for *King-David &
 - A **wedding date reveal** interaction
 - A multi-section invitation (story, gallery placeholders, wedding details, dress code, gifts, RSVP)
 - An **RSVP system** with **capacity enforcement** using **Supabase** (Postgres function + advisory lock)
-- Optional **email confirmations** using **Resend**
+- Optional **email confirmations** using **Nodemailer**
 
 ---
 
@@ -23,7 +23,7 @@ This repository contains a **luxury one-page wedding website** for *King-David &
 - **Next.js Route Handler**: `POST /api/rsvp`
 - **Supabase** via `@supabase/supabase-js`
 - **Supabase RPC**: `public.register_wedding_rsvp`
-- **Resend** (optional) for sending RSVP confirmation emails
+- **Nodemailer** (optional) for sending RSVP confirmation emails
 
 ---
 
@@ -106,7 +106,7 @@ The API expects JSON body fields:
 5. Handles RPC output:
    - if RPC returns `status === "closed"` → HTTP **409**
 6. Optional email:
-   - if `RESEND_API_KEY` and `RSVP_FROM_EMAIL` are present, sends a confirmation email via Resend
+   - if `EMAIL_USER` and `EMAIL_APP_PASSWORD` are present, sends a confirmation email via Nodemailer
 
 ### Output
 - On success:
@@ -169,8 +169,8 @@ The function:
 You must configure:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `RESEND_API_KEY` (optional but recommended)
-- `RSVP_FROM_EMAIL` (required for email sending)
+- `EMAIL_USER` (Gmail address for Nodemailer)
+- `EMAIL_APP_PASSWORD` (app password for Gmail SMTP)
 - `NEXT_PUBLIC_RSVP_LIMIT` (capacity)
 
 ---
@@ -201,7 +201,7 @@ However, a GitHub repo is not created yet from within this environment. You will
 ### Is it suitable for Vercel?
 Yes, **as long as you set Vercel environment variables** in the Vercel dashboard:
 - Supabase keys
-- Resend keys (if using email)
+- Gmail SMTP credentials (`EMAIL_USER`, `EMAIL_APP_PASSWORD`)
 - RSVP limit
 
 Vercel will build using `next build` by default.

@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
 
 type RsvpPayload = {
@@ -114,43 +114,30 @@ export async function POST(request: Request) {
     );
   }
 
-  if (process.env.RESEND_API_KEY && process.env.RSVP_FROM_EMAIL) {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const attendanceLine = "Your seat has been reserved.";
-    const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
-    const entryCodeBlock = `
-              <div style="margin: 24px 0; padding: 18px; text-align: center; border: 2px dashed rgba(123,0,20,0.3); background: #f5efe4;">
-                <p style="letter-spacing: 2px; text-transform: uppercase; color: #7b0014; font: 11px Arial, sans-serif; margin: 0 0 8px;">Your Entry Code</p>
-                <p style="font: 700 28px 'Courier New', monospace; color: #3f481f; margin: 0;">${entryCode}</p>
-              </div>
-              <p style="font-size: 15px; line-height: 1.7;">Please keep this code safe and present it at the entrance.</p>
-        `;
+  const emailUser = process.env.EMAIL_USER;
+  const emailPassword = process.env.EMAIL_APP_PASSWORD;
+  const fromAddress = emailUser;
+
+  if (emailUser && emailPassword) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: emailUser,
+        pass: emailPassword,
+      },
+    });
+
+    const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;"><h2 style="color: #333;">RSVP Confirmed</h2><p style="color: #555; font-size: 16px;">Thank you for RSVPing to celebrate with David and Esther. We are thrilled to have you join us!</p><p style="color: #555; font-size: 16px;">Your unique entry code is: <strong style="font-size: 20px; color: #000; letter-spacing: 2px;">${entryCode}</strong></p><p style="color: #777; font-size: 14px; margin-top: 30px; border-top: 1px solid #eaeaea; padding-top: 15px;">Please keep this code handy, as you will need it for entry.</p></div>`;
 
     try {
-      const emailResponse = await resend.emails.send({
-        from: process.env.RSVP_FROM_EMAIL,
+      await transporter.sendMail({
+        from: fromAddress,
         to: email,
-        subject: "Your Wedding Entry Code | King David & Esther",
-        html: `
-          <div style="font-family: Georgia, serif; color: #2d241f; background: #fbf6ed; padding: 32px;">
-            <div style="max-width: 560px; margin: auto; background: #fffaf3; border: 1px solid #eadfc9; padding: 32px;">
-              <p style="letter-spacing: 3px; text-transform: uppercase; color: #7b0014; font: 12px Arial, sans-serif;">RSVP Confirmation</p>
-              <h1 style="font-size: 38px; color: #3f481f; margin: 8px 0 16px;">Thank you, ${displayName}</h1>
-              <p style="font-size: 17px; line-height: 1.7;">${attendanceLine}</p>
-              ${entryCodeBlock}
-              <p style="font-size: 17px; line-height: 1.7;">King David and Esther look forward to celebrating with you on Saturday, 22 August 2026 at Camp Young, Ede.</p>
-              <p style="color: #7b0014; margin-top: 28px;">With love,<br/>King David & Esther</p>
-            </div>
-          </div>
-        `
+        subject: "Your Official RSVP Confirmation & Entry Code",
+        html: htmlBody,
       });
-      if (emailResponse.error) {
-        console.error("Resend API returned error:", emailResponse.error);
-      } else {
-        console.log("Resend email sent successfully:", emailResponse.data);
-      }
     } catch (emailError) {
-      console.error("RSVP email failed to send:", emailError);
+      console.error("Nodemailer sendMail error:", emailError);
     }
   }
 

@@ -460,12 +460,14 @@ export default function Home() {
     const title = String(form.get("title") ?? "(No Prefix)");
     const fullName = String(form.get("fullName") ?? "");
     const phone = String(form.get("phone") ?? "");
+    const adultAgreement = Boolean(form.get("adultAgreement"));
     const payload = {
       title,
       fullName,
       email: String(form.get("email") ?? ""),
       phone,
-      note: String(form.get("note") ?? "")
+      note: String(form.get("note") ?? ""),
+      adultAgreement
     };
 
     const response = await fetch("/api/rsvp", {

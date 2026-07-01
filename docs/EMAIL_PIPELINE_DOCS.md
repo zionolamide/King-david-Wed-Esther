@@ -1,67 +1,64 @@
 /**
  * Email Pipeline Test and Validation
- * This file documents the Resend email pipeline configuration
+ * This file documents the Nodemailer email pipeline configuration
  */
 
 // Entry Point: app/api/rsvp/route.ts
 // - Generates entry code using crypto.randomBytes()
 // - Validates email format
-// - Sends confirmation email via Resend API
+// - Sends confirmation email via Nodemailer using Gmail SMTP
 // - Returns entry code to frontend
 
 // Required Environment Variables (for production):
-// - RESEND_API_KEY: API key from Resend.com
-// - RSVP_FROM_EMAIL: Sender email address (e.g., rsvp@kdeesther.com)
+// - EMAIL_USER: Gmail address to send from
+// - EMAIL_APP_PASSWORD: Gmail app password for SMTP auth
 // - SUPABASE_URL: Database URL
 // - SUPABASE_SERVICE_ROLE_KEY: Service role key
 
 // Email Template Details:
-// - Subject: "Your Wedding Entry Code | King David & Esther"
+// - Subject: "Your Official RSVP Confirmation & Entry Code"
 // - Recipient: User's email address from form
 // - Contains: Entry code displayed prominently
-// - Styling: Romantic, garden-themed aesthetic with wedding colors
+// - Styling: Simple, clean, professional
 
 // Testing Checklist:
 // ✓ Entry code generation logic verified
 // ✓ Email template HTML structure valid
 // ✓ Error handling present for email failures
 // ✓ Non-blocking: Email failures don't prevent RSVP
-// ✓ RESEND_API_KEY check conditional
-// ✓ Logging for debugging: console.log and console.error
+// ✓ EMAIL_USER and EMAIL_APP_PASSWORD check conditional
+// ✓ Logging for debugging: console.error
 
 // Important Notes:
 // - Email is sent AFTER database insertion succeeds
-// - If Resend API fails, RSVP still completes (data already in DB)
+// - If email fails, RSVP still completes (data already in DB)
 // - Entry code is returned to frontend regardless of email status
-// - Fallback message if Resend service unavailable
 
 export const emailPipelineConfig = {
-  service: 'Resend',
+  service: 'Nodemailer',
   templateType: 'transactional',
   contentType: 'text/html',
   encoding: 'utf-8',
-  retryOnFailure: true,
+  retryOnFailure: false,
   fallbackBehavior: 'silentFail',
-  requiredEnvVars: ['RESEND_API_KEY', 'RSVP_FROM_EMAIL'],
+  requiredEnvVars: ['EMAIL_USER', 'EMAIL_APP_PASSWORD'],
 };
 
 export const emailTemplate = {
-  subject: 'Your Wedding Entry Code | King David & Esther',
+  subject: 'Your Official RSVP Confirmation & Entry Code',
   styles: {
-    fontFamily: 'Georgia, serif',
+    fontFamily: 'Arial, sans-serif',
     colors: {
-      primary: '#7b0014', // Wine
-      secondary: '#3f481f', // Moss
-      accent: '#e9c0b6', // Blush
-      background: '#fbf6ed', // Ivory
+      primary: '#333333',
+      secondary: '#555555',
+      accent: '#000000',
+      border: '#eaeaea',
     },
   },
   sections: [
     'header',
-    'greeting',
-    'main_message',
-    'entry_code_block',
-    'event_details',
-    'closing',
+    'message',
+    'entry_code',
+    'footer',
   ],
 };

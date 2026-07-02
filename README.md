@@ -21,7 +21,7 @@ Open `http://localhost:3000`.
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `EMAIL_USER`
    - `EMAIL_APP_PASSWORD`
-5. Set `NEXT_PUBLIC_RSVP_LIMIT=100` or your preferred capacity.
+5. Set `NEXT_PUBLIC_RSVP_LIMIT=80` or your preferred capacity.
 
 The API endpoint uses the `register_wedding_rsvp` database function so the guest limit is enforced in the database with an advisory transaction lock.
 

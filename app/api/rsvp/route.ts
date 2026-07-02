@@ -13,7 +13,7 @@ type RsvpPayload = {
   adultAgreement?: unknown;
 };
 
-const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
+const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
 function cleanText(value: unknown) {
   return String(value ?? "").trim();
@@ -23,10 +23,41 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function generateEntryCode() {
-  // Generate 4 random bytes, converting to an 8-character uppercase hex string (e.g. "A1B2C3D4")
-  const code = randomBytes(4).toString("hex").toUpperCase();
-  return `KDE-2026-${code}`;
+function generateRandomLetters(count: number) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const bytes = randomBytes(count);
+  let result = "";
+  for (let i = 0; i < count; i += 1) {
+    result += alphabet[bytes[i] % alphabet.length];
+  }
+  return result;
+}
+
+async function generateEntryCode(supabase: any) {
+  const maxAttempts = 20;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const letters = generateRandomLetters(2);
+    const digits = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, "0");
+    const entryCode = `KDE-2026-${letters}${digits}`;
+
+    const { data, error } = await supabase
+      .from("rsvp_submissions")
+      .select("id")
+      .eq("entry_code", entryCode)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message ?? "Failed to verify entry code uniqueness.");
+    }
+
+    if (!data) {
+      return entryCode;
+    }
+  }
+
+  throw new Error("Unable to generate a unique entry code after multiple attempts.");
 }
 
 export async function POST(request: Request) {
@@ -56,7 +87,6 @@ export async function POST(request: Request) {
   const phone = cleanText(body.phone);
   const note = cleanText(body.note);
   const adultAgreement = body.adultAgreement === true || body.adultAgreement === "true";
-  const entryCode = generateEntryCode();
 
   if (!fullName || !isEmail(email) || !phone || !adultAgreement) {
     return NextResponse.json(
@@ -71,6 +101,8 @@ export async function POST(request: Request) {
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false }
   });
+
+  const entryCode = await generateEntryCode(supabase);
 
   const { data: existing, error: existsError } = await supabase
     .from("rsvp_submissions")

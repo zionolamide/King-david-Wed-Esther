@@ -82,9 +82,11 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   let y = 160;
   const lineHeight = 32;
   const lines = [
-    "VENUE: WHITELEYS EVENT CENTRE",
-    "10/12 Nnobi Street, Surulere Lagos",
-    "Engagement: 11am | Reception: 2pm",
+    "DATE: Saturday, 22nd August 2026",
+    "VENUE: Camp Young, Ede-Osogbo Rd,",
+    "Nijhof Advies - Osun State",
+    "Wedding ceremony starts at 10am",
+    "Reception celebration starts immediately after",
     "",
     "CHILDREN ARE NOT ALLOWED",
     "NOT TRANSFERABLE",
@@ -113,7 +115,7 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
 
   ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
-  ctx.fillText(`Code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
+  ctx.fillText(`Unique entry code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
 
   ctx.font = "600 20px KDEFont, Arial, sans-serif";
   ctx.fillText(`${options.attendees} pass`, CANVAS_WIDTH / 2, panelY + 116);

@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-const weddingDate = new Date("2026-08-22T11:00:00+01:00");
-const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
+const weddingDate = new Date("2026-08-22T10:00:00+01:00");
+const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
 const palette = [
   ["Sage", "#737b54"],
@@ -33,13 +33,12 @@ const palette = [
   ["Champagne", "#eadfc9"]
 ];
 
-const venueQuery = "Camp Young, Ede, Osun State, Nigeria";
+const venueQuery = "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State";
 const encodedVenue = encodeURIComponent(venueQuery);
 
 const schedule = [
-  { time: "11:00 AM", title: "Wedding ceremony" },
-  { time: "Immediately after", title: "Reception celebration" },
-  { time: "Evening", title: "Dinner, music and memories" }
+  { time: "10:00 AM", title: "Wedding ceremony starts" },
+  { time: "Immediately after", title: "Reception celebration" }
 ];
 
 const titleOptions = ["Mr.", "Mrs.", "Miss.", "Dr.", "Prof.", "Pastor", "Evang.", "(No Prefix)"];
@@ -342,7 +341,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <ScratchDateCard />
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-ink/74 lg:mx-0">
               With grateful hearts, we invite you to celebrate a warm garden wedding
-              at Camp Young, Ede. Reception follows immediately.
+              at Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State. The wedding ceremony starts at 10am, with the reception celebration immediately after.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
@@ -633,8 +632,8 @@ export default function Home() {
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {[
               { icon: CalendarDays, label: "Date", value: "Saturday, 22 Aug 2026" },
-              { icon: MapPin, label: "Venue", value: "Camp Young, Ede" },
-              { icon: Clock, label: "Reception", value: "Follows immediately" }
+              { icon: MapPin, label: "Venue", value: "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State" },
+              { icon: Clock, label: "Reception", value: "Reception celebration starts immediately after" }
             ].map((item) => (
               <FadeIn key={item.label}>
                 <div className="love-card h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur">
@@ -841,6 +840,9 @@ export default function Home() {
                     <div className="mx-auto mt-6 w-full max-w-lg rounded-[1.75rem] border border-wine/20 bg-white/90 p-3 shadow-soft">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-wine">
                         Your Access Card
+                      </p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.2em] text-wine/80">
+                        Unique entry code: {lastRsvp.entryCode}
                       </p>
                       {cardPreviewUrl ? (
                         <img

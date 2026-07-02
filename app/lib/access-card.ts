@@ -1,4 +1,6 @@
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
+import fs from "fs";
+import path from "path";
 
 export type AccessCardOptions = {
   fullName: string;
@@ -32,6 +34,29 @@ function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: 
 }
 
 export async function generateAccessCardImage(options: AccessCardOptions) {
+  // Attempt to register a local/system font for consistent rendering.
+  // Prefer Montserrat if available, then Arial, then DejaVu Sans.
+  try {
+    const candidates = [
+      path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
+      "C:\\Windows\\Fonts\\Montserrat-Regular.ttf",
+      "C:\\Windows\\Fonts\\Arial.ttf",
+      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ];
+    for (const p of candidates) {
+      try {
+        if (p && fs.existsSync(p)) {
+          registerFont(p, { family: "KDEFont" });
+          break;
+        }
+      } catch (e) {
+        // ignore and try next
+      }
+    }
+  } catch (e) {
+    // ignore font registration errors
+  }
+
   const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   const ctx: any = canvas.getContext("2d");
 
@@ -45,14 +70,14 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.fill();
 
   ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 32px sans-serif";
+  ctx.font = "bold 34px KDEFont, Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 72);
 
   // Middle section details
   ctx.fillStyle = THEME.text;
   ctx.textAlign = "left";
-  ctx.font = "600 18px sans-serif";
+  ctx.font = "600 18px KDEFont, Arial, sans-serif";
   const textX = 40;
   let y = 160;
   const lineHeight = 32;
@@ -84,13 +109,13 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
 
   ctx.fillStyle = THEME.cream;
   ctx.textAlign = "center";
-  ctx.font = "bold 26px sans-serif";
-  ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 44);
+  ctx.font = "bold 28px KDEFont, Arial, sans-serif";
+  ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
 
-  ctx.font = "bold 24px sans-serif";
-  ctx.fillText(`Code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 84);
+  ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
+  ctx.fillText(`Code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
 
-  ctx.font = "600 20px sans-serif";
+  ctx.font = "600 20px KDEFont, Arial, sans-serif";
   ctx.fillText(`${options.attendees} pass`, CANVAS_WIDTH / 2, panelY + 116);
 
   return canvas.toBuffer("image/png");

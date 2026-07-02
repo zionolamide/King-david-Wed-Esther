@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { generateAccessCardImage } from "@/lib/access-card";
+import { generateAccessCardImage } from "../../lib/access-card";
 
 type AccessCardRequest = {
   fullName: string;

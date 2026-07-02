@@ -15,7 +15,6 @@ import {
   Navigation,
   Pause,
   Send,
-  Share2,
   Sparkles,
   Users,
   XCircle
@@ -49,14 +48,6 @@ const rsvpContacts = [
   { name: "Brother Joe", phone: "0812765976" },
   { name: "Bro Zion", phone: "09135037695" }
 ];
-
-function buildWhatsAppUrl(phone: string, message: string) {
-  const cleanPhone = phone.replace(/\D/g, "");
-  const normalizedPhone = cleanPhone.startsWith("0")
-    ? `234${cleanPhone.slice(1)}`
-    : cleanPhone;
-  return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
-}
 
 function useCountdown() {
   const [now, setNow] = useState(() => new Date());
@@ -451,6 +442,39 @@ export default function Home() {
     entryCode: string;
   } | null>(null);
   const [cardLoading, setCardLoading] = useState(false);
+  const [cardPreviewUrl, setCardPreviewUrl] = useState<string | null>(null);
+
+  async function fetchAccessCard(fullName: string, entryCode: string) {
+    setCardLoading(true);
+    try {
+      const response = await fetch("/api/access-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          entryCode,
+          attendees: 1,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to generate access card.");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setCardPreviewUrl((current) => {
+        if (current) {
+          URL.revokeObjectURL(current);
+        }
+        return url;
+      });
+      return url;
+    } catch (downloadError) {
+      console.error(downloadError);
+      return null;
+    } finally {
+      setCardLoading(false);
+    }
+  }
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -498,9 +522,12 @@ export default function Home() {
     });
     setMessage(
       result.entryCode
-        ? `Thank you. Your RSVP has been received. Your entry code is ${result.entryCode}.`
+        ? "Thank you. Your RSVP has been received. Your access card is ready and has been sent to your email."
         : "Thank you. Your RSVP has been received and a confirmation email is on its way."
     );
+    if (result.entryCode) {
+      await fetchAccessCard(fullName, String(result.entryCode));
+    }
     event.currentTarget.reset();
   }
 
@@ -811,25 +838,22 @@ export default function Home() {
                   <p className="mt-4 font-serif text-4xl text-moss">Thank you!</p>
                   <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-ink/68">{message}</p>
                   {lastRsvp?.entryCode ? (
-                    <div className="mx-auto mt-5 max-w-xs rounded-xl border border-dashed border-wine/30 bg-champagne/50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-wine">
-                        Entry Code
+                    <div className="mx-auto mt-6 w-full max-w-lg rounded-[1.75rem] border border-wine/20 bg-white/90 p-3 shadow-soft">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-wine">
+                        Your Access Card
                       </p>
-                      <p className="mt-2 font-serif text-3xl text-moss">{lastRsvp.entryCode}</p>
-                    </div>
-                  ) : null}
-                  {lastRsvp?.phone && lastRsvp.entryCode ? (
-                    <a
-                      href={buildWhatsAppUrl(
-                        lastRsvp.phone,
-                        `Hello ${lastRsvp.fullName},\n\nYour entry code for King David & Esther's wedding is:\n\n${lastRsvp.entryCode}\n\nDate: Saturday, 22nd August 2026\nTime: 11:00 AM\nVenue: Camp Young, Ede\n\nPlease keep this code safe and present it at the entrance.`
+                      {cardPreviewUrl ? (
+                        <img
+                          src={cardPreviewUrl}
+                          alt="Your wedding access card"
+                          className="mt-3 w-full rounded-[1.25rem] object-contain"
+                        />
+                      ) : (
+                        <div className="mt-3 flex min-h-[16rem] items-center justify-center rounded-[1.25rem] border border-dashed border-wine/20 bg-champagne/40 text-sm text-ink/70">
+                          {cardLoading ? "Preparing your access card..." : "Your access card will appear here."}
+                        </div>
                       )}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="romantic-button mt-5 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-soft"
-                    >
-                      <Share2 size={16} /> Send Entry Code to WhatsApp
-                    </a>
+                    </div>
                   ) : null}
                   {lastRsvp?.entryCode ? (
                     <button
@@ -837,34 +861,14 @@ export default function Home() {
                       disabled={cardLoading}
                       onClick={async () => {
                         if (!lastRsvp) return;
-                        setCardLoading(true);
-                        try {
-                          const response = await fetch("/api/access-card", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              fullName: lastRsvp.fullName,
-                              entryCode: lastRsvp.entryCode,
-                              attendees: 1,
-                            }),
-                          });
-                          if (!response.ok) {
-                            throw new Error("Failed to generate access card.");
-                          }
-                          const blob = await response.blob();
-                          const url = URL.createObjectURL(blob);
-                          const anchor = document.createElement("a");
-                          anchor.href = url;
-                          anchor.download = "KDE2026-access-card.png";
-                          document.body.appendChild(anchor);
-                          anchor.click();
-                          anchor.remove();
-                          URL.revokeObjectURL(url);
-                        } catch (downloadError) {
-                          console.error(downloadError);
-                        } finally {
-                          setCardLoading(false);
-                        }
+                        const url = await fetchAccessCard(lastRsvp.fullName, lastRsvp.entryCode);
+                        if (!url) return;
+                        const anchor = document.createElement("a");
+                        anchor.href = url;
+                        anchor.download = "KDE2026-access-card.png";
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        anchor.remove();
                       }}
                       className="romantic-button mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-wine px-5 py-3 text-sm font-semibold text-ivory shadow-soft disabled:opacity-60"
                     >

@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
-import { generateAccessCardImage } from "@/lib/access-card";
+import { generateAccessCardImage } from "../../lib/access-card";
 
 type RsvpPayload = {
   title?: unknown;
@@ -134,7 +134,6 @@ export async function POST(request: Request) {
     const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">
       <h2 style="color: #333;">King David &amp; Esther Wedding RSVP Confirmation</h2>
       <p style="color: #555; font-size: 16px; line-height: 1.6;">Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!</p>
-      <p style="color: #555; font-size: 16px; line-height: 1.6; margin-top: 16px;">Your unique access code is: <strong style="color: #000;">${entryCode}</strong></p>
       <div style="margin-top: 24px; text-align: center;">
         <img src="cid:access-card@kde2026" alt="Access card" style="width:100%;max-width:640px;border-radius:20px;display:block;margin-inline:auto;" />
       </div>

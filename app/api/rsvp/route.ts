@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
+import { generateAccessCardImage } from "@/lib/access-card";
 
 type RsvpPayload = {
   title?: unknown;
@@ -124,14 +125,36 @@ export async function POST(request: Request) {
       },
     });
 
-    const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;"><h2 style="color: #333;">RSVP Confirmed</h2><p style="color: #555; font-size: 16px;">Thank you for RSVPing to celebrate with David and Esther. We are thrilled to have you join us!</p><p style="color: #555; font-size: 16px;">Your unique entry code is: <strong style="font-size: 20px; color: #000; letter-spacing: 2px;">${entryCode}</strong></p><p style="color: #777; font-size: 14px; margin-top: 30px; border-top: 1px solid #eaeaea; padding-top: 15px;">Please keep this code handy, as you will need it for entry.</p></div>`;
+    const cardBuffer = await generateAccessCardImage({
+      fullName,
+      entryCode,
+      attendees: 1,
+    });
+
+    const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">
+      <h2 style="color: #333;">King David &amp; Esther Wedding RSVP Confirmation</h2>
+      <p style="color: #555; font-size: 16px; line-height: 1.6;">Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!</p>
+      <p style="color: #555; font-size: 16px; line-height: 1.6; margin-top: 16px;">Your unique access code is: <strong style="color: #000;">${entryCode}</strong></p>
+      <div style="margin-top: 24px; text-align: center;">
+        <img src="cid:access-card@kde2026" alt="Access card" style="width:100%;max-width:640px;border-radius:20px;display:block;margin-inline:auto;" />
+      </div>
+      <p style="color: #777; font-size: 14px; margin-top: 28px; border-top: 1px solid #eaeaea; padding-top: 16px;">Please keep this card safe and present it at the entrance. This access card is non-transferable.</p>
+    </div>`;
 
     try {
       await transporter.sendMail({
         from: fromAddress,
         to: email,
-        subject: "Your Official RSVP Confirmation & Entry Code",
+        subject: "King David & Esther Wedding - RSVP Confirmation",
+        text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
         html: htmlBody,
+        attachments: [
+          {
+            filename: "access-card.png",
+            content: cardBuffer,
+            cid: "access-card@kde2026",
+          },
+        ],
       });
     } catch (emailError) {
       console.error("Nodemailer sendMail error:", emailError);

@@ -450,6 +450,7 @@ export default function Home() {
     phone: string;
     entryCode: string;
   } | null>(null);
+  const [cardLoading, setCardLoading] = useState(false);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -829,6 +830,46 @@ export default function Home() {
                     >
                       <Share2 size={16} /> Send Entry Code to WhatsApp
                     </a>
+                  ) : null}
+                  {lastRsvp?.entryCode ? (
+                    <button
+                      type="button"
+                      disabled={cardLoading}
+                      onClick={async () => {
+                        if (!lastRsvp) return;
+                        setCardLoading(true);
+                        try {
+                          const response = await fetch("/api/access-card", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              fullName: lastRsvp.fullName,
+                              entryCode: lastRsvp.entryCode,
+                              attendees: 1,
+                            }),
+                          });
+                          if (!response.ok) {
+                            throw new Error("Failed to generate access card.");
+                          }
+                          const blob = await response.blob();
+                          const url = URL.createObjectURL(blob);
+                          const anchor = document.createElement("a");
+                          anchor.href = url;
+                          anchor.download = "KDE2026-access-card.png";
+                          document.body.appendChild(anchor);
+                          anchor.click();
+                          anchor.remove();
+                          URL.revokeObjectURL(url);
+                        } catch (downloadError) {
+                          console.error(downloadError);
+                        } finally {
+                          setCardLoading(false);
+                        }
+                      }}
+                      className="romantic-button mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-wine px-5 py-3 text-sm font-semibold text-ivory shadow-soft disabled:opacity-60"
+                    >
+                      {cardLoading ? "Preparing card..." : "Download Access Card"}
+                    </button>
                   ) : null}
                 </div>
               ) : (

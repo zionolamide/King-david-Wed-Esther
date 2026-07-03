@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import {
-  CalendarDays,
   CheckCircle2,
   Clock,
   Flower2,
@@ -25,12 +24,12 @@ const weddingDate = new Date("2026-08-22T10:00:00+01:00");
 const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
 const palette = [
-  ["Sage", "#737b54"],
-  ["Wine", "#7b0014"],
-  ["Dusty Rose", "#c89485"],
-  ["Terracotta", "#c97658"],
-  ["Blush", "#e9c0b6"],
-  ["Champagne", "#eadfc9"]
+  ["Sage Green", "#737b54"],
+  ["Deep Wine/Burgundy", "#7b0014"],
+  ["Warm Brown", "#8f5c4b"],
+  ["Terracotta/Peach", "#c97658"],
+  ["Dusty Nude Pink", "#c89485"],
+  ["Blush Pink", "#e9c0b6"]
 ];
 
 const venueQuery = "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State";
@@ -39,6 +38,24 @@ const encodedVenue = encodeURIComponent(venueQuery);
 const schedule = [
   { time: "10:00 AM", title: "Wedding ceremony starts" },
   { time: "Immediately after", title: "Reception celebration" }
+];
+
+const couplePhotos = [
+  {
+    title: "Garden Promise",
+    src: "/couple-images/garden-car.png",
+    caption: "Soft garden moments before forever."
+  },
+  {
+    title: "Hand in Hand",
+    src: "/couple-images/indoor-promise.png",
+    caption: "A quiet promise, held with grace."
+  },
+  {
+    title: "Forever Begins",
+    src: "/couple-images/portrait-one.png",
+    caption: "A love story made beautiful by God."
+  }
 ];
 
 const titleOptions = ["Mr.", "Mrs.", "Miss.", "Dr.", "Prof.", "Pastor", "Evang.", "(No Prefix)"];
@@ -88,60 +105,83 @@ function FadeIn({
   );
 }
 
-function SoundButton() {
+function WeddingMusic() {
   const [playing, setPlaying] = useState(false);
-  const [audio, setAudio] = useState<AudioContext | null>(null);
+
+  useEffect(() => {
+    const audio = document.getElementById("wedding-song") as HTMLAudioElement | null;
+    if (!audio) return;
+
+    audio.volume = 0.22;
+    audio.currentTime = 0;
+
+    const play = async () => {
+      try {
+        await audio.play();
+        setPlaying(true);
+      } catch {
+        setPlaying(false);
+      }
+    };
+
+    window.addEventListener("start-wedding-music", play);
+    void play();
+
+    return () => {
+      window.removeEventListener("start-wedding-music", play);
+    };
+  }, []);
 
   async function toggleSound() {
-    if (playing && audio) {
-      await audio.close();
-      setAudio(null);
+    const audio = document.getElementById("wedding-song") as HTMLAudioElement | null;
+    if (!audio) return;
+
+    if (!audio.paused) {
+      audio.pause();
       setPlaying(false);
       return;
     }
 
-    const context = new AudioContext();
-    const gain = context.createGain();
-    gain.gain.value = 0.028;
-    gain.connect(context.destination);
-
-    [196, 246.94, 293.66, 392].forEach((frequency, index) => {
-      const osc = context.createOscillator();
-      const toneGain = context.createGain();
-      osc.type = "sine";
-      osc.frequency.value = frequency;
-      toneGain.gain.value = index === 0 ? 0.8 : 0.42;
-      osc.connect(toneGain);
-      toneGain.connect(gain);
-      osc.start();
-    });
-
-    setAudio(context);
-    setPlaying(true);
+    audio.currentTime = audio.currentTime || 0;
+    await audio.play();
+    setPlaying(!audio.paused);
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggleSound}
-      className="fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-wine text-ivory shadow-soft transition hover:bg-moss"
-      aria-label={playing ? "Pause romantic background sound" : "Play romantic background sound"}
-    >
-      {playing ? <Pause size={18} /> : <Music2 size={18} />}
-    </button>
+    <>
+      <audio id="wedding-song" src="/music/when-god-made-you.mp3" autoPlay loop preload="auto" />
+      <button
+        type="button"
+        onClick={toggleSound}
+        className="romantic-button fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-wine text-ivory shadow-soft"
+        aria-label={playing ? "Pause romantic background song" : "Play romantic background song"}
+      >
+        {playing ? <Pause size={18} /> : <Music2 size={18} />}
+      </button>
+    </>
   );
 }
 
 function StoryArch() {
   return (
-    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-xl bg-champagne shadow-soft love-card">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(251,246,237,0.12),rgba(63,72,31,0.42)),url('/garden-palette.jpg')] bg-cover bg-center" />
-      <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/58" />
-      <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
-        <p className="font-script text-5xl">A Garden Promise</p>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em]">
-          King-David & Esther
+    <div className="story-arch love-orbit relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-[2rem] bg-champagne shadow-soft love-card">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(233,192,182,0.62),transparent_24rem),radial-gradient(circle_at_85%_75%,rgba(115,123,84,0.22),transparent_18rem)]" />
+      <div className="absolute inset-8 rounded-[1.6rem] border border-wine/15 bg-ivory/70" />
+      <div className="absolute inset-x-12 top-16 text-center">
+        <p className="font-script text-5xl text-wine">A Garden Promise</p>
+        <p className="mt-3 text-sm leading-7 text-ink/72">
+          Faith, friendship, family and the quiet joy of choosing forever.
         </p>
+      </div>
+      <div className="absolute bottom-10 left-8 right-8 grid grid-cols-2 gap-3">
+        {palette.map(([name, color], index) => (
+          <div key={name} className="rounded-xl bg-white/60 p-3 shadow-sm">
+            <span className="block h-8 rounded-full" style={{ backgroundColor: color }} />
+            <span className="mt-2 block text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-moss">
+              {index + 1}. {name}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -216,8 +256,37 @@ function ScratchDateCard() {
   const [progress, setProgress] = useState(0);
   const revealed = progress >= 4;
 
+  function playRevealSound() {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const gain = context.createGain();
+    gain.gain.value = 0.04;
+    gain.connect(context.destination);
+
+    [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const toneGain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      toneGain.gain.setValueAtTime(0, context.currentTime);
+      toneGain.gain.linearRampToValueAtTime(0.45, context.currentTime + 0.02 + index * 0.04);
+      toneGain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.55 + index * 0.04);
+      oscillator.connect(toneGain);
+      toneGain.connect(gain);
+      oscillator.start(context.currentTime + index * 0.045);
+      oscillator.stop(context.currentTime + 0.65 + index * 0.045);
+    });
+  }
+
   function scratch() {
-    setProgress((current) => Math.min(current + 1, 4));
+    setProgress((current) => {
+      const next = Math.min(current + 1, 4);
+      if (current < 4 && next === 4) {
+        playRevealSound();
+      }
+      return next;
+    });
   }
 
   return (
@@ -232,7 +301,7 @@ function ScratchDateCard() {
     >
       {revealed ? (
         <div className="ribbon-field pointer-events-none absolute inset-0">
-          {Array.from({ length: 10 }).map((_, index) => (
+          {Array.from({ length: 20 }).map((_, index) => (
             <span key={index} style={{ animationDelay: `${index * 0.12}s` }} />
           ))}
         </div>
@@ -276,12 +345,26 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
     };
   }, [opened]);
 
+  function openCurtain() {
+    setOpened(true);
+    window.dispatchEvent(new Event("start-wedding-music"));
+  }
+
   return (
     <section id="home" className="relative min-h-[100svh]">
       <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20">
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),url('/garden-palette.jpg')] bg-cover bg-center" />
         <FloatingPetals />
         <FloatingHearts active={!opened} />
+        {!opened ? (
+          <div className="closed-curtain-loop pointer-events-none absolute inset-0 z-[25]">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+        ) : null}
 
         <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-24">
           <span className="curtain-rope" />
@@ -303,18 +386,15 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
         <motion.div
-          className="absolute inset-x-8 top-[35%] z-30 text-center sm:top-[38%]"
+          className="absolute inset-x-8 top-[42%] z-30 text-center sm:top-[44%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
           transition={{ duration: 0.7 }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
-          <p className="font-script text-6xl leading-none text-ivory sm:text-7xl curtain-title">
-            King David & Esther
-          </p>
           <button
             type="button"
-            onClick={() => setOpened(true)}
-            className="romantic-button mt-7 inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/60 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur"
+            onClick={openCurtain}
+            className="romantic-button curtain-open-button inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/70 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur"
           >
             <Sparkles size={14} />
             Tap to Open
@@ -397,26 +477,27 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
 function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
   const isLadies = type === "ladies";
   return (
-    <div className="attire-illustration relative mb-6 h-64 overflow-hidden bg-ivory/70">
-      <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
+    <div className="attire-illustration attire-showcase relative mb-6 h-72 overflow-hidden rounded-[1.5rem] bg-ivory/80">
+      <div className="absolute inset-x-6 bottom-0 h-36 rounded-t-full bg-sage/12" />
       {isLadies ? (
         <>
-          <div className="absolute left-[35%] top-9 h-12 w-12 rounded-full bg-[#8b5c4c]" />
-          <div className="absolute left-[31%] top-[5.2rem] h-28 w-[5.6rem] rounded-t-full bg-blush" />
-          <div className="absolute left-[24%] bottom-0 h-40 w-36 rounded-t-[5rem] bg-rose/90" />
-          <div className="absolute left-[25%] bottom-0 h-36 w-32 rounded-t-[5rem] bg-[linear-gradient(90deg,rgba(251,246,237,0.3),transparent,rgba(123,0,20,0.12))]" />
-          <div className="absolute right-[25%] top-12 h-9 w-28 rotate-[-8deg] rounded-full border border-wine/20 bg-champagne" />
-          <div className="absolute right-[28%] top-[4.4rem] h-4 w-20 rotate-[-8deg] bg-wine/70" />
+          <div className="absolute left-[42%] top-8 h-12 w-12 rounded-full bg-[#8b5c4c]" />
+          <div className="absolute left-[39%] top-[4.9rem] h-20 w-20 rounded-t-full bg-blush" />
+          <div className="absolute left-[30%] bottom-0 h-44 w-40 rounded-t-[5rem] bg-[linear-gradient(135deg,#e9c0b6,#c89485_52%,#7b0014)] shadow-soft" />
+          <div className="absolute left-[33%] bottom-0 h-40 w-32 rounded-t-[4.5rem] bg-[linear-gradient(90deg,rgba(251,246,237,0.34),transparent,rgba(123,0,20,0.14))]" />
+          <div className="absolute left-[24%] top-24 h-4 w-28 -rotate-12 rounded-full bg-wine/65" />
+          <div className="absolute right-[22%] top-20 h-14 w-24 -rotate-6 rounded-full border border-wine/20 bg-champagne shadow-sm" />
         </>
       ) : (
         <>
-          <div className="absolute left-[42%] top-9 h-12 w-12 rounded-full bg-[#7a513f]" />
-          <div className="absolute left-[35%] top-[5.1rem] h-32 w-28 rounded-t-3xl bg-moss" />
-          <div className="absolute left-[38%] top-[5.5rem] h-28 w-16 bg-ivory" />
-          <div className="absolute left-[42%] top-[6rem] h-24 w-8 bg-wine" />
-          <div className="absolute left-[34%] bottom-0 h-24 w-10 bg-[#2f3420]" />
-          <div className="absolute right-[35%] bottom-0 h-24 w-10 bg-[#2f3420]" />
-          <div className="absolute right-[18%] top-16 h-28 w-20 rounded-t-full bg-sage/35" />
+          <div className="absolute left-[42%] top-8 h-12 w-12 rounded-full bg-[#7a513f]" />
+          <div className="absolute left-[34%] top-[5rem] h-36 w-32 rounded-t-3xl bg-[linear-gradient(135deg,#3f481f,#737b54)] shadow-soft" />
+          <div className="absolute left-[38%] top-[5.4rem] h-32 w-16 bg-ivory" />
+          <div className="absolute left-[42%] top-[5.9rem] h-28 w-8 bg-wine" />
+          <div className="absolute left-[33%] bottom-0 h-28 w-11 bg-[#2f3420]" />
+          <div className="absolute right-[34%] bottom-0 h-28 w-11 bg-[#2f3420]" />
+          <div className="absolute right-[18%] top-16 h-28 w-24 rounded-t-full bg-[#8f5c4b]/45" />
+          <div className="absolute right-[20%] top-24 h-4 w-20 rotate-12 rounded-full bg-wine/65" />
         </>
       )}
       <div className="absolute left-5 top-5 h-16 w-16 rounded-full bg-white/60 blur-sm" />
@@ -533,7 +614,7 @@ export default function Home() {
   return (
     <main className="relative overflow-hidden text-ink">
       <BackgroundHearts />
-      <SoundButton />
+      <WeddingMusic />
       {/* Dangling rope animation when curtain is closed */}
       <style>{`
         @keyframes rope-sway {
@@ -549,7 +630,7 @@ export default function Home() {
             <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-wine/10 text-wine">
               <Heart size={14} />
             </span>
-            K-D & Esther
+            King David & Esther
           </a>
           <a
             href="#rsvp"
@@ -562,7 +643,7 @@ export default function Home() {
 
       <CurtainHero countdown={countdown} />
 
-      <section id="story" className="py-20 sm:py-28">
+      <section id="story" className="love-band py-20 sm:py-28">
         <div className="section-shell love-section grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <FadeIn>
             <StoryArch />
@@ -581,7 +662,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pre-wedding" className="relative bg-ivory py-20 sm:py-28">
+      <section id="pre-wedding" className="love-band relative bg-ivory py-20 sm:py-28">
         <FloatingPetals />
         <FloatingHearts active />
         <div className="section-shell relative z-10">
@@ -590,26 +671,27 @@ export default function Home() {
               Pre-Wedding Portraits
             </p>
             <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
-              A quiet gallery for the memories before the day.
+              A soft gallery for the memories before the day.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
-              Portraits will be added here soon. For now, these soft editorial frames
-              hold the space for the couple's pre-wedding moments.
+              A few tender frames from King David and Esther's journey into forever.
             </p>
           </FadeIn>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {["Garden Walk", "Soft Portrait", "Evening Promise"].map((title, index) => (
-              <FadeIn key={title} delay={index * 0.08}>
-                <div className="photo-placeholder love-card group relative h-[28rem] overflow-hidden bg-champagne shadow-soft">
-                  <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(251,246,237,0.86),rgba(233,192,182,0.44),rgba(115,123,84,0.24))]" />
-                  <div className="absolute inset-6 border border-ivory/70" />
-                  <div className="absolute left-6 right-6 top-8 h-40 rounded-t-full bg-ivory/46" />
-                  <div className="absolute bottom-8 left-6 right-6 text-center">
-                    <p className="font-script text-5xl text-moss">{title}</p>
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
-                      Coming soon
-                    </p>
+            {couplePhotos.map((photo, index) => (
+              <FadeIn key={photo.title} delay={index * 0.08}>
+                <div className="photo-placeholder love-card group relative h-[28rem] overflow-hidden rounded-[1.6rem] bg-champagne shadow-soft">
+                  <img
+                    src={photo.src}
+                    alt={`${photo.title} portrait of King David and Esther`}
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d241f]/72 via-transparent to-transparent" />
+                  <div className="absolute inset-5 border border-ivory/65" />
+                  <div className="absolute bottom-7 left-7 right-7 text-ivory">
+                    <p className="font-script text-5xl">{photo.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-ivory/86">{photo.caption}</p>
                   </div>
                 </div>
               </FadeIn>
@@ -618,20 +700,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="details" className="bg-moss py-20 text-ivory sm:py-28">
+      <section id="details" className="love-band bg-moss py-20 text-ivory sm:py-28">
         <div className="section-shell">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
               Wedding Details
             </p>
             <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
-              Saturday, 22 August 2026
+              Ceremony, reception and directions.
             </h2>
           </FadeIn>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
+          <div className="mt-12 grid gap-4 md:grid-cols-2">
             {[
-              { icon: CalendarDays, label: "Date", value: "Saturday, 22 Aug 2026" },
               { icon: MapPin, label: "Venue", value: "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State" },
               { icon: Clock, label: "Reception", value: "Reception celebration starts immediately after" }
             ].map((item) => (
@@ -689,7 +770,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="dress-code" className="py-20 sm:py-28">
+      <section id="dress-code" className="love-band py-20 sm:py-28">
         <div className="section-shell">
           <FadeIn className="floral-frame invitation-border love-card bg-ivory/78 p-7 shadow-soft sm:p-12">
             <div className="relative z-10 mx-auto max-w-4xl text-center">
@@ -729,11 +810,22 @@ export default function Home() {
                 </p>
               </div>
             </div>
+
+            <div className="relative z-10 mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {palette.map(([name, color], index) => (
+                <div key={name} className="romantic-pill flex items-center gap-3 rounded-2xl bg-white/70 p-3">
+                  <span className="h-11 w-11 rounded-full border-2 border-ivory shadow" style={{ backgroundColor: color }} />
+                  <span className="text-sm font-semibold text-moss">
+                    {index + 1}. {name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </FadeIn>
         </div>
       </section>
 
-      <section id="gifts" className="relative bg-moss py-20 text-ivory sm:py-28">
+      <section id="gifts" className="love-band relative bg-moss py-20 text-ivory sm:py-28">
         <FloatingPetals />
         <div className="section-shell relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <FadeIn>
@@ -757,7 +849,7 @@ export default function Home() {
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 <div className="bg-champagne/60 p-5">
-                  <p className="font-serif text-2xl text-moss">King-David Duruihuoma</p>
+                  <p className="font-serif text-2xl text-moss">King David Duruihuoma</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Guaranty Trust Bank
                   </p>
@@ -776,7 +868,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="rsvp" className="bg-[#f1e5d2] py-20 sm:py-28">
+      <section id="rsvp" className="love-band bg-[#f1e5d2] py-20 sm:py-28">
         <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
@@ -786,7 +878,7 @@ export default function Home() {
               Kindly reserve your place.
             </h2>
             <div className="love-card mt-6 rounded-lg border border-wine/20 bg-wine/8 p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-wine">👨‍👩‍👧 Adults Only</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-wine">Adults Only</p>
               <p className="mt-3 text-base leading-7 text-ink/76">
                 This celebration is exclusively for adults. Due to the nature of our venue and activities, we kindly request that children are not brought to this event. Thank you for understanding.
               </p>

@@ -12,11 +12,13 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 500;
 
 const THEME = {
-  background: "#F2E9E4",
-  primary: "#5B0C1D",
-  accent: "#8F5C4B",
-  text: "#3D3330",
-  cream: "#F2E9E4",
+  background: "#FBF6ED",
+  panel: "#F2E4DC",
+  primary: "#7B0014",
+  moss: "#3F481F",
+  accent: "#C89485",
+  text: "#2D241F",
+  cream: "#FFF8EF",
 };
 
 function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: number, radius: number) {
@@ -33,92 +35,123 @@ function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: 
   ctx.closePath();
 }
 
-export async function generateAccessCardImage(options: AccessCardOptions) {
-  // Attempt to register a local/system font for consistent rendering.
-  // Prefer Montserrat if available, then Arial, then DejaVu Sans.
-  try {
-    const candidates = [
-      path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
-      "C:\\Windows\\Fonts\\Montserrat-Regular.ttf",
-      "C:\\Windows\\Fonts\\Arial.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    ];
-    for (const p of candidates) {
-      try {
-        if (p && fs.existsSync(p)) {
-          registerFont(p, { family: "KDEFont" });
-          break;
-        }
-      } catch (e) {
-        // ignore and try next
+function registerCardFont() {
+  const candidates = [
+    path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
+    "C:\\Windows\\Fonts\\arial.ttf",
+    "C:\\Windows\\Fonts\\calibri.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+  ];
+
+  for (const fontPath of candidates) {
+    try {
+      if (fs.existsSync(fontPath)) {
+        registerFont(fontPath, { family: "KDECardFont" });
+        return "KDECardFont";
       }
+    } catch {
+      // Try the next available font.
     }
-  } catch (e) {
-    // ignore font registration errors
   }
 
+  return "sans-serif";
+}
+
+function drawWrappedText(
+  ctx: any,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+) {
+  const words = text.split(" ");
+  let line = "";
+  let currentY = y;
+
+  for (const word of words) {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      ctx.fillText(line, x, currentY);
+      line = word;
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+
+  if (line) {
+    ctx.fillText(line, x, currentY);
+  }
+
+  return currentY + lineHeight;
+}
+
+export async function generateAccessCardImage(options: AccessCardOptions) {
+  const fontFamily = registerCardFont();
   const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   const ctx: any = canvas.getContext("2d");
 
-  // Background
   ctx.fillStyle = THEME.background;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Header
+  ctx.fillStyle = THEME.panel;
+  drawRoundedRect(ctx, 24, 24, CANVAS_WIDTH - 48, CANVAS_HEIGHT - 48, 34);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(123, 0, 20, 0.18)";
+  ctx.lineWidth = 2;
+  drawRoundedRect(ctx, 24, 24, CANVAS_WIDTH - 48, CANVAS_HEIGHT - 48, 34);
+  ctx.stroke();
+
   ctx.fillStyle = THEME.primary;
-  drawRoundedRect(ctx, 24, 24, CANVAS_WIDTH - 48, 100, 20);
+  drawRoundedRect(ctx, 58, 58, CANVAS_WIDTH - 116, 100, 28);
   ctx.fill();
 
   ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 34px KDEFont, Arial, sans-serif";
+  ctx.font = `700 34px "${fontFamily}"`;
   ctx.textAlign = "center";
-  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 72);
+  ctx.textBaseline = "middle";
+  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 94);
+  ctx.font = `500 14px "${fontFamily}"`;
+  ctx.fillText("WEDDING ACCESS CARD", CANVAS_WIDTH / 2, 128);
 
-  // Middle section details
   ctx.fillStyle = THEME.text;
   ctx.textAlign = "left";
-  ctx.font = "600 18px KDEFont, Arial, sans-serif";
-  const textX = 40;
-  let y = 160;
-  const lineHeight = 32;
-  const lines = [
-    "DATE: Saturday, 22nd August 2026",
-    "VENUE: Camp Young, Ede-Osogbo Rd,",
-    "Nijhof Advies - Osun State",
-    "Wedding ceremony starts at 10am",
-    "Reception celebration starts immediately after",
-    "",
-    "CHILDREN ARE NOT ALLOWED",
-    "NOT TRANSFERABLE",
-  ];
+  ctx.textBaseline = "top";
+  ctx.font = `500 19px "${fontFamily}"`;
+  let y = 190;
+  y = drawWrappedText(ctx, "VENUE: Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State", 76, y, 648, 28);
+  y = drawWrappedText(ctx, "PROGRAM: Wedding ceremony starts at 10am. Reception celebration starts immediately after.", 76, y + 8, 648, 28);
 
-  for (const line of lines) {
-    ctx.fillText(line, textX, y);
-    y += line === "" ? lineHeight / 2 : lineHeight;
-  }
-
-  // Accent separator
+  ctx.font = `700 17px "${fontFamily}"`;
   ctx.fillStyle = THEME.accent;
-  drawRoundedRect(ctx, 40, 258, CANVAS_WIDTH - 80, 3, 2);
+  ctx.fillText("CHILDREN ARE NOT ALLOWED", 76, y + 10);
+  ctx.fillStyle = THEME.primary;
+  ctx.fillText("NOT TRANSFERABLE", 76, y + 34);
+
+  ctx.fillStyle = THEME.accent;
+  drawRoundedRect(ctx, 76, 340, CANVAS_WIDTH - 152, 2, 1);
   ctx.fill();
 
-  // Bottom guest info panel
-  const panelHeight = 140;
-  const panelY = CANVAS_HEIGHT - panelHeight - 30;
+  const panelHeight = 104;
+  const panelY = CANVAS_HEIGHT - panelHeight - 38;
   ctx.fillStyle = THEME.primary;
-  drawRoundedRect(ctx, 40, panelY, CANVAS_WIDTH - 80, panelHeight, 24);
+  drawRoundedRect(ctx, 58, panelY, CANVAS_WIDTH - 116, panelHeight, 28);
   ctx.fill();
 
   ctx.fillStyle = THEME.cream;
   ctx.textAlign = "center";
-  ctx.font = "bold 28px KDEFont, Arial, sans-serif";
-  ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
+  ctx.textBaseline = "middle";
+  ctx.font = `700 25px "${fontFamily}"`;
+  ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 30);
 
-  ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
-  ctx.fillText(`Unique entry code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
+  ctx.font = `700 21px "${fontFamily}"`;
+  ctx.fillText(`Unique entry code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 60);
 
-  ctx.font = "600 20px KDEFont, Arial, sans-serif";
-  ctx.fillText(`${options.attendees} pass`, CANVAS_WIDTH / 2, panelY + 116);
+  ctx.font = `500 16px "${fontFamily}"`;
+  ctx.fillText(`${options.attendees} adult pass`, CANVAS_WIDTH / 2, panelY + 86);
 
   return canvas.toBuffer("image/png");
 }

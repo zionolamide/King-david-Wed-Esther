@@ -104,44 +104,42 @@ export async function POST(request: Request) {
 
   const entryCode = await generateEntryCode(supabase);
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc("register_wedding_rsvp", {
-    p_full_name: title === "(No Prefix)" ? fullName : `${title} ${fullName}`,
-    p_email: email,
-    p_phone: phone || null,
-    p_attendees: 1,
-    p_attending: true,
-    p_note: note || null,
-    p_entry_code: entryCode,
-    p_capacity: RSVP_LIMIT,
-    p_title: title === "(No Prefix)" ? null : title,
-    p_adult_agreement: adultAgreement,
-  });
+  const { data: existing, error: existsError } = await supabase
+    .from("rsvp_submissions")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
 
-  if (rpcError) {
+  if (existsError) {
     return NextResponse.json(
-      { ok: false, message: rpcError.message ?? "RSVP failed." },
+      { ok: false, message: existsError.message ?? "RSVP validation failed." },
       { status: 500 }
     );
   }
 
-  const status = String(rpcData?.status ?? "").toLowerCase();
-  if (status === "exists") {
+  if (existing) {
     return NextResponse.json(
-      { ok: false, message: "This email has already been registered." },
+      {
+        ok: false,
+        message: "This email has already been registered."
+      },
       { status: 409 }
     );
   }
 
-  if (status === "closed") {
-    return NextResponse.json(
-      { ok: false, message: "RSVP Closed - Capacity Reached" },
-      { status: 409 }
-    );
-  }
+  const { data, error } = await supabase.from("rsvp_submissions").insert({
+    title: title === "(No Prefix)" ? null : title,
+    full_name: fullName,
+    email,
+    phone: phone || null,
+    note: note || null,
+    adult_agreement: adultAgreement,
+    entry_code: entryCode,
+  });
 
-  if (status !== "accepted") {
+  if (error) {
     return NextResponse.json(
-      { ok: false, message: "RSVP failed." },
+      { ok: false, message: error.message ?? "RSVP failed." },
       { status: 500 }
     );
   }

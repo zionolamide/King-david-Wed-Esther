@@ -269,7 +269,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
                 href="#rsvp"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-opacity-90"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss"
               >
                 <Heart size={17} /> Reserve Your Seat
               </a>
@@ -529,7 +529,7 @@ export default function Home() {
             <FadeIn delay={0.12}>
               <div className="min-h-80 overflow-hidden bg-ivory shadow-soft">
                 <iframe
-                title="Camp Young Ede map"
+                  title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
                   className="h-80 w-full border-0"
                   loading="lazy"
@@ -726,7 +726,7 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-opacity-90 disabled:opacity-60"
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-moss"
                   >
                     {status === "loading" ? (
                       <Loader2 className="animate-spin" size={17} />

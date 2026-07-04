@@ -51,10 +51,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   };
 
   useEffect(() => {
-    if (selectedOptions.length && value && !value?.length) {
+    if (selectedOptions.length && value && !value.length) {
       onChange?.(defaultSelected);
     }
-  }, [defaultSelected]);
+  }, [selectedOptions.length, value, defaultSelected, onChange]);
 
   useEffect(() => {
     if (

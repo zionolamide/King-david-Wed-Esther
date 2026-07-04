@@ -594,7 +594,7 @@ export default function Home() {
             </h2>
             <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
               Portraits will be added here soon. For now, these soft editorial frames
-              hold the space for the couple's pre-wedding moments.
+              hold the space for the couple&apos;s pre-wedding moments.
             </p>
           </FadeIn>
 

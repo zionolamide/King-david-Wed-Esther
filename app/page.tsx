@@ -10,19 +10,17 @@ import {
   Heart,
   Loader2,
   MapPin,
-  MessageCircle,
   Music2,
   Navigation,
   Pause,
   Send,
   Sparkles,
-  Users,
-  XCircle
+  Users
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-const weddingDate = new Date("2026-08-22T10:00:00+01:00");
-const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
+const weddingDate = new Date("2026-08-22T11:00:00+01:00");
+const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
 
 const palette = [
   ["Sage", "#737b54"],
@@ -33,19 +31,13 @@ const palette = [
   ["Champagne", "#eadfc9"]
 ];
 
-const venueQuery = "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State";
+const venueQuery = "Camp Young, Ede, Osun State, Nigeria";
 const encodedVenue = encodeURIComponent(venueQuery);
 
 const schedule = [
-  { time: "10:00 AM", title: "Wedding ceremony starts" },
-  { time: "Immediately after", title: "Reception celebration" }
-];
-
-const titleOptions = ["Mr.", "Mrs.", "Miss.", "Dr.", "Prof.", "Pastor", "Evang.", "(No Prefix)"];
-const rsvpContacts = [
-  { name: "Sister Rhoda", phone: "08106993435" },
-  { name: "Brother Joe", phone: "0812765976" },
-  { name: "Bro Zion", phone: "09135037695" }
+  { time: "11:00 AM", title: "Wedding ceremony" },
+  { time: "Immediately after", title: "Reception celebration" },
+  { time: "Evening", title: "Dinner, music and memories" }
 ];
 
 function useCountdown() {
@@ -134,7 +126,7 @@ function SoundButton() {
 
 function StoryArch() {
   return (
-    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-xl bg-champagne shadow-soft love-card">
+    <div className="story-arch relative mx-auto h-[30rem] max-w-sm overflow-hidden rounded-t-full bg-champagne shadow-soft animate-parallax-float">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(251,246,237,0.12),rgba(63,72,31,0.42)),url('/garden-palette.jpg')] bg-cover bg-center" />
       <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/58" />
       <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
@@ -165,74 +157,6 @@ function FloatingPetals() {
   );
 }
 
-
-function FloatingHearts({ active }: { active: boolean }) {
-  if (!active) return null;
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[18] overflow-hidden">
-      {Array.from({ length: 18 }).map((_, index) => {
-        const sizeClass = ["heart-sm", "heart-md", "heart-lg"][index % 3];
-        const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
-        return (
-          <span
-            key={index}
-            className={`floating-heart ${sizeClass} ${colorClass}`}
-            style={{
-              left: `${6 + ((index * 17) % 88)}%`,
-              animationDelay: `${index * 0.32}s`,
-              animationDuration: `${4.8 + (index % 5) * 0.8}s`
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function CurtainSparkles({ opened }: { opened: boolean }) {
-  if (opened) return null;
-
-  return (
-    <div className="curtain-space-drift pointer-events-none absolute inset-0 z-10">
-      {Array.from({ length: 10 }).map((_, index) => (
-        <span
-          key={index}
-          className="curtain-sparkle"
-          style={{
-            left: `${8 + (index * 9) % 82}%`,
-            top: `${14 + (index * 11) % 48}%`,
-            animationDelay: `${index * 0.3}s`,
-            animationDuration: `${6 + (index % 4) * 1.6}s`
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function BackgroundHearts() {
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.14]">
-      {Array.from({ length: 24 }).map((_, index) => {
-        const sizeClass = ["heart-sm", "heart-md", "heart-lg"][index % 3];
-        const colorClass = ["heart-wine", "heart-rose", "heart-blush", "heart-champagne"][index % 4];
-        return (
-          <span
-            key={index}
-            className={`floating-heart ${sizeClass} ${colorClass}`}
-            style={{
-              left: `${4 + ((index * 13) % 92)}%`,
-              animationDelay: `${index * 0.45}s`,
-              animationDuration: `${7 + (index % 5) * 1.5}s`
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 function ScratchDateCard() {
   const [progress, setProgress] = useState(0);
   const revealed = progress >= 4;
@@ -243,7 +167,7 @@ function ScratchDateCard() {
 
   return (
     <div
-      className={`scratch-card love-pulse invitation-border relative mx-auto mt-7 max-w-xl overflow-hidden bg-ivory/84 p-5 text-center shadow-soft lg:mx-0 ${
+      className={`scratch-card invitation-border relative mx-auto mt-7 max-w-xl overflow-hidden bg-ivory/84 p-5 text-center shadow-soft lg:mx-0 ${
         revealed ? "is-revealed" : ""
       }`}
       onPointerDown={scratch}
@@ -261,7 +185,7 @@ function ScratchDateCard() {
       <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
         Wedding Date
       </p>
-      <p className="relative z-10 mt-2 font-serif text-3xl leading-relaxed text-moss text-sparkle">
+      <p className="relative z-10 mt-2 font-serif text-3xl leading-relaxed text-moss">
         Saturday, 22 August 2026
       </p>
       {!revealed ? (
@@ -283,95 +207,69 @@ function ScratchDateCard() {
 function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown> }) {
   const [opened, setOpened] = useState(false);
 
-  useEffect(() => {
-    if (!opened) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
-  }, [opened]);
-
   return (
     <section id="home" className="relative min-h-[100svh]">
       <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20">
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),url('/garden-palette.jpg')] bg-cover bg-center" />
         <FloatingPetals />
-        <FloatingHearts active={!opened} />
-        <CurtainSparkles opened={opened} />
-
-        <div className="curtain-valance pointer-events-none absolute inset-x-0 top-0 z-20 h-24">
-          <span className="curtain-rope" />
-          <span className="curtain-heart" />
-        </div>
 
         <motion.div
           className="curtain-panel left-0"
-          animate={{ x: opened ? "-100%" : "0%", rotateY: opened ? 55 : 0, scale: opened ? 0.82 : 1 }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "-55%" : "0%" }}
+          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
-          animate={{ x: opened ? "100%" : "0%", rotateY: opened ? -55 : 0, scale: opened ? 0.82 : 1 }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ x: opened ? "55%" : "0%" }}
+          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
         <motion.div
-          className="absolute inset-x-8 top-[35%] z-30 text-center sm:top-[38%]"
+          className="absolute inset-x-8 top-[36%] z-30 text-center sm:top-[40%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
           transition={{ duration: 0.7 }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
-          <p className="font-script text-6xl leading-none text-ivory sm:text-7xl curtain-title">
-            King David & Esther
+          <p className="font-script text-6xl leading-none text-moss sm:text-7xl">
+            King-David & Esther
           </p>
           <button
             type="button"
             onClick={() => setOpened(true)}
-            className="romantic-button hero-cta mt-7 inline-flex items-center gap-2 rounded-full border border-ivory/70 bg-wine/60 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur"
+            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-7 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory"
           >
-            <Sparkles size={14} />
             Tap to Open
-            <Sparkles size={14} />
           </button>
-          <div className="curtain-cta-shell mt-6 flex justify-center">
-            <span className="curtain-cta-orb" />
-          </div>
         </motion.div>
 
         <motion.div
           className="hero-content section-shell relative z-10 grid gap-5 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
           initial={false}
           animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 38, scale: opened ? 1 : 0.98 }}
-          transition={{ duration: 0.9, delay: opened ? 1.1 : 0, ease: "easeOut" }}
+          transition={{ duration: 1, delay: opened ? 1.2 : 0 }}
           style={{ pointerEvents: opened ? "auto" : "none" }}
         >
           <div className="text-center lg:text-left">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.34em] text-wine">
               Formal Garden Elegance
             </p>
-            <h1 className="hero-title font-script leading-[0.78] text-moss text-sparkle">
-              King David
+            <h1 className="hero-title font-script leading-[0.78] text-moss">
+              King-David
               <span className="block font-serif text-3xl italic text-wine sm:text-5xl">&</span>
               Esther
             </h1>
             <ScratchDateCard />
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-ink/74 lg:mx-0">
               With grateful hearts, we invite you to celebrate a warm garden wedding
-              at Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State. The wedding ceremony starts at 10am, with the reception celebration immediately after.
+              at Camp Young, Ede. Reception follows immediately.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <a
                 href="#rsvp"
-                className="romantic-button inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-opacity-90"
               >
                 <Heart size={17} /> Reserve Your Seat
               </a>
@@ -384,7 +282,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
             </div>
           </div>
 
-          <div className="countdown-card love-pulse invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
+          <div className="countdown-card invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
             <div className="rounded-[1.5rem] bg-champagne/45 p-5 text-center">
               <p className="mb-5 text-xs font-semibold uppercase tracking-[0.28em] text-moss">
                 Countdown to our day
@@ -422,7 +320,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
 function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
   const isLadies = type === "ladies";
   return (
-    <div className="attire-illustration relative mb-6 h-64 overflow-hidden bg-ivory/70">
+    <div className="attire-illustration relative mb-6 h-64 overflow-hidden bg-ivory/70 animate-image-shimmer">
       <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
       {isLadies ? (
         <>
@@ -460,45 +358,6 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
-  const [lastRsvp, setLastRsvp] = useState<{
-    fullName: string;
-    phone: string;
-    entryCode: string;
-  } | null>(null);
-  const [cardLoading, setCardLoading] = useState(false);
-  const [cardPreviewUrl, setCardPreviewUrl] = useState<string | null>(null);
-
-  async function fetchAccessCard(fullName: string, entryCode: string) {
-    setCardLoading(true);
-    try {
-      const response = await fetch("/api/access-card", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName,
-          entryCode,
-          attendees: 1,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to generate access card.");
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setCardPreviewUrl((current) => {
-        if (current) {
-          URL.revokeObjectURL(current);
-        }
-        return url;
-      });
-      return url;
-    } catch (downloadError) {
-      console.error(downloadError);
-      return null;
-    } finally {
-      setCardLoading(false);
-    }
-  }
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -506,17 +365,13 @@ export default function Home() {
     setMessage("");
 
     const form = new FormData(event.currentTarget);
-    const title = String(form.get("title") ?? "(No Prefix)");
-    const fullName = String(form.get("fullName") ?? "");
-    const phone = String(form.get("phone") ?? "");
-    const adultAgreement = Boolean(form.get("adultAgreement"));
     const payload = {
-      title,
-      fullName,
+      fullName: String(form.get("fullName") ?? ""),
       email: String(form.get("email") ?? ""),
-      phone,
-      note: String(form.get("note") ?? ""),
-      adultAgreement
+      phone: String(form.get("phone") ?? ""),
+      attendees: Number(form.get("attendees") ?? 1),
+      attending: String(form.get("attending") ?? "yes"),
+      note: String(form.get("note") ?? "")
     };
 
     const response = await fetch("/api/rsvp", {
@@ -539,46 +394,21 @@ export default function Home() {
     }
 
     setStatus("success");
-    setLastRsvp({
-      fullName,
-      phone,
-      entryCode: String(result.entryCode ?? "")
-    });
-    setMessage(
-      result.entryCode
-        ? "Thank you. Your RSVP has been received. Your access card is ready and has been sent to your email."
-        : "Thank you. Your RSVP has been received and a confirmation email is on its way."
-    );
-    if (result.entryCode) {
-      await fetchAccessCard(fullName, String(result.entryCode));
-    }
+    setMessage("Thank you. Your RSVP has been received and a confirmation email is on its way.");
     event.currentTarget.reset();
   }
 
   return (
-    <main className="relative overflow-hidden text-ink">
-      <BackgroundHearts />
+    <main className="overflow-hidden text-ink">
       <SoundButton />
-      {/* Dangling rope animation when curtain is closed */}
-      <style>{`
-        @keyframes rope-sway {
-          0%, 100% { transform: rotate(-1deg); transform-origin: center top; }
-          50% { transform: rotate(1deg); transform-origin: center top; }
-        }
-        .curtain-rope { animation: rope-sway 2.2s ease-in-out infinite; }
-        .curtain-heart { animation: rope-sway 2.2s ease-in-out infinite; animation-delay: 0.1s; }
-      `}</style>
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
         <div className="section-shell flex h-16 items-center justify-between">
           <a href="#home" className="font-serif text-xl text-moss">
-            <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-wine/10 text-wine">
-              <Heart size={14} />
-            </span>
             K-D & Esther
           </a>
           <a
             href="#rsvp"
-            className="romantic-pill inline-flex items-center gap-2 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory"
+            className="inline-flex items-center gap-2 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft"
           >
             <Send size={14} /> RSVP
           </a>
@@ -587,46 +417,50 @@ export default function Home() {
 
       <CurtainHero countdown={countdown} />
 
-      <section id="story" className="py-20 sm:py-28 section-floating">
-        <div className="section-shell love-section grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+      {/* STORY SECTION - Parallax Float Animation */}
+      <section id="story" className="py-20 sm:py-28">
+        <div className="section-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <FadeIn>
             <StoryArch />
           </FadeIn>
           <FadeIn delay={0.12}>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
-              Our Journey
+              Our Story
             </p>
-            <h2 className="section-title-glow mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A love rooted in grace, friendship and promise.
             </h2>
             <p className="mt-6 text-base leading-8 text-ink/75">
-              Our journey began with a simple hello, grew through friendship, laughter, prayers, and love. Through every season, we found in each other a forever kind of love. From two different tribes, God beautifully brought us together, uniting our hearts in His perfect plan. As we step into forever together, we invite you to celebrate this moment with us.
+              Our journey has been shaped by faith, laughter, family and the quiet
+              certainty of choosing each other. As we begin this new chapter, we are
+              honoured to gather the people we love for a celebration filled with
+              warmth, beauty and thanksgiving.
             </p>
           </FadeIn>
         </div>
       </section>
 
-      <section id="pre-wedding" className="relative bg-ivory py-20 sm:py-28 section-floating-soft">
+      {/* GALLERY SECTION - Staggered Card Pop-In */}
+      <section id="pre-wedding" className="relative bg-ivory py-20 sm:py-28">
         <FloatingPetals />
-        <FloatingHearts active />
         <div className="section-shell relative z-10">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Pre-Wedding Portraits
             </p>
-            <h2 className="section-title-glow mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               A quiet gallery for the memories before the day.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
               Portraits will be added here soon. For now, these soft editorial frames
-              hold the space for the couple&apos;s pre-wedding moments.
+              hold the space for the couple's pre-wedding moments.
             </p>
           </FadeIn>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {["Garden Walk", "Soft Portrait", "Evening Promise"].map((title, index) => (
               <FadeIn key={title} delay={index * 0.08}>
-                <div className="photo-placeholder premium-portrait love-card group relative h-[28rem] overflow-hidden bg-champagne shadow-soft">
+                <div className={`photo-placeholder group relative h-[28rem] overflow-hidden bg-champagne shadow-soft animate-card-pop stagger-delay-${index + 1}`}>
                   <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(251,246,237,0.86),rgba(233,192,182,0.44),rgba(115,123,84,0.24))]" />
                   <div className="absolute inset-6 border border-ivory/70" />
                   <div className="absolute left-6 right-6 top-8 h-40 rounded-t-full bg-ivory/46" />
@@ -643,13 +477,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="details" className="bg-moss py-20 text-ivory sm:py-28 section-floating-dark">
+      {/* DETAILS SECTION - Unfold & Icon Pulse */}
+      <section id="details" className="bg-moss py-20 text-ivory sm:py-28">
         <div className="section-shell">
           <FadeIn className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
               Wedding Details
             </p>
-            <h2 className="section-title-glow mt-3 font-serif text-5xl leading-tight sm:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight sm:text-6xl">
               Saturday, 22 August 2026
             </h2>
           </FadeIn>
@@ -657,12 +492,12 @@ export default function Home() {
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {[
               { icon: CalendarDays, label: "Date", value: "Saturday, 22 Aug 2026" },
-              { icon: MapPin, label: "Venue", value: "Camp Young, Ede-Osogbo Rd, Nijhof Advies - Osun State" },
-              { icon: Clock, label: "Reception", value: "Reception celebration starts immediately after" }
-            ].map((item) => (
+              { icon: MapPin, label: "Venue", value: "Camp Young, Ede" },
+              { icon: Clock, label: "Reception", value: "Follows immediately" }
+            ].map((item, index) => (
               <FadeIn key={item.label}>
-                <div className="details-card love-card h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur">
-                  <item.icon className="mb-5 text-blush" size={24} />
+                <div className={`h-full border border-ivory/18 bg-ivory/8 p-7 backdrop-blur animate-card-unfold stagger-delay-${index + 1}`}>
+                  <item.icon className="mb-5 text-blush animate-icon-pulse" size={24} />
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne">
                     {item.label}
                   </p>
@@ -674,7 +509,7 @@ export default function Home() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <FadeIn>
-              <div className="love-card card-bloom bg-ivory p-7 text-ink shadow-soft">
+              <div className="bg-ivory p-7 text-ink shadow-soft">
                 <h3 className="font-serif text-4xl text-moss">Order of Celebration</h3>
                 <div className="mt-6 space-y-5">
                   {schedule.map((item) => (
@@ -692,7 +527,7 @@ export default function Home() {
               </div>
             </FadeIn>
             <FadeIn delay={0.12}>
-              <div className="map-panel love-card min-h-80 overflow-hidden bg-ivory shadow-soft">
+              <div className="min-h-80 overflow-hidden bg-ivory shadow-soft">
                 <iframe
                 title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
@@ -714,9 +549,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="dress-code" className="py-20 sm:py-28 section-floating">
+      {/* DRESS CODE SECTION - Orbiting Swatches & Image Shimmer */}
+      <section id="dress-code" className="py-20 sm:py-28">
         <div className="section-shell">
-          <FadeIn className="floral-frame invitation-border love-card bg-ivory/78 p-7 shadow-soft sm:p-12">
+          <FadeIn className="floral-frame invitation-border bg-ivory/78 p-7 shadow-soft sm:p-12">
             <div className="relative z-10 mx-auto max-w-4xl text-center">
               <p className="font-script text-5xl text-sage sm:text-6xl">Style Inspiration</p>
               <h2 className="mt-2 font-serif text-5xl italic leading-tight text-moss sm:text-7xl">
@@ -730,10 +566,25 @@ export default function Home() {
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.22em] text-wine">
                 Please note this is just a guide and absolutely not mandatory
               </p>
+
+              {/* Orbiting Color Swatches */}
+              <div className="relative mx-auto h-32 w-32 mt-8">
+                {palette.map(([name, color], idx) => (
+                  <div
+                    key={name}
+                    className="absolute h-5 w-5 rounded-full animate-swatch-orbit"
+                    style={{
+                      backgroundColor: color,
+                      animationDelay: `${(idx / palette.length) * 8}s`
+                    }}
+                    title={name}
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="relative z-10 mt-10 grid gap-6 md:grid-cols-2">
-              <div className="gift-card love-card bg-champagne/56 p-7">
+              <div className="bg-champagne/56 p-7">
                 <AttireIllustration type="ladies" />
                 <Flower2 className="mb-5 text-wine" />
                 <h3 className="font-serif text-4xl text-moss">Ladies</h3>
@@ -743,7 +594,7 @@ export default function Home() {
                   welcome to complement the overall look.
                 </p>
               </div>
-              <div className="gift-card love-card bg-blush/34 p-7">
+              <div className="bg-blush/34 p-7">
                 <AttireIllustration type="gentlemen" />
                 <Sparkles className="mb-5 text-wine" />
                 <h3 className="font-serif text-4xl text-moss">Gentlemen</h3>
@@ -758,7 +609,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="gifts" className="relative bg-moss py-20 text-ivory sm:py-28 section-floating-soft">
+      {/* GIFTS SECTION - Flip Card & Glow Pulse */}
+      <section id="gifts" className="relative bg-moss py-20 text-ivory sm:py-28">
         <FloatingPetals />
         <div className="section-shell relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <FadeIn>
@@ -774,21 +626,23 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <div className="invitation-border love-card bg-ivory p-7 text-ink shadow-soft sm:p-10">
+            <div className="invitation-border bg-ivory p-7 text-ink shadow-soft sm:p-10">
               <Gift className="mb-5 text-wine" size={28} />
-              <h3 className="font-serif text-4xl text-moss">Gifts & Blessings</h3>
+              <h3 className="font-serif text-4xl text-moss">Gifts</h3>
               <p className="mt-4 leading-8 text-ink/74">
-                Your presence on our special day is the greatest gift we could ask for. But if your heart feels called to give more, a monetary gift would be received with deep gratitude and love.
+                Your presence on our special day is the greatest gift we could ask
+                for. But if your heart feels called to give more, a monetary gift
+                would be received with deep gratitude and love.
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                <div className="bg-champagne/60 p-5">
+                <div className="bg-champagne/60 p-5 animate-card-flip stagger-delay-1">
                   <p className="font-serif text-2xl text-moss">King-David Duruihuoma</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Guaranty Trust Bank
                   </p>
                   <p className="mt-2 font-serif text-3xl text-ink">0012782278</p>
                 </div>
-                <div className="bg-blush/32 p-5">
+                <div className="bg-blush/32 p-5 animate-card-flip stagger-delay-2">
                   <p className="font-serif text-2xl text-moss">Blessing Timehin</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Access Bank
@@ -801,21 +655,16 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="rsvp" className="bg-[#f1e5d2] py-20 sm:py-28 section-floating">
+      {/* RSVP SECTION - Field Spotlight */}
+      <section id="rsvp" className="bg-[#f1e5d2] py-20 sm:py-28">
         <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               RSVP
             </p>
-            <h2 className="section-title-glow mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
+            <h2 className="mt-3 font-serif text-5xl leading-tight text-moss sm:text-6xl">
               Kindly reserve your place.
             </h2>
-            <div className="love-card mt-6 rounded-lg border border-wine/20 bg-wine/8 p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-wine">👨‍👩‍👧 Adults Only</p>
-              <p className="mt-3 text-base leading-7 text-ink/76">
-                This celebration is exclusively for adults. Due to the nature of our venue and activities, we kindly request that children are not brought to this event. Thank you for understanding.
-              </p>
-            </div>
             <p className="mt-6 leading-8 text-ink/74">
               Please respond early so we can prepare a warm and comfortable celebration
               for every guest. Capacity is limited to {rsvpLimit} guests.
@@ -824,98 +673,20 @@ export default function Home() {
               <Users />
               <span className="font-serif text-2xl">Maximum guest limit: {rsvpLimit}</span>
             </div>
-            <div className="mt-8 rounded-xl border border-wine/10 bg-ivory/72 p-5">
-              <div className="flex items-center gap-2">
-                <MessageCircle size={18} className="text-moss" />
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
-                  For RSVP Inquiries
-                </p>
-              </div>
-              <div className="mt-4 grid gap-2">
-                {rsvpContacts.map((contact) => (
-                  <a
-                    key={contact.name}
-                    href={`tel:${contact.phone}`}
-                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition hover:bg-wine/5"
-                  >
-                    <span className="font-medium text-ink">{contact.name}</span>
-                    <span className="text-ink/62">{contact.phone}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
           </FadeIn>
 
           <FadeIn delay={0.12}>
-            <form onSubmit={submitRsvp} className="form-panel invitation-border love-card bg-ivory p-6 shadow-soft sm:p-9">
+            <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
                 <div className="py-14 text-center">
-                  <XCircle className="mx-auto mb-4 h-14 w-14 text-wine" />
                   <p className="font-serif text-5xl text-wine">RSVP Closed</p>
                   <p className="mt-3 leading-7 text-ink/72">
                     {message || "Capacity has been reached."}
                   </p>
                 </div>
-              ) : status === "success" ? (
-                <div className="py-12 text-center">
-                  <CheckCircle2 className="mx-auto h-16 w-16 text-moss" />
-                  <p className="mt-4 font-serif text-4xl text-moss">Thank you!</p>
-                  <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-ink/68">{message}</p>
-                  {lastRsvp?.entryCode ? (
-                    <div className="mx-auto mt-6 w-full max-w-lg rounded-[1.75rem] border border-wine/20 bg-white/90 p-3 shadow-soft">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-wine">
-                        Your Access Card
-                      </p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.2em] text-wine/80">
-                        Unique entry code: {lastRsvp.entryCode}
-                      </p>
-                      {cardPreviewUrl ? (
-                        <img
-                          src={cardPreviewUrl}
-                          alt="Your wedding access card"
-                          className="mt-3 w-full rounded-[1.25rem] object-contain"
-                        />
-                      ) : (
-                        <div className="mt-3 flex min-h-[16rem] items-center justify-center rounded-[1.25rem] border border-dashed border-wine/20 bg-champagne/40 text-sm text-ink/70">
-                          {cardLoading ? "Preparing your access card..." : "Your access card will appear here."}
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
-                  {lastRsvp?.entryCode ? (
-                    <button
-                      type="button"
-                      disabled={cardLoading}
-                      onClick={async () => {
-                        if (!lastRsvp) return;
-                        const url = await fetchAccessCard(lastRsvp.fullName, lastRsvp.entryCode);
-                        if (!url) return;
-                        const anchor = document.createElement("a");
-                        anchor.href = url;
-                        anchor.download = "KDE2026-access-card.png";
-                        document.body.appendChild(anchor);
-                        anchor.click();
-                        anchor.remove();
-                      }}
-                      className="romantic-button mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-wine px-5 py-3 text-sm font-semibold text-ivory shadow-soft disabled:opacity-60"
-                    >
-                      {cardLoading ? "Preparing card..." : "Download Access Card"}
-                    </button>
-                  ) : null}
-                </div>
               ) : (
                 <>
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <label>
-                      <span className="label">Title</span>
-                      <select className="field" name="title" defaultValue="(No Prefix)" required>
-                        {titleOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
                     <label>
                       <span className="label">Full name</span>
                       <input className="field" name="fullName" required />
@@ -925,29 +696,37 @@ export default function Home() {
                       <input className="field" type="email" name="email" required />
                     </label>
                     <label>
-                      <span className="label">WhatsApp number</span>
-                      <input className="field" name="phone" inputMode="tel" placeholder="+234..." required />
+                      <span className="label">WhatsApp number (optional)</span>
+                      <input className="field" name="phone" inputMode="tel" />
+                    </label>
+                    <label>
+                      <span className="label">Number attending</span>
+                      <input
+                        className="field"
+                        type="number"
+                        name="attendees"
+                        min={1}
+                        max={10}
+                        defaultValue={1}
+                        required
+                      />
                     </label>
                   </div>
+                  <label className="mt-5 block">
+                    <span className="label">Attendance</span>
+                    <select className="field" name="attending" required>
+                      <option value="yes">Joyfully attending</option>
+                      <option value="no">Regretfully unable to attend</option>
+                    </select>
+                  </label>
                   <label className="mt-5 block">
                     <span className="label">Message optional</span>
                     <textarea className="field min-h-32 resize-y" name="note" />
                   </label>
-                  <label className="mt-5 flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      name="adultAgreement"
-                      required
-                      className="mt-1 h-5 w-5 cursor-pointer rounded border-[1.5px] border-wine/40 bg-ivory accent-wine"
-                    />
-                    <span className="text-sm leading-6 text-ink/76">
-                      I understand this invite is strictly for me alone and my unique code will only grant access to <strong>one adult</strong>.
-                    </span>
-                  </label>
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="romantic-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory disabled:cursor-not-allowed disabled:opacity-65"
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wine px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory transition hover:bg-opacity-90 disabled:opacity-60"
                   >
                     {status === "loading" ? (
                       <Loader2 className="animate-spin" size={17} />

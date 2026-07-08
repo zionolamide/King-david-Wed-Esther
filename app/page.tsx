@@ -251,46 +251,70 @@ function SuccessAnimation() {
   );
 }
 
-function SoundButton() {
-  const [playing, setPlaying] = useState(false);
-  const [audio, setAudio] = useState<AudioContext | null>(null);
+function SoundButton({
+  audioRef,
+  soundOn,
+  setSoundOn,
+  audioStarted,
+  setAudioStarted
+}: {
+  audioRef: React.RefObject<HTMLAudioElement | null>;
+  soundOn: boolean;
+  setSoundOn: (v: boolean) => void;
+  audioStarted: boolean;
+  setAudioStarted: (v: boolean) => void;
+}) {
+  useEffect(() => {
+    // restore persisted preference
+    try {
+      const stored = localStorage.getItem("kd_sound_on");
+      if (stored === "true") {
+        // attempt to play when user has allowed gesture
+        const audio = audioRef.current;
+        if (audio) {
+          audio.play().then(() => {
+            setAudioStarted(true);
+            setSoundOn(true);
+          }).catch(() => {
+            setAudioStarted(false);
+            setSoundOn(false);
+          });
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   async function toggleSound() {
-    if (playing && audio) {
-      await audio.close();
-      setAudio(null);
-      setPlaying(false);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (soundOn) {
+      audio.pause();
+      setSoundOn(false);
+      try { localStorage.setItem("kd_sound_on", "false"); } catch (e) {}
       return;
     }
-
-    const context = new AudioContext();
-    const gain = context.createGain();
-    gain.gain.value = 0.028;
-    gain.connect(context.destination);
-
-    [196, 246.94, 293.66, 392].forEach((frequency, index) => {
-      const osc = context.createOscillator();
-      const toneGain = context.createGain();
-      osc.type = "sine";
-      osc.frequency.value = frequency;
-      toneGain.gain.value = index === 0 ? 0.8 : 0.42;
-      osc.connect(toneGain);
-      toneGain.connect(gain);
-      osc.start();
-    });
-
-    setAudio(context);
-    setPlaying(true);
+    // play
+    try {
+      await audio.play();
+      setAudioStarted(true);
+      setSoundOn(true);
+      try { localStorage.setItem("kd_sound_on", "true"); } catch (e) {}
+    } catch (err) {
+      setAudioStarted(false);
+      setSoundOn(false);
+    }
   }
 
   return (
     <button
       type="button"
       onClick={toggleSound}
-      className="fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-wine text-ivory shadow-soft transition hover:bg-moss"
-      aria-label={playing ? "Pause romantic background sound" : "Play romantic background sound"}
+      className={`fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full ${soundOn ? 'bg-moss' : 'bg-wine'} text-ivory shadow-soft transition hover:opacity-90`}
+      aria-label={soundOn ? "Pause background music" : "Play background music"}
     >
-      {playing ? <Pause size={18} /> : <Music2 size={18} />}
+      {soundOn ? <Pause size={18} /> : <Music2 size={18} />}
     </button>
   );
 }
@@ -461,8 +485,9 @@ function ScratchDateCard() {
   );
 }
 
-function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown> }) {
+function CurtainHero({ onOpen }: { onOpen: () => void }) {
   const [opened, setOpened] = useState(false);
+  const countdown = useCountdown();
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden";
@@ -506,22 +531,18 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
           <div className="closed-curtain-card mx-auto max-w-xl rounded-[2rem] border border-ivory/80 bg-white/92 px-6 py-9 shadow-soft shadow-rose/20 backdrop-blur-md sm:px-10 sm:py-10">
-            <p className="font-serif text-xs uppercase tracking-[0.3em] text-moss/60">
-              Your private event preview
-            </p>
-            <h2 className="mt-4 font-script text-5xl leading-none text-moss sm:text-6xl">
-              King David &amp; Esther
-            </h2>
-            <p className="mt-3 text-sm uppercase tracking-[0.22em] text-ink/60 sm:text-base">
-              A soft white invitation design with only the open button available.
-            </p>
-            <button
-              type="button"
-              onClick={() => setOpened(true)}
-              className="mt-8 inline-flex rounded-full border border-ivory/70 bg-ivory/86 px-6 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory sm:px-7 sm:py-4"
-            >
-              Tap to Open
-            </button>
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpened(true);
+                  try { onOpen(); } catch (e) { /* ignore */ }
+                }}
+                className="tap-open-btn mt-8 inline-flex rounded-full px-8 py-5 text-sm font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur-sm liquid-btn"
+              >
+                Tap to Open
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -697,7 +718,6 @@ function GuestNoticeSection() {
 }
 
 export default function Home() {
-  const countdown = useCountdown();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "closed" | "error">(
     "idle"
   );
@@ -711,6 +731,21 @@ export default function Home() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [lastPayload, setLastPayload] = useState<any | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [soundOn, setSoundOn] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
+
+  useEffect(() => {
+    // prepare audio element
+    try {
+      const audio = new Audio('/music/background.mp3');
+      audio.loop = true;
+      audio.preload = 'auto';
+      audioRef.current = audio;
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -826,13 +861,31 @@ export default function Home() {
     if (ok) event.currentTarget.reset();
   }
 
+  function playAudioOnce() {
+    if (!audioRef.current) return;
+    if (audioStarted) return;
+    audioRef.current.play().then(() => {
+      setAudioStarted(true);
+      setSoundOn(true);
+    }).catch(() => {
+      setAudioStarted(false);
+      setSoundOn(false);
+    });
+  }
+
   function isValidEmail(value: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
   return (
     <main className="overflow-hidden text-ink">
-      <SoundButton />
+      <SoundButton
+        audioRef={audioRef}
+        soundOn={soundOn}
+        setSoundOn={setSoundOn}
+        audioStarted={audioStarted}
+        setAudioStarted={setAudioStarted}
+      />
       {alertMessage && (
         <AnimatedAlert
           type={alertMessage.type}
@@ -857,7 +910,7 @@ export default function Home() {
       </nav>
 
       {/* Hero with curtain */}
-      <CurtainHero countdown={countdown} />
+      <CurtainHero onOpen={playAudioOnce} />
 
       {/* Date Reveal / Scratch Card */}
       <DateRevealSection />

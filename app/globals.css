@@ -11,6 +11,7 @@
   --font-montserrat: var(--font-sans);
   --font-cormorant: var(--font-serif);
   --font-great-vibes: var(--font-script);
+  --cinematic-ease: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 * {
@@ -390,6 +391,33 @@ body {
     repeating-linear-gradient(45deg, #eadfc9 0 12px, #e9c0b6 12px 24px, #fbf6ed 24px 38px);
   cursor: pointer;
   transition: opacity 500ms ease, transform 500ms ease;
+}
+
+/* Shimmer overlay for scratch card */
+.scratch-card .shimmer-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.24) 45%, rgba(255,255,255,0) 80%);
+  mix-blend-mode: overlay;
+  opacity: 0.0;
+  transform: translateX(-20%);
+  will-change: transform, opacity;
+  transition: transform 900ms var(--cinematic-ease), opacity 800ms var(--cinematic-ease);
+}
+
+.scratch-card:hover .shimmer-overlay,
+.scratch-card.is-revealed .shimmer-overlay {
+  opacity: 1;
+  transform: translateX(120%);
+}
+
+/* Canvas ribbon burst overlay (rAF) */
+.ribbon-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
 }
 
 .scratch-card.is-revealed .scratch-cover {

@@ -21,7 +21,7 @@ import {
   X,
   AlertCircle
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, useRef } from "react";
 
 const weddingDate = new Date("2026-08-22T11:00:00+01:00");
 const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
@@ -315,10 +315,89 @@ function FloatingPetals() {
 function ScratchDateCard() {
   const [progress, setProgress] = useState(0);
   const revealed = progress >= 4;
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   function scratch() {
     setProgress((current) => Math.min(current + 1, 4));
   }
+
+  useEffect(() => {
+    if (!revealed) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    const DPR = Math.max(1, window.devicePixelRatio || 1);
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    canvas.width = Math.floor(w * DPR);
+    canvas.height = Math.floor(h * DPR);
+    ctx.scale(DPR, DPR);
+
+    type Particle = { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; rot: number; vr: number };
+    const particles: Particle[] = [];
+    const colors = ["#7b0014", "#c97658", "#737b54", "#e9c0b6", "#eadfc9"];
+
+    // spawn burst
+    const spawn = (count = 40) => {
+      for (let i = 0; i < count; i += 1) {
+        const angle = (Math.random() * Math.PI * 2);
+        const speed = 2 + Math.random() * 6;
+        particles.push({
+          x: w / 2 + (Math.random() - 0.5) * 20,
+          y: h / 2 + (Math.random() - 0.5) * 20,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.5,
+          life: 60 + Math.random() * 40,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: 6 + Math.random() * 12,
+          rot: Math.random() * Math.PI,
+          vr: (Math.random() - 0.5) * 0.3,
+        });
+      }
+    };
+
+    spawn(40);
+
+    const gravity = 0.12;
+    const drag = 0.995;
+    let frame = 0;
+    const maxFrames = 220;
+
+    const loop = () => {
+      raf = requestAnimationFrame(loop);
+      frame += 1;
+      ctx.clearRect(0, 0, w, h);
+      for (let i = particles.length - 1; i >= 0; i -= 1) {
+        const p = particles[i];
+        p.vx *= drag;
+        p.vy *= drag;
+        p.vy += gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.life -= 1;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.36);
+        ctx.restore();
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+      if (particles.length === 0 && frame > maxFrames) {
+        cancelAnimationFrame(raf);
+      }
+    };
+
+    raf = requestAnimationFrame(loop);
+
+    return () => {
+      cancelAnimationFrame(raf);
+    };
+  }, [revealed]);
 
   return (
     <div
@@ -330,8 +409,11 @@ function ScratchDateCard() {
         if (event.buttons === 1) scratch();
       }}
     >
+      <canvas ref={canvasRef} className="ribbon-canvas" />
+      <div className="shimmer-overlay" />
       {revealed ? (
-        <div className="ribbon-field pointer-events-none absolute inset-0">
+        // keep CSS ribbon-field as graceful fallback
+        <div className="ribbon-field pointer-events-none absolute inset-0" aria-hidden>
           {Array.from({ length: 20 }).map((_, index) => (
             <span key={index} style={{ animationDelay: `${index * 0.07}s` }} />
           ))}
@@ -382,7 +464,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <motion.div
           className="curtain-panel left-0"
           animate={{ x: opened ? "-100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.0, ease: [0.76, 0, 0.24, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
@@ -391,7 +473,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
           animate={{ x: opened ? "100%" : "0%" }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.0, ease: [0.76, 0, 0.24, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
@@ -400,7 +482,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
         <motion.div
           className="absolute inset-x-6 top-[35%] z-30 text-center sm:inset-x-12 sm:top-[40%]"
           animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
           <div className="closed-curtain-card mx-auto max-w-xl rounded-[2rem] border border-ivory/80 bg-white/92 px-6 py-9 shadow-soft shadow-rose/20 backdrop-blur-md sm:px-10 sm:py-10">
@@ -428,7 +510,7 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           className="hero-content section-shell relative z-10 grid gap-6 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
           initial={false}
           animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 38, scale: opened ? 1 : 0.98 }}
-          transition={{ duration: 1, delay: opened ? 1.2 : 0 }}
+          transition={{ duration: 0.9, delay: opened ? 0.9 : 0, ease: [0.76, 0, 0.24, 1] }}
           style={{ pointerEvents: opened ? "auto" : "none" }}
         >
           <div className="text-center lg:text-left">

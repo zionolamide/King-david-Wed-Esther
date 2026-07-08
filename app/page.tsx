@@ -604,6 +604,10 @@ export default function Home() {
     type: "success" | "error" | "warning";
     text: string;
   } | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [retryAttempts, setRetryAttempts] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [lastPayload, setLastPayload] = useState<any | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
@@ -611,76 +615,117 @@ export default function Home() {
     setStatus("loading");
     setMessage("");
     setAlertMessage(null);
+    setFormErrors({});
+    setRetryAttempts(0);
+    setIsRetrying(false);
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
     const adultAgreement =
       form.get("adultAgreement") === "on" || form.get("adultAgreement") === "true";
 
-    if (!adultAgreement) {
-      setStatus("error");
-      setMessage("Please confirm the adult-only agreement before submitting.");
-      setAlertMessage({
-        type: "error",
-        text: "Please confirm the adult-only agreement before submitting."
-      });
-      return;
-    }
-
-    if (submittedEmail) {
-      setStatus("error");
-      setMessage("This email has already been submitted. Please do not fill the form twice.");
-      setAlertMessage({
-        type: "warning",
-        text: "This email has already been submitted. Please do not fill the form twice."
-      });
-      return;
-    }
-
+    // Basic client-side validation
     const payload = {
       title: String(form.get("title") ?? "(No Prefix)"),
-      fullName: String(form.get("fullName") ?? ""),
+      fullName: String(form.get("fullName") ?? "").trim(),
       email,
-      phone: String(form.get("phone") ?? ""),
+      phone: String(form.get("phone") ?? "").trim(),
       note: String(form.get("note") ?? ""),
       adultAgreement
     };
 
-    const response = await fetch("/api/rsvp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const result = await response.json();
+    const errors: Record<string, string> = {};
+    if (!payload.fullName) errors.fullName = "Please enter your full name.";
+    if (!isValidEmail(payload.email)) errors.email = "Please enter a valid email address.";
+    if (!/^[+0-9\s-]{7,20}$/.test(payload.phone)) errors.phone = "Please enter a valid WhatsApp number.";
+    if (!payload.adultAgreement) errors.adultAgreement = "You must confirm the adult-only agreement.";
 
-    if (response.status === 409) {
-      setStatus("closed");
-      setMessage(result.message ?? "RSVP Closed - Capacity Reached");
-      setAlertMessage({
-        type: "error",
-        text: result.message ?? "RSVP capacity has been reached."
-      });
-      return;
-    }
-
-    if (!response.ok) {
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       setStatus("error");
-      setMessage(result.message ?? "Something went wrong. Please try again.");
-      setAlertMessage({
-        type: "error",
-        text: result.message ?? "Failed to submit RSVP. Please try again."
-      });
+      setAlertMessage({ type: "error", text: "Please fix the highlighted fields and try again." });
       return;
     }
 
-    setStatus("success");
-    setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
-    setSubmittedEmail(email);
-    setAlertMessage({
-      type: "success",
-      text: "Success! You have been added to our guest list."
-    });
-    event.currentTarget.reset();
+    if (submittedEmail && submittedEmail === payload.email) {
+      setStatus("error");
+      setMessage("This email has already been submitted. Please do not fill the form twice.");
+      setAlertMessage({ type: "warning", text: "This email has already been submitted." });
+      return;
+    }
+
+    setLastPayload(payload);
+
+    // network submission with retry/backoff for transient failures
+    async function sendPayload(data: any, maxAttempts = 3) {
+      setIsRetrying(false);
+      setRetryAttempts(0);
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        setRetryAttempts(attempt);
+        try {
+          if (attempt > 1) {
+            setIsRetrying(true);
+            setAlertMessage({ type: "warning", text: `Network issue, retrying (${attempt}/${maxAttempts})...` });
+          }
+
+          const response = await fetch("/api/rsvp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          const result = await response.json().catch(() => ({}));
+
+          if (response.status === 409) {
+            setStatus("closed");
+            setMessage(result.message ?? "RSVP Closed - Capacity Reached");
+            setAlertMessage({ type: "error", text: result.message ?? "RSVP capacity has been reached." });
+            return false;
+          }
+
+          if (!response.ok) {
+            // server error, may retry
+            if (response.status >= 500 && attempt < maxAttempts) {
+              // exponential backoff
+              // eslint-disable-next-line no-await-in-loop
+              await new Promise((r) => setTimeout(r, 400 * Math.pow(2, attempt)));
+              continue;
+            }
+            setStatus("error");
+            setMessage(result.message ?? "Something went wrong. Please try again.");
+            setAlertMessage({ type: "error", text: result.message ?? "Failed to submit RSVP." });
+            return false;
+          }
+
+          // success
+          setStatus("success");
+          setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
+          setSubmittedEmail(data.email);
+          setAlertMessage({ type: "success", text: "Success! You have been added to our guest list." });
+          return true;
+        } catch (err) {
+          // network error
+          if (attempt < maxAttempts) {
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((r) => setTimeout(r, 400 * Math.pow(2, attempt)));
+            continue;
+          }
+          setStatus("error");
+          setMessage("Network error. Please check your connection and try again.");
+          setAlertMessage({ type: "error", text: "Network error. Please check your connection and try again." });
+          return false;
+        } finally {
+          setIsRetrying(false);
+        }
+      }
+      return false;
+    }
+
+    const ok = await sendPayload(payload, 3);
+    if (ok) event.currentTarget.reset();
+  }
+
+  function isValidEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
   return (
@@ -1043,15 +1088,20 @@ export default function Home() {
                     </label>
                     <label>
                       <span className="label">Full name *</span>
-                      <input className="field" name="fullName" required />
+                        <input className="field" name="fullName" required />
+                        {formErrors.fullName ? (
+                        <p className="mt-1 text-xs text-wine">{formErrors.fullName}</p>
+                        ) : null}
                     </label>
                     <label>
                       <span className="label">Email *</span>
-                      <input className="field" type="email" name="email" required />
+                        <input className="field" type="email" name="email" required />
+                        {formErrors.email ? <p className="mt-1 text-xs text-wine">{formErrors.email}</p> : null}
                     </label>
                     <label>
                       <span className="label">WhatsApp number *</span>
-                      <input className="field" name="phone" inputMode="tel" required />
+                        <input className="field" name="phone" inputMode="tel" required />
+                        {formErrors.phone ? <p className="mt-1 text-xs text-wine">{formErrors.phone}</p> : null}
                     </label>
                   </div>
                   <label className="mt-4 block sm:mt-5">
@@ -1069,6 +1119,72 @@ export default function Home() {
                       I understand this invite is strictly for me alone and my unique code will only grant access to <strong>one adult</strong>.
                     </span>
                   </label>
+                  {formErrors.adultAgreement ? (
+                    <p className="mt-2 text-xs text-wine">{formErrors.adultAgreement}</p>
+                  ) : null}
+                  {status === "error" && lastPayload ? (
+                    <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-wine/10 bg-rose/5 p-3">
+                      <p className="text-sm text-ink/72">Submission failed. You can retry sending your RSVP.</p>
+                      <div className="flex items-center gap-2">
+                        {isRetrying ? (
+                          <span className="text-xs text-ink/60">Retrying ({retryAttempts})…</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              setStatus("loading");
+                              setAlertMessage(null);
+                              // attempt resubmit using lastPayload
+                              // reuse the inner sendPayload by calling submitRsvp handler flow
+                              // simple approach: call fetch directly here with retries
+                              const maxAttempts = 3;
+                              setIsRetrying(true);
+                              for (let i = 1; i <= maxAttempts; i += 1) {
+                                setRetryAttempts(i);
+                                try {
+                                  const res = await fetch("/api/rsvp", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(lastPayload),
+                                  });
+                                  const j = await res.json().catch(() => ({}));
+                                  if (!res.ok) {
+                                    if (res.status >= 500 && i < maxAttempts) {
+                                      await new Promise((r) => setTimeout(r, 400 * Math.pow(2, i)));
+                                      continue;
+                                    }
+                                    setStatus("error");
+                                    setMessage(j.message ?? "Submission failed.");
+                                    setAlertMessage({ type: "error", text: j.message ?? "Submission failed." });
+                                    setIsRetrying(false);
+                                    break;
+                                  }
+                                  // success
+                                  setStatus("success");
+                                  setSubmittedEmail(lastPayload.email);
+                                  setAlertMessage({ type: "success", text: "Success! You have been added to our guest list." });
+                                  setIsRetrying(false);
+                                  break;
+                                } catch (e) {
+                                  if (i < maxAttempts) {
+                                    await new Promise((r) => setTimeout(r, 400 * Math.pow(2, i)));
+                                    continue;
+                                  }
+                                  setStatus("error");
+                                  setMessage("Network error during retry.");
+                                  setAlertMessage({ type: "error", text: "Network error during retry." });
+                                  setIsRetrying(false);
+                                }
+                              }
+                            }}
+                            className="rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory"
+                          >
+                            Retry
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
                   <motion.button
                     type="submit"
                     disabled={status === "loading"}

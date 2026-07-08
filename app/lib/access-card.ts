@@ -10,8 +10,10 @@ export type AccessCardOptions = {
   whatsappContacts?: Array<{ name: string; phone: string }>;
 };
 
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 580;
+const CANVAS_WIDTH = 760;
+const CANVAS_HEIGHT = 520;
+
+let _fontRegistered = false;
 
 const THEME = {
   background: "#F2E9E4",
@@ -39,20 +41,23 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   // Attempt to register a local/system font for consistent rendering.
   // Prefer Montserrat if available, then Arial, then DejaVu Sans.
   try {
-    const candidates = [
-      path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
-      "C:\\Windows\\Fonts\\Montserrat-Regular.ttf",
-      "C:\\Windows\\Fonts\\Arial.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    ];
-    for (const p of candidates) {
-      try {
-        if (p && fs.existsSync(p)) {
-          registerFont(p, { family: "KDEFont" });
-          break;
+    if (!_fontRegistered) {
+      const candidates = [
+        path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
+        "C:\\Windows\\Fonts\\Montserrat-Regular.ttf",
+        "C:\\Windows\\Fonts\\Arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+      ];
+      for (const p of candidates) {
+        try {
+          if (p && fs.existsSync(p)) {
+            registerFont(p, { family: "KDEFont" });
+            _fontRegistered = true;
+            break;
+          }
+        } catch (e) {
+          // ignore and try next
         }
-      } catch (e) {
-        // ignore and try next
       }
     }
   } catch (e) {
@@ -85,16 +90,16 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   const lineHeight = 32;
   const lines = [
     "DATE: Saturday, 22nd August 2026",
-    "VENUE: Camp Young, Ede-Osogbo Rd,",
-    "Nijhof Advies - Osun State",
-    "Wedding ceremony starts at 10am",
-    "Reception celebration starts immediately after",
+    "VENUE: Camp Young, Ede",
+    "Ceremony starts at 10:00AM",
+    "Reception follows immediately",
     "",
     "CHILDREN ARE NOT ALLOWED",
     "NOT TRANSFERABLE",
   ];
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
     ctx.fillText(line, textX, y);
     y += line === "" ? lineHeight / 2 : lineHeight;
   }
@@ -105,8 +110,8 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.fill();
 
   // Bottom guest info panel
-  const panelHeight = 140;
-  const panelY = CANVAS_HEIGHT - panelHeight - 120;
+  const panelHeight = 120;
+  const panelY = CANVAS_HEIGHT - panelHeight - 100;
   ctx.fillStyle = THEME.primary;
   drawRoundedRect(ctx, 40, panelY, CANVAS_WIDTH - 80, panelHeight, 24);
   ctx.fill();
@@ -130,24 +135,25 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   const contactList = options.whatsappContacts ?? [
     { name: "Sister Rhoda", phone: "08106993435" },
     { name: "Brother Joe", phone: "0812765976" },
-    { name: "Bro Zion", phone: "09135037695" }
+    { name: "Bro Zion", phone: "09135037695" },
   ];
 
-  const contactY = panelY + panelHeight + 36;
+  const contactY = panelY + panelHeight + 24;
   ctx.fillStyle = THEME.text;
   ctx.textAlign = "left";
   ctx.font = "700 18px KDEFont, Arial, sans-serif";
   ctx.fillText("RSVP WhatsApp contacts:", textX, contactY);
 
-  ctx.font = "500 16px KDEFont, Arial, sans-serif";
-  let contactLineY = contactY + 28;
-  contactList.slice(0, 3).forEach((contact) => {
+  ctx.font = "500 15px KDEFont, Arial, sans-serif";
+  let contactLineY = contactY + 26;
+  for (let i = 0; i < Math.min(contactList.length, 3); i += 1) {
+    const contact = contactList[i];
     ctx.fillText(`• ${contact.name}: ${contact.phone}`, textX, contactLineY);
-    contactLineY += 24;
-  });
+    contactLineY += 20;
+  }
 
-  ctx.font = "500 16px KDEFont, Arial, sans-serif";
-  ctx.fillText("Show this card at the entrance.", textX, contactLineY + 14);
+  ctx.font = "500 15px KDEFont, Arial, sans-serif";
+  ctx.fillText("Show this card at the entrance.", textX, contactLineY + 12);
 
   return canvas.toBuffer("image/png");
 }

@@ -155,12 +155,14 @@ export async function POST(request: Request) {
   const fromAddress = emailUser;
 
   if (emailUser && emailPassword) {
+    // Use a pooled transporter with retry logic to improve delivery reliability
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: {
-        user: emailUser,
-        pass: emailPassword,
-      },
+      auth: { user: emailUser, pass: emailPassword },
+      pool: true,
+      maxConnections: 3,
+      maxMessages: 100,
+      socketTimeout: 10_000,
     });
 
     const cardBuffer = await generateAccessCardImage({
@@ -168,7 +170,7 @@ export async function POST(request: Request) {
       entryCode,
       attendees: 1,
       phone,
-      whatsappContacts: RSVP_WHATSAPP_CONTACTS
+      whatsappContacts: RSVP_WHATSAPP_CONTACTS,
     });
 
     const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">
@@ -180,23 +182,40 @@ export async function POST(request: Request) {
       <p style="color: #777; font-size: 14px; margin-top: 28px; border-top: 1px solid #eaeaea; padding-top: 16px;">Please keep this card safe and present it at the entrance. This access card is non-transferable.</p>
     </div>`;
 
+    const mailOptions = {
+      from: fromAddress,
+      to: email,
+      subject: "King David & Esther Wedding - RSVP Confirmation",
+      text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
+      html: htmlBody,
+      attachments: [
+        { filename: "access-card.png", content: cardBuffer, cid: "access-card@kde2026" },
+      ],
+    };
+
+    async function sendMailWithRetries(options: any, attempts = 3) {
+      let lastErr: any = null;
+      for (let i = 0; i < attempts; i += 1) {
+        try {
+          await transporter.sendMail(options);
+          return true;
+        } catch (err) {
+          lastErr = err;
+          await new Promise((res) => setTimeout(res, 400 * Math.pow(2, i)));
+        }
+      }
+      console.error("Failed to send RSVP email after retries:", lastErr);
+      return false;
+    }
+
     try {
-      await transporter.sendMail({
-        from: fromAddress,
-        to: email,
-        subject: "King David & Esther Wedding - RSVP Confirmation",
-        text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
-        html: htmlBody,
-        attachments: [
-          {
-            filename: "access-card.png",
-            content: cardBuffer,
-            cid: "access-card@kde2026",
-          },
-        ],
-      });
-    } catch (emailError) {
-      console.error("Nodemailer sendMail error:", emailError);
+      await transporter.verify();
+      const sent = await sendMailWithRetries(mailOptions, 3);
+      if (!sent) console.warn("Email delivery failed for:", email);
+    } catch (verifyErr) {
+      console.error("Email transporter verify failed:", verifyErr);
+    } finally {
+      try { transporter.close(); } catch (e) { /* ignore */ }
     }
   }
 

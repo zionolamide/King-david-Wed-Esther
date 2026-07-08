@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import {
   CalendarDays,
   CheckCircle2,
@@ -87,14 +87,34 @@ function FadeIn({
   delay?: number;
   className?: string;
 }) {
+  const controls = useAnimation();
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            controls.start("visible");
+            obs.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "-60px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [controls]);
+
+  const variants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75, delay, ease: [0.76, 0, 0.24, 1] } }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.75, delay, ease: "easeOut" }}
-      className={className}
-    >
+    <motion.div ref={ref} initial="hidden" animate={controls} variants={variants} className={className}>
       {children}
     </motion.div>
   );

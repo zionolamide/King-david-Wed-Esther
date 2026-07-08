@@ -167,6 +167,7 @@ export async function POST(request: Request) {
       fullName,
       entryCode,
       attendees: 1,
+      phone,
       whatsappContacts: RSVP_WHATSAPP_CONTACTS
     });
 

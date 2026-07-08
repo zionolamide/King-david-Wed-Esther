@@ -6,6 +6,7 @@ export type AccessCardOptions = {
   fullName: string;
   entryCode: string;
   attendees: number;
+  phone?: string;
   whatsappContacts?: Array<{ name: string; phone: string }>;
 };
 
@@ -115,11 +116,16 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.font = "bold 28px KDEFont, Arial, sans-serif";
   ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
 
+  ctx.font = "500 18px KDEFont, Arial, sans-serif";
+  if (options.phone) {
+    ctx.fillText(`WhatsApp: ${options.phone}`, CANVAS_WIDTH / 2, panelY + 84);
+  }
+
   ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
-  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
+  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 106);
 
   ctx.font = "600 20px KDEFont, Arial, sans-serif";
-  ctx.fillText(`${options.attendees} adult pass`, CANVAS_WIDTH / 2, panelY + 116);
+  ctx.fillText(`${options.attendees} adult pass`, CANVAS_WIDTH / 2, panelY + 136);
 
   const contactList = options.whatsappContacts ?? [
     { name: "Sister Rhoda", phone: "08106993435" },

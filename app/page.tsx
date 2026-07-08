@@ -40,8 +40,7 @@ const encodedVenue = encodeURIComponent(venueQuery);
 
 const schedule = [
   { time: "11:00 AM", title: "Wedding ceremony" },
-  { time: "Immediately after", title: "Reception celebration" },
-  { time: "Evening", title: "Dinner, music and memories" }
+  { time: "Immediately after", title: "Reception celebration" }
 ];
 
 const titleOptions = [
@@ -344,9 +343,6 @@ function ScratchDateCard() {
       <p className="relative z-10 mt-3 font-serif text-3xl leading-relaxed text-moss sm:text-4xl">
         Saturday, 22 August 2026
       </p>
-      <p className="relative z-10 mt-2 font-serif text-base italic text-ink/60">
-        Camp Young, Ede, Osun State
-      </p>
       {!revealed ? (
         <button
           type="button"
@@ -365,6 +361,13 @@ function ScratchDateCard() {
 
 function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown> }) {
   const [opened, setOpened] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = opened ? "" : "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [opened]);
 
   return (
     <section id="home" className="relative min-h-[100svh]">
@@ -400,22 +403,24 @@ function CurtainHero({ countdown }: { countdown: ReturnType<typeof useCountdown>
           transition={{ duration: 0.7 }}
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
-          <p className="font-script text-5xl leading-none text-moss sm:text-7xl">
-            King David &amp; Esther
-          </p>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-wine/80 sm:text-sm">
-            22 · August · 2026
-          </p>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-wine/80 sm:text-sm">
-            22 · August · 2026
-          </p>
-          <button
-            type="button"
-            onClick={() => setOpened(true)}
-            className="mt-6 rounded-full border border-ivory/70 bg-ivory/86 px-6 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory sm:px-7 sm:py-4"
-          >
-            Tap to Open
-          </button>
+          <div className="closed-curtain-card mx-auto max-w-xl rounded-[2rem] border border-ivory/80 bg-white/92 px-6 py-9 shadow-soft shadow-rose/20 backdrop-blur-md sm:px-10 sm:py-10">
+            <p className="font-serif text-xs uppercase tracking-[0.3em] text-moss/60">
+              Your private event preview
+            </p>
+            <h2 className="mt-4 font-script text-5xl leading-none text-moss sm:text-6xl">
+              King David &amp; Esther
+            </h2>
+            <p className="mt-3 text-sm uppercase tracking-[0.22em] text-ink/60 sm:text-base">
+              A soft white invitation design with only the open button available.
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpened(true)}
+              className="mt-8 inline-flex rounded-full border border-ivory/70 bg-ivory/86 px-6 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-wine shadow-soft backdrop-blur transition hover:bg-wine hover:text-ivory sm:px-7 sm:py-4"
+            >
+              Tap to Open
+            </button>
+          </div>
         </motion.div>
 
         {/* Hero content revealed after curtain opens */}

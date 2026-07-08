@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import sharp from "sharp";
 import { randomBytes } from "crypto";
 import { generateAccessCardImage } from "../../lib/access-card";
 
@@ -173,6 +174,21 @@ export async function POST(request: Request) {
       whatsappContacts: RSVP_WHATSAPP_CONTACTS,
     });
 
+    // If the generated PNG is large, create a smaller compressed variant via sharp
+    let attachmentBuffer = cardBuffer;
+    try {
+      if (cardBuffer && cardBuffer.byteLength > 200 * 1024) {
+        const targetWidth = Math.round(760 * 0.6);
+        const compressed = await sharp(cardBuffer).resize({ width: targetWidth }).png({ compressionLevel: 9 }).toBuffer();
+        if (compressed.byteLength < cardBuffer.byteLength) {
+          attachmentBuffer = compressed;
+        }
+      }
+    } catch (sharpErr) {
+      console.warn("Sharp compression failed, using original buffer:", sharpErr);
+      attachmentBuffer = cardBuffer;
+    }
+
     const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">
       <h2 style="color: #333;">King David &amp; Esther Wedding RSVP Confirmation</h2>
       <p style="color: #555; font-size: 16px; line-height: 1.6;">Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!</p>
@@ -189,7 +205,7 @@ export async function POST(request: Request) {
       text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
       html: htmlBody,
       attachments: [
-        { filename: "access-card.png", content: cardBuffer, cid: "access-card@kde2026" },
+        { filename: "access-card.png", content: attachmentBuffer, cid: "access-card@kde2026" },
       ],
     };
 

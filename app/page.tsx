@@ -637,8 +637,6 @@ export default function Home() {
       fullName: String(form.get("fullName") ?? ""),
       email,
       phone: String(form.get("phone") ?? ""),
-      attendees: Number(form.get("attendees") ?? 1),
-      attending: String(form.get("attending") ?? "yes"),
       note: String(form.get("note") ?? ""),
       adultAgreement
     };
@@ -1050,27 +1048,7 @@ export default function Home() {
                       <span className="label">WhatsApp number *</span>
                       <input className="field" name="phone" inputMode="tel" required />
                     </label>
-                    <label>
-                      <span className="label">Number attending *</span>
-                      <input
-                        className="field"
-                        type="number"
-                        name="attendees"
-                        min={1}
-                        max={10}
-                        defaultValue={1}
-                        required
-                      />
-                    </label>
                   </div>
-                  <label className="mt-4 block sm:mt-5">
-                    <span className="label">Attendance *</span>
-                    <select className="field" name="attending" required>
-                      <option value="">Select an option</option>
-                      <option value="yes">Joyfully attending</option>
-                      <option value="no">Regretfully unable to attend</option>
-                    </select>
-                  </label>
                   <label className="mt-4 block sm:mt-5">
                     <span className="label">Message (optional)</span>
                     <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" />

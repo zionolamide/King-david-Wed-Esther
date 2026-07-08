@@ -15,6 +15,12 @@ type RsvpPayload = {
 
 const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
+const RSVP_WHATSAPP_CONTACTS = [
+  { name: "Sister Rhoda", phone: "08106993435" },
+  { name: "Brother Joe", phone: "0812765976" },
+  { name: "Bro Zion", phone: "09135037695" }
+];
+
 function cleanText(value: unknown) {
   return String(value ?? "").trim();
 }
@@ -161,6 +167,7 @@ export async function POST(request: Request) {
       fullName,
       entryCode,
       attendees: 1,
+      whatsappContacts: RSVP_WHATSAPP_CONTACTS
     });
 
     const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">

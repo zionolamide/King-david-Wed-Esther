@@ -6,10 +6,11 @@ export type AccessCardOptions = {
   fullName: string;
   entryCode: string;
   attendees: number;
+  whatsappContacts?: Array<{ name: string; phone: string }>;
 };
 
 const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 500;
+const CANVAS_HEIGHT = 580;
 
 const THEME = {
   background: "#F2E9E4",
@@ -104,7 +105,7 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
 
   // Bottom guest info panel
   const panelHeight = 140;
-  const panelY = CANVAS_HEIGHT - panelHeight - 30;
+  const panelY = CANVAS_HEIGHT - panelHeight - 120;
   ctx.fillStyle = THEME.primary;
   drawRoundedRect(ctx, 40, panelY, CANVAS_WIDTH - 80, panelHeight, 24);
   ctx.fill();
@@ -115,10 +116,32 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
 
   ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
-  ctx.fillText(`Unique entry code: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
+  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 86);
 
   ctx.font = "600 20px KDEFont, Arial, sans-serif";
-  ctx.fillText(`${options.attendees} pass`, CANVAS_WIDTH / 2, panelY + 116);
+  ctx.fillText(`${options.attendees} adult pass`, CANVAS_WIDTH / 2, panelY + 116);
+
+  const contactList = options.whatsappContacts ?? [
+    { name: "Sister Rhoda", phone: "08106993435" },
+    { name: "Brother Joe", phone: "0812765976" },
+    { name: "Bro Zion", phone: "09135037695" }
+  ];
+
+  const contactY = panelY + panelHeight + 36;
+  ctx.fillStyle = THEME.text;
+  ctx.textAlign = "left";
+  ctx.font = "700 18px KDEFont, Arial, sans-serif";
+  ctx.fillText("RSVP WhatsApp contacts:", textX, contactY);
+
+  ctx.font = "500 16px KDEFont, Arial, sans-serif";
+  let contactLineY = contactY + 28;
+  contactList.slice(0, 3).forEach((contact) => {
+    ctx.fillText(`• ${contact.name}: ${contact.phone}`, textX, contactLineY);
+    contactLineY += 24;
+  });
+
+  ctx.font = "500 16px KDEFont, Arial, sans-serif";
+  ctx.fillText("Show this card at the entrance.", textX, contactLineY + 14);
 
   return canvas.toBuffer("image/png");
 }

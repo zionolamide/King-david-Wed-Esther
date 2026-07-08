@@ -11,6 +11,7 @@ import {
   Info,
   Loader2,
   MapPin,
+  MessageCircle,
   Music2,
   Navigation,
   Pause,
@@ -41,6 +42,23 @@ const schedule = [
   { time: "11:00 AM", title: "Wedding ceremony" },
   { time: "Immediately after", title: "Reception celebration" },
   { time: "Evening", title: "Dinner, music and memories" }
+];
+
+const titleOptions = [
+  "Mr.",
+  "Mrs.",
+  "Miss.",
+  "Dr.",
+  "Prof.",
+  "Pastor",
+  "Evang.",
+  "(No Prefix)"
+];
+
+const rsvpContacts = [
+  { name: "Sister Rhoda", phone: "08106993435" },
+  { name: "Brother Joe", phone: "0812765976" },
+  { name: "Bro Zion", phone: "09135037695" }
 ];
 
 function useCountdown() {
@@ -591,6 +609,18 @@ export default function Home() {
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
+    const adultAgreement =
+      form.get("adultAgreement") === "on" || form.get("adultAgreement") === "true";
+
+    if (!adultAgreement) {
+      setStatus("error");
+      setMessage("Please confirm the adult-only agreement before submitting.");
+      setAlertMessage({
+        type: "error",
+        text: "Please confirm the adult-only agreement before submitting."
+      });
+      return;
+    }
 
     if (submittedEmail) {
       setStatus("error");
@@ -603,12 +633,14 @@ export default function Home() {
     }
 
     const payload = {
+      title: String(form.get("title") ?? "(No Prefix)"),
       fullName: String(form.get("fullName") ?? ""),
       email,
       phone: String(form.get("phone") ?? ""),
       attendees: Number(form.get("attendees") ?? 1),
       attending: String(form.get("attending") ?? "yes"),
-      note: String(form.get("note") ?? "")
+      note: String(form.get("note") ?? ""),
+      adultAgreement
     };
 
     const response = await fetch("/api/rsvp", {
@@ -939,6 +971,26 @@ export default function Home() {
               <Users size={22} />
               <span className="font-serif text-xl sm:text-2xl">Maximum guest limit: {rsvpLimit}</span>
             </div>
+            <div className="mt-8 rounded-xl border border-wine/10 bg-ivory/72 p-5">
+              <div className="flex items-center gap-2">
+                <MessageCircle size={18} className="text-moss" />
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                  For RSVP inquiries
+                </p>
+              </div>
+              <div className="mt-4 grid gap-2">
+                {rsvpContacts.map((contact) => (
+                  <a
+                    key={contact.name}
+                    href={`tel:${contact.phone}`}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition hover:bg-wine/5"
+                  >
+                    <span className="font-medium text-ink">{contact.name}</span>
+                    <span className="text-ink/62">{contact.phone}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
           </FadeIn>
 
           <FadeIn delay={0.12}>
@@ -977,6 +1029,16 @@ export default function Home() {
                 <>
                   <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
                     <label>
+                      <span className="label">Title *</span>
+                      <select className="field" name="title" defaultValue="(No Prefix)" required>
+                        {titleOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
                       <span className="label">Full name *</span>
                       <input className="field" name="fullName" required />
                     </label>
@@ -1012,6 +1074,17 @@ export default function Home() {
                   <label className="mt-4 block sm:mt-5">
                     <span className="label">Message (optional)</span>
                     <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" />
+                  </label>
+                  <label className="mt-5 flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      name="adultAgreement"
+                      required
+                      className="mt-1 h-5 w-5 cursor-pointer rounded border-[1.5px] border-wine/40 bg-ivory accent-wine"
+                    />
+                    <span className="text-sm leading-6 text-ink/76">
+                      I understand this invite is strictly for me alone and my unique code will only grant access to <strong>one adult</strong>.
+                    </span>
                   </label>
                   <motion.button
                     type="submit"

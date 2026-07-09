@@ -25,10 +25,10 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 18% 8%, rgba(233, 192, 182, 0.34), transparent 28rem),
-    radial-gradient(circle at 88% 18%, rgba(115, 123, 84, 0.18), transparent 22rem),
-    linear-gradient(180deg, #fbf6ed 0%, #f4eadc 45%, #fbf6ed 100%);
+  background: radial-gradient(circle at 15% 10%, rgba(255, 220, 210, 0.12), transparent 28rem),
+    radial-gradient(circle at 80% 18%, rgba(153, 55, 70, 0.14), transparent 22rem),
+    linear-gradient(180deg, #2f0c0f 0%, #3f1013 22%, #570d11 48%, #240507 100%);
+  color: #f7ede6;
   font-family: var(--font-sans), Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -50,6 +50,14 @@ body {
 .section-shell {
   width: min(1120px, calc(100% - 40px));
   margin-inline: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.page-layer {
+  position: relative;
+  z-index: 2;
+  background: transparent;
 }
 
 .love-card {
@@ -141,14 +149,14 @@ body {
   z-index: 20;
   height: 72px;
   background:
-    linear-gradient(180deg, #1a0004 0%, #3d000a 40%, #5c0010 70%, transparent 100%),
+    linear-gradient(180deg, rgba(46, 6, 8, 0.98) 0%, rgba(83, 6, 7, 0.96) 40%, rgba(130, 13, 18, 0.94) 70%, rgba(50, 7, 9, 0.96) 100%),
     repeating-linear-gradient(90deg,
-      #1a0004 0px 10px,
-      #3d000a 10px 22px,
-      #5c0012 22px 34px,
-      #3d000a 34px 46px
+      rgba(55, 5, 7, 0.9) 0px 10px,
+      rgba(106, 7, 10, 0.92) 10px 24px,
+      rgba(162, 13, 21, 0.85) 24px 36px,
+      rgba(97, 5, 7, 0.82) 36px 48px
     );
-  box-shadow: 0 6px 24px rgba(10, 0, 2, 0.5);
+  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.42);
 }
 
 .curtain-valance::after {
@@ -158,15 +166,9 @@ body {
   left: 0;
   right: 0;
   height: 10px;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px,
-    transparent 18px,
-    rgba(240, 210, 150, 0.55) 18px,
-    rgba(240, 210, 150, 0.55) 22px,
-    transparent 22px,
-    transparent 40px
-  );
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 214, 196, 0.24), transparent 55%),
+    linear-gradient(90deg, rgba(255, 208, 193, 0.25), transparent 48%, transparent 52%, rgba(255, 200, 180, 0.20));
 }
 
 .curtain-panel {
@@ -174,56 +176,28 @@ body {
   top: 0;
   z-index: 15;
   height: 100%;
-  width: 55%;
+  width: 50%;
   background:
-    linear-gradient(180deg,
-      rgba(10, 0, 2, 0.85) 0%,
-      rgba(10, 0, 2, 0.4) 6%,
-      transparent 14%
-    ),
-    linear-gradient(0deg,
-      rgba(10, 0, 2, 0.6) 0%,
-      transparent 12%
-    ),
-    linear-gradient(112deg,
-      transparent 0%,
-      rgba(255, 140, 110, 0.06) 30%,
-      rgba(255, 170, 140, 0.13) 50%,
-      rgba(255, 140, 110, 0.05) 68%,
-      transparent 100%
-    ),
+    radial-gradient(circle at 15% 20%, rgba(165, 36, 38, 0.18), transparent 12%),
+    linear-gradient(180deg, rgba(96, 6, 9, 0.95) 0%, rgba(97, 8, 14, 0.98) 15%, rgba(127, 8, 19, 0.97) 32%, rgba(91, 4, 10, 0.92) 55%, rgba(38, 1, 3, 0.86) 100%),
     repeating-linear-gradient(90deg,
-      #1e0005 0px 5px,
-      #4a000e 5px 12px,
-      #830018 12px 19px,
-      #b8001e 19px 24px,
-      #d40024 24px 27px,
-      #c20020 27px 32px,
-      #8a0018 32px 39px,
-      #4a000e 39px 46px,
-      #1e0005 46px 52px,
-      #320009 52px 60px,
-      #6a0014 60px 68px,
-      #a6001c 68px 74px,
-      #c00022 74px 77px,
-      #a6001c 77px 83px,
-      #6a0014 83px 91px,
-      #320009 91px 98px
+      rgba(120, 12, 21, 0.2) 0px 6px,
+      rgba(96, 8, 16, 0.18) 6px 12px,
+      rgba(160, 30, 36, 0.16) 12px 18px,
+      rgba(112, 9, 14, 0.14) 18px 24px
     );
   box-shadow:
-    inset -36px 0 80px rgba(8, 0, 2, 0.75),
-    inset 18px 0 40px rgba(255, 130, 100, 0.04),
-    6px 0 28px rgba(0, 0, 0, 0.55);
+    inset -24px 0 72px rgba(0, 0, 0, 0.55),
+    inset 14px 0 42px rgba(201, 90, 87, 0.08),
+    8px 0 48px rgba(0, 0, 0, 0.45);
   will-change: transform;
   transform-origin: center left;
-  /* simulate velvet texture with layered gradients */
-  background-image: linear-gradient(180deg, rgba(10,0,2,0.9), rgba(10,0,2,0.6)), radial-gradient(circle at 20% 20%, rgba(123,0,20,0.06), transparent 10%), repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 6px, rgba(255,255,255,0.01) 6px 12px);
   animation: curtain-sway 6s ease-in-out infinite;
 }
 
 @keyframes curtain-sway {
   0% { transform: translate3d(0,0,0) rotateY(0deg); }
-  50% { transform: translate3d(0,2px,0) rotateY(0.6deg); }
+  50% { transform: translate3d(0,3px,0) rotateY(0.6deg); }
   100% { transform: translate3d(0,0,0) rotateY(0deg); }
 }
 
@@ -233,17 +207,17 @@ body {
   inset: 0;
   background:
     repeating-linear-gradient(90deg,
-      transparent 0px 22px,
-      rgba(255, 200, 170, 0.08) 22px 25px,
-      transparent 25px 50px,
-      rgba(255, 200, 170, 0.06) 50px 53px,
-      transparent 53px 98px
+      transparent 0px 28px,
+      rgba(255, 255, 255, 0.07) 28px 32px,
+      transparent 32px 60px,
+      rgba(255, 255, 255, 0.04) 60px 64px,
+      transparent 64px 98px
     ),
     linear-gradient(180deg,
-      rgba(255, 220, 190, 0.1) 0%,
-      transparent 20%,
-      transparent 80%,
-      rgba(10, 0, 2, 0.15) 100%
+      rgba(255, 255, 255, 0.06) 0%,
+      transparent 22%,
+      transparent 76%,
+      rgba(0, 0, 0, 0.16) 100%
     );
 }
 
@@ -251,11 +225,158 @@ body {
   content: "";
   position: absolute;
   top: 0;
-  right: -14px;
+  right: -18px;
   height: 100%;
-  width: 28px;
-  background: rgba(10, 0, 2, 0.45);
-  filter: blur(10px);
+  width: 30px;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(12px);
+}
+
+.curtain-panel.left-0::after,
+.curtain-panel.right-0::after {
+  opacity: 0.92;
+}
+
+.curtain-tie {
+  position: absolute;
+  top: 18%;
+  width: 3.5rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(161, 24, 29, 0.88), rgba(88, 7, 12, 0.96));
+  box-shadow: inset 0 2px 18px rgba(255,255,255,0.12), 0 12px 24px rgba(0,0,0,0.32);
+}
+
+.curtain-tie-left {
+  left: 18%;
+}
+
+.curtain-tie-right {
+  right: 18%;
+}
+
+.curtain-tie::before,
+.curtain-tie::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+}
+
+.curtain-tie::before {
+  left: 50%;
+  top: 50%;
+  width: 110%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.curtain-tie::after {
+  left: 50%;
+  top: 50%;
+  width: 80%;
+  height: 70%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Refinement for closed curtain card */
+.closed-curtain-card {
+  position: relative;
+  background: rgba(91, 13, 17, 0.94);
+  border-color: rgba(255, 164, 136, 0.28);
+  box-shadow: 0 28px 64px rgba(25, 8, 10, 0.42);
+  overflow: hidden;
+}
+
+.closed-curtain-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(255, 220, 217, 0.08), transparent 45%), radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 14%);
+  pointer-events: none;
+}
+
+.closed-curtain-card p,
+.closed-curtain-card span,
+.closed-curtain-card button {
+  color: rgba(255, 244, 240, 0.98);
+}
+
+.closed-curtain-card::after {
+  content: "";
+  position: absolute;
+  left: -30%;
+  top: -30%;
+  width: 180%;
+  height: 70%;
+  background: rgba(255, 255, 255, 0.08);
+  transform: rotate(18deg);
+  filter: blur(18px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.tap-open-btn {
+  box-shadow: 0 12px 45px rgba(194, 88, 60, 0.24), inset 0 0 0 rgba(0,0,0,0);
+  border: 1px solid rgba(255, 234, 220, 0.38);
+  background: linear-gradient(135deg, rgba(170, 46, 40, 0.96), rgba(84, 12, 14, 0.98));
+  color: #fff;
+  animation: tap-pulse 2.2s infinite ease-in-out, button-glow 4.5s infinite ease-in-out;
+}
+
+.button-bottom-wave {
+  display: block;
+  width: 110px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 234, 220, 0.35), rgba(163, 38, 42, 0.7), rgba(255, 234, 220, 0.35));
+  box-shadow: 0 0 16px rgba(194, 88, 60, 0.22);
+  animation: wave-pulse 3.2s infinite ease-in-out;
+}
+
+@keyframes wave-pulse {
+  0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.78; }
+  50% { transform: translateY(-4px) scaleX(1.05); opacity: 1; }
+}
+
+.page-backdrop {
+  background: transparent;
+}
+
+.page-backdrop > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-content,
+.section-shell,
+#home {
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes button-glow {
+  0%, 100% { box-shadow: 0 12px 36px rgba(194, 88, 60, 0.16), 0 0 0 rgba(255, 235, 225, 0.12); }
+  50% { box-shadow: 0 18px 60px rgba(194, 88, 60, 0.28), 0 0 45px rgba(255, 211, 196, 0.14); }
+}
+
+.page-backdrop,
+.page-backdrop * {
+  position: relative;
+  z-index: 1;
+}
+
+.page-backdrop {
+  background: linear-gradient(180deg, rgba(43, 6, 10, 0.96), rgba(47, 5, 10, 0.92));
+}
+
+.footer-glass {
+  position: relative;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .curtain-panel.left-0::after {

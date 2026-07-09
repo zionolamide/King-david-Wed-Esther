@@ -17,9 +17,7 @@ import {
   Pause,
   Send,
   Sparkles,
-  Users,
-  X,
-  AlertCircle
+  Users
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState, useRef } from "react";
 
@@ -120,70 +118,6 @@ function FadeIn({
   );
 }
 
-function AnimatedAlert({
-  type,
-  message,
-  onClose
-}: {
-  type: "success" | "error" | "warning";
-  message: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  const bgColor =
-    type === "success"
-      ? "bg-moss"
-      : type === "error"
-        ? "bg-wine"
-        : "bg-terracotta";
-
-  const borderColor =
-    type === "success"
-      ? "border-moss"
-      : type === "error"
-        ? "border-wine"
-        : "border-terracotta";
-
-  const icon =
-    type === "success" ? (
-      <motion.div
-        animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
-      >
-        <CheckCircle2 size={22} className="text-ivory" />
-      </motion.div>
-    ) : (
-      <motion.div
-        animate={{ x: [0, -5, 5, -5, 0] }}
-        transition={{ duration: 0.4 }}
-      >
-        <AlertCircle size={22} className="text-ivory" />
-      </motion.div>
-    );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -30, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`fixed top-20 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-50 flex items-center gap-3 ${bgColor} text-ivory px-5 py-4 sm:px-8 sm:py-5 rounded-2xl shadow-2xl border-2 ${borderColor} backdrop-blur-sm max-w-md mx-auto`}
-    >
-      <div className="flex-shrink-0">{icon}</div>
-      <p className="text-sm font-semibold leading-6 flex-1">{message}</p>
-      <button
-        onClick={onClose}
-        className="ml-2 flex-shrink-0 hover:opacity-80 transition"
-      >
-        <X size={18} />
-      </button>
-    </motion.div>
-  );
-}
 
 function SuccessAnimation() {
   return (
@@ -269,7 +203,6 @@ function SoundButton({
     try {
       const stored = localStorage.getItem("kd_sound_on");
       if (stored === "true") {
-        // attempt to play when user has allowed gesture
         const audio = audioRef.current;
         if (audio) {
           audio.play().then(() => {
@@ -284,7 +217,7 @@ function SoundButton({
     } catch (e) {
       // ignore
     }
-  }, []);
+  }, [audioRef, setAudioStarted, setSoundOn]);
 
   async function toggleSound() {
     const audio = audioRef.current;
@@ -498,8 +431,8 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
 
   return (
     <section id="home" className="relative min-h-[100svh]">
-      <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20">
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),url('/garden-palette.jpg')] bg-cover bg-center" />
+      <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20 page-backdrop">
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(255,215,205,0.16),transparent_30%),linear-gradient(180deg,rgba(54,9,12,0.92),rgba(23,2,4,0.96))]" />
         <FloatingPetals />
 
         {/* Valance bar across full top */}
@@ -508,8 +441,8 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
         {/* Left curtain panel */}
         <motion.div
           className="curtain-panel left-0"
-          animate={{ x: opened ? "-100%" : "0%" }}
-          transition={{ duration: 2.0, ease: [0.76, 0, 0.24, 1] }}
+          animate={{ x: opened ? "-102%" : "0%" }}
+          transition={{ duration: 1.95, ease: [0.76, 0, 0.24, 1] }}
         >
           <span className="curtain-tie curtain-tie-left" />
         </motion.div>
@@ -517,8 +450,8 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
         {/* Right curtain panel */}
         <motion.div
           className="curtain-panel right-0 scale-x-[-1]"
-          animate={{ x: opened ? "100%" : "0%" }}
-          transition={{ duration: 2.0, ease: [0.76, 0, 0.24, 1] }}
+          animate={{ x: opened ? "102%" : "0%" }}
+          transition={{ duration: 1.95, ease: [0.76, 0, 0.24, 1] }}
         >
           <span className="curtain-tie curtain-tie-right" />
         </motion.div>
@@ -531,7 +464,7 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
           style={{ pointerEvents: opened ? "none" : "auto" }}
         >
           <div className="closed-curtain-card mx-auto max-w-xl rounded-[2rem] border border-ivory/80 bg-white/92 px-6 py-9 shadow-soft shadow-rose/20 backdrop-blur-md sm:px-10 sm:py-10">
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center relative">
               <button
                 type="button"
                 onClick={() => {
@@ -542,6 +475,7 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
               >
                 Tap to Open
               </button>
+              <div className="button-bottom-wave" />
             </div>
           </div>
         </motion.div>
@@ -722,15 +656,14 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
-  const [alertMessage, setAlertMessage] = useState<{
-    type: "success" | "error" | "warning";
-    text: string;
-  } | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [retryAttempts, setRetryAttempts] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
   const [lastPayload, setLastPayload] = useState<any | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+  const [accessCardUrl, setAccessCardUrl] = useState<string | null>(null);
+  const [entryCode, setEntryCode] = useState<string | null>(null);
+  const [accessCardName, setAccessCardName] = useState<string>("access-card.png");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [soundOn, setSoundOn] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
@@ -747,14 +680,55 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (accessCardUrl) {
+        URL.revokeObjectURL(accessCardUrl);
+      }
+    };
+  }, [accessCardUrl]);
+
+  async function fetchAccessCardPreview(payload: any, code: string) {
+    try {
+      const response = await fetch('/api/access-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: payload.fullName,
+          entryCode: code,
+          attendees: 1,
+          phone: payload.phone,
+          whatsappContacts: rsvpContacts,
+        }),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setAccessCardUrl((current) => {
+        if (current) URL.revokeObjectURL(current);
+        return url;
+      });
+      setAccessCardName(`KDE2026-${code}.png`);
+      setEntryCode(code);
+    } catch (err) {
+      console.warn('Access card preview generation failed', err);
+    }
+  }
+
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("loading");
     setMessage("");
-    setAlertMessage(null);
     setFormErrors({});
     setRetryAttempts(0);
     setIsRetrying(false);
+    setAccessCardUrl(null);
+    setEntryCode(null);
+    setAccessCardName("access-card.png");
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
@@ -780,14 +754,13 @@ export default function Home() {
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       setStatus("error");
-      setAlertMessage({ type: "error", text: "Please fix the highlighted fields and try again." });
+      setMessage("Please fix the highlighted fields and try again.");
       return;
     }
 
     if (submittedEmail && submittedEmail === payload.email) {
-      setStatus("error");
+      setStatus("closed");
       setMessage("This email has already been submitted. Please do not fill the form twice.");
-      setAlertMessage({ type: "warning", text: "This email has already been submitted." });
       return;
     }
 
@@ -802,7 +775,6 @@ export default function Home() {
         try {
           if (attempt > 1) {
             setIsRetrying(true);
-            setAlertMessage({ type: "warning", text: `Network issue, retrying (${attempt}/${maxAttempts})...` });
           }
 
           const response = await fetch("/api/rsvp", {
@@ -814,8 +786,7 @@ export default function Home() {
 
           if (response.status === 409) {
             setStatus("closed");
-            setMessage(result.message ?? "RSVP Closed - Capacity Reached");
-            setAlertMessage({ type: "error", text: result.message ?? "RSVP capacity has been reached." });
+            setMessage(result.message ?? "This email has already been registered.");
             return false;
           }
 
@@ -829,15 +800,16 @@ export default function Home() {
             }
             setStatus("error");
             setMessage(result.message ?? "Something went wrong. Please try again.");
-            setAlertMessage({ type: "error", text: result.message ?? "Failed to submit RSVP." });
             return false;
           }
 
           // success
           setStatus("success");
           setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
-          setSubmittedEmail(data.email);
-          setAlertMessage({ type: "success", text: "Success! You have been added to our guest list." });
+          setSubmittedEmail(payload.email);
+          if (result.entryCode) {
+            await fetchAccessCardPreview(payload, result.entryCode);
+          }
           return true;
         } catch (err) {
           // network error
@@ -848,7 +820,6 @@ export default function Home() {
           }
           setStatus("error");
           setMessage("Network error. Please check your connection and try again.");
-          setAlertMessage({ type: "error", text: "Network error. Please check your connection and try again." });
           return false;
         } finally {
           setIsRetrying(false);
@@ -878,7 +849,7 @@ export default function Home() {
   }
 
   return (
-    <main className="overflow-hidden text-ink">
+    <main className="overflow-hidden text-ink page-backdrop">
       <SoundButton
         audioRef={audioRef}
         soundOn={soundOn}
@@ -886,13 +857,6 @@ export default function Home() {
         audioStarted={audioStarted}
         setAudioStarted={setAudioStarted}
       />
-      {alertMessage && (
-        <AnimatedAlert
-          type={alertMessage.type}
-          message={alertMessage.text}
-          onClose={() => setAlertMessage(null)}
-        />
-      )}
 
       {/* Navigation */}
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
@@ -1219,14 +1183,42 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
-                  {message ? (
-                    <div className="rounded-[1.25rem] border border-wine/20 bg-champagne/40 p-5 text-left text-sm leading-7 text-ink/74">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wine">Your access card details</p>
-                      <p className="mt-2 font-serif text-2xl text-moss">Entry code ready</p>
-                      <p className="mt-3">Your RSVP was received successfully. Please keep your entry code handy and check your email for the access card.</p>
-                      <p className="mt-3 font-semibold text-moss">{message}</p>
-                    </div>
-                  ) : null}
+                  <div className="mx-auto max-w-xl rounded-[1.75rem] border border-wine/25 bg-ivory/10 p-6 shadow-soft backdrop-blur-xl text-left text-ink/80">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blush">Your digital access card</p>
+                    <p className="mt-2 font-serif text-3xl text-moss">Entry code ready</p>
+                    <p className="mt-3 leading-7 text-ink/75">Your RSVP was received successfully. Download your access card below or save it directly to your device.</p>
+                    {entryCode ? (
+                      <p className="mt-4 rounded-full bg-wine/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-wine inline-block">
+                        ENTRY CODE: {entryCode}
+                      </p>
+                    ) : null}
+                    {accessCardUrl ? (
+                      <>
+                        <div className="mt-6 rounded-[2rem] border border-ivory/20 bg-[#2f0c0f]/76 p-4">
+                          <img
+                            src={accessCardUrl}
+                            alt="Access card preview"
+                            className="mx-auto max-h-[320px] w-full object-contain rounded-[1.5rem] border border-wine/10 shadow-soft"
+                          />
+                        </div>
+                        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <a
+                            href={accessCardUrl}
+                            download={accessCardName}
+                            className="inline-flex items-center justify-center rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft transition hover:bg-wine/90"
+                          >
+                            Download access card
+                          </a>
+                          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-champagne">Saved only for you</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="mt-6 rounded-[1.25rem] border border-wine/20 bg-champagne/40 p-5 text-sm leading-7 text-ink/74">
+                        <p>A confirmation email is on its way with your access card attached.</p>
+                        <p className="mt-3 font-semibold text-moss">{message}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <>
@@ -1288,10 +1280,6 @@ export default function Home() {
                             type="button"
                             onClick={async () => {
                               setStatus("loading");
-                              setAlertMessage(null);
-                              // attempt resubmit using lastPayload
-                              // reuse the inner sendPayload by calling submitRsvp handler flow
-                              // simple approach: call fetch directly here with retries
                               const maxAttempts = 3;
                               setIsRetrying(true);
                               for (let i = 1; i <= maxAttempts; i += 1) {
@@ -1310,14 +1298,14 @@ export default function Home() {
                                     }
                                     setStatus("error");
                                     setMessage(j.message ?? "Submission failed.");
-                                    setAlertMessage({ type: "error", text: j.message ?? "Submission failed." });
                                     setIsRetrying(false);
                                     break;
                                   }
-                                  // success
                                   setStatus("success");
-                                  setSubmittedEmail(lastPayload.email);
-                                  setAlertMessage({ type: "success", text: "Success! You have been added to our guest list." });
+                                  setSubmittedEmail(lastPayload?.email ?? null);
+                                  if (j.entryCode && lastPayload) {
+                                    await fetchAccessCardPreview(lastPayload, j.entryCode);
+                                  }
                                   setIsRetrying(false);
                                   break;
                                 } catch (e) {
@@ -1327,7 +1315,6 @@ export default function Home() {
                                   }
                                   setStatus("error");
                                   setMessage("Network error during retry.");
-                                  setAlertMessage({ type: "error", text: "Network error during retry." });
                                   setIsRetrying(false);
                                 }
                               }

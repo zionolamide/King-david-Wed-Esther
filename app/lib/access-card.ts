@@ -16,11 +16,14 @@ const CANVAS_HEIGHT = 520;
 let _fontRegistered = false;
 
 const THEME = {
-  background: "#F2E9E4",
-  primary: "#5B0C1D",
-  accent: "#8F5C4B",
-  text: "#3D3330",
-  cream: "#F2E9E4",
+  background: "#2f0c0f",      // Deep Wine
+  boxBackground: "#3f1013",   // Lighter Wine
+  gold: "#eadfc9",            // Champagne / Gold
+  cream: "#f7ede6",           // Soft Cream
+  blush: "#e9c0b6",           // Blush Pink
+  rose: "#c89485",            // Dusty Rose
+  terracotta: "#c97658",      // Terracotta Orange
+  border: "rgba(234, 223, 201, 0.25)", // Champagne border line
 };
 
 function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: number, radius: number) {
@@ -39,7 +42,6 @@ function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: 
 
 export async function generateAccessCardImage(options: AccessCardOptions) {
   // Attempt to register a local/system font for consistent rendering.
-  // Prefer Montserrat if available, then Arial, then DejaVu Sans.
   try {
     if (!_fontRegistered) {
       const candidates = [
@@ -67,93 +69,151 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   const ctx: any = canvas.getContext("2d");
 
-  // Background
+  // Base background
   ctx.fillStyle = THEME.background;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+  // Outer Border (Gold)
+  ctx.strokeStyle = THEME.gold;
+  ctx.lineWidth = 2;
+  drawRoundedRect(ctx, 20, 20, CANVAS_WIDTH - 40, CANVAS_HEIGHT - 40, 24);
+  ctx.stroke();
+
   // Header
-  ctx.fillStyle = THEME.primary;
-  drawRoundedRect(ctx, 24, 24, CANVAS_WIDTH - 48, 100, 20);
-  ctx.fill();
-
-  ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 34px KDEFont, Arial, sans-serif";
+  ctx.fillStyle = THEME.gold;
+  ctx.font = "bold 32px KDEFont, Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 72);
+  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 70);
 
-  // Middle section details
-  ctx.fillStyle = THEME.text;
+  ctx.fillStyle = THEME.rose;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 92);
+
+  // Divider Line
+  ctx.strokeStyle = THEME.border;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 110);
+  ctx.lineTo(CANVAS_WIDTH - 40, 110);
+  ctx.stroke();
+
+  // Left Column: Event details (x = 50 to 360, width = 310)
   ctx.textAlign = "left";
-  ctx.font = "600 18px KDEFont, Arial, sans-serif";
-  const textX = 40;
-  let y = 160;
-  const lineHeight = 32;
-  const lines = [
-    "DATE: Saturday, 22nd August 2026",
-    "VENUE: Camp Young, Ede",
-    "Ceremony starts at 10:00AM",
-    "Reception follows immediately",
-    "",
-    "CHILDREN ARE NOT ALLOWED",
-    "NOT TRANSFERABLE",
-  ];
+  
+  ctx.fillStyle = THEME.rose;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("EVENT DETAILS", 50, 145);
 
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    ctx.fillText(line, textX, y);
-    y += line === "" ? lineHeight / 2 : lineHeight;
-  }
-
-  // Accent separator
-  ctx.fillStyle = THEME.accent;
-  drawRoundedRect(ctx, 40, 258, CANVAS_WIDTH - 80, 3, 2);
-  ctx.fill();
-
-  // Bottom guest info panel
-  const panelHeight = 120;
-  const panelY = CANVAS_HEIGHT - panelHeight - 100;
-  ctx.fillStyle = THEME.primary;
-  drawRoundedRect(ctx, 40, panelY, CANVAS_WIDTH - 80, panelHeight, 24);
-  ctx.fill();
-
+  ctx.fillStyle = THEME.blush;
+  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
+  ctx.fillText("DATE", 50, 175);
   ctx.fillStyle = THEME.cream;
-  ctx.textAlign = "center";
-  ctx.font = "bold 28px KDEFont, Arial, sans-serif";
-  ctx.fillText(options.fullName, CANVAS_WIDTH / 2, panelY + 46);
+  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
+  ctx.fillText("Saturday, 22nd August 2026", 50, 195);
 
-  ctx.font = "500 18px KDEFont, Arial, sans-serif";
+  ctx.fillStyle = THEME.blush;
+  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
+  ctx.fillText("VENUE", 50, 230);
+  ctx.fillStyle = THEME.cream;
+  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
+  ctx.fillText("Camp Young, Ede", 50, 250);
+
+  ctx.fillStyle = THEME.blush;
+  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
+  ctx.fillText("TIME", 50, 285);
+  ctx.fillStyle = THEME.cream;
+  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
+  ctx.fillText("Ceremony: 10:00 AM", 50, 305);
+  ctx.font = "500 15px KDEFont, Arial, sans-serif";
+  ctx.fillText("Reception follows immediately", 50, 325);
+
+  ctx.fillStyle = THEME.terracotta;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("IMPORTANT NOTICE", 50, 375);
+  
+  ctx.fillStyle = THEME.blush;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("• STRICTLY ADULTS ONLY", 50, 400);
+  ctx.fillText("• CARD IS NON-TRANSFERABLE", 50, 420);
+
+  ctx.fillStyle = THEME.gold;
+  ctx.font = "italic 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("Please present this card at the entrance.", 50, 455);
+
+  // Right Column: Guest details (x = 400 to 710, width = 310)
+  // Draw guest details box
+  const boxX = 400;
+  const boxY = 135;
+  const boxW = 310;
+  const boxH = 320;
+  
+  ctx.fillStyle = THEME.boxBackground;
+  drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 20);
+  ctx.fill();
+  
+  ctx.strokeStyle = THEME.border;
+  ctx.lineWidth = 1;
+  drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 20);
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  const centerX = boxX + boxW / 2; // 555
+
+  ctx.fillStyle = THEME.rose;
+  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
+  ctx.fillText("GUEST PASS", centerX, boxY + 35);
+
+  // Guest Name (dynamic scale down if too long)
+  let nameFontSize = 22;
+  ctx.font = `bold ${nameFontSize}px KDEFont, Arial, sans-serif`;
+  while (ctx.measureText(options.fullName).width > boxW - 30 && nameFontSize > 14) {
+    nameFontSize -= 1;
+    ctx.font = `bold ${nameFontSize}px KDEFont, Arial, sans-serif`;
+  }
+  ctx.fillStyle = THEME.gold;
+  ctx.fillText(options.fullName, centerX, boxY + 80);
+
+  // Phone
+  ctx.fillStyle = THEME.cream;
+  ctx.font = "500 13px KDEFont, Arial, sans-serif";
   if (options.phone) {
-    ctx.fillText(`WhatsApp: ${options.phone}`, CANVAS_WIDTH / 2, panelY + 84);
+    ctx.fillText(`WhatsApp: ${options.phone}`, centerX, boxY + 115);
   }
 
-  ctx.font = "bolder 26px KDEFont, Arial, sans-serif";
-  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, CANVAS_WIDTH / 2, panelY + 106);
+  // Entry code pill
+  const pillW = 260;
+  const pillH = 36;
+  const pillX = centerX - pillW / 2;
+  const pillY = boxY + 138;
+  
+  ctx.fillStyle = THEME.gold;
+  drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 18);
+  ctx.fill();
 
-  ctx.font = "600 20px KDEFont, Arial, sans-serif";
-  ctx.fillText(`${options.attendees} adult pass`, CANVAS_WIDTH / 2, panelY + 136);
+  ctx.fillStyle = THEME.background;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, centerX, pillY + 23);
 
-  const contactList = options.whatsappContacts ?? [
-    { name: "Sister Rhoda", phone: "08106993435" },
-    { name: "Brother Joe", phone: "0812765976" },
-    { name: "Bro Zion", phone: "09135037695" },
-  ];
+  // Adult Pass label
+  ctx.fillStyle = THEME.terracotta;
+  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
+  ctx.fillText(`${options.attendees} ADULT PASS`, centerX, boxY + 210);
 
-  const contactY = panelY + panelHeight + 24;
-  ctx.fillStyle = THEME.text;
-  ctx.textAlign = "left";
-  ctx.font = "700 18px KDEFont, Arial, sans-serif";
-  ctx.fillText("RSVP WhatsApp contacts:", textX, contactY);
+  // Dashed ticket tear-off line inside guest pass box
+  ctx.strokeStyle = THEME.border;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(boxX + 20, boxY + 245);
+  ctx.lineTo(boxX + boxW - 20, boxY + 245);
+  ctx.stroke();
+  ctx.setLineDash([]); // Reset line dash
 
-  ctx.font = "500 15px KDEFont, Arial, sans-serif";
-  let contactLineY = contactY + 26;
-  for (let i = 0; i < Math.min(contactList.length, 3); i += 1) {
-    const contact = contactList[i];
-    ctx.fillText(`• ${contact.name}: ${contact.phone}`, textX, contactLineY);
-    contactLineY += 20;
-  }
-
-  ctx.font = "500 15px KDEFont, Arial, sans-serif";
-  ctx.fillText("Show this card at the entrance.", textX, contactLineY + 12);
+  // Thank you message at the bottom of the card
+  ctx.fillStyle = THEME.gold;
+  ctx.font = "italic 13px KDEFont, Arial, sans-serif";
+  ctx.fillText("Thank you for celebrating with us!", centerX, boxY + 285);
 
   return canvas.toBuffer("image/png");
 }
+

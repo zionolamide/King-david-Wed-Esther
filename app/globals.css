@@ -5,9 +5,6 @@
 :root {
   color: #2d241f;
   background: #fbf6ed;
-  --font-sans: "Montserrat", Arial, Helvetica, sans-serif;
-  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-script: "Great Vibes", "Brush Script MT", "Segoe Script", cursive;
   --font-montserrat: var(--font-sans);
   --font-cormorant: var(--font-serif);
   --font-great-vibes: var(--font-script);

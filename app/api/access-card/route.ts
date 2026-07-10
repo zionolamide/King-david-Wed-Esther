@@ -5,7 +5,10 @@ type AccessCardRequest = {
   fullName: string;
   entryCode: string;
   attendees: number;
+  phone?: string;
+  whatsappContacts?: Array<{ name: string; phone: string }>;
 };
+
 
 export async function POST(request: Request) {
   let payload: AccessCardRequest;

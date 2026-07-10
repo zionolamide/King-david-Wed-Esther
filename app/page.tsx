@@ -690,11 +690,14 @@ export default function Home() {
 
   async function fetchAccessCardPreview(payload: any, code: string) {
     try {
+      const displayFullName = payload.title && payload.title !== "(No Prefix)"
+        ? `${payload.title} ${payload.fullName}`
+        : payload.fullName;
       const response = await fetch('/api/access-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullName: payload.fullName,
+          fullName: displayFullName,
           entryCode: code,
           attendees: 1,
           phone: payload.phone,

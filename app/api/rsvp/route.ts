@@ -70,12 +70,23 @@ async function generateEntryCode(supabase: any) {
 export async function POST(request: Request) {
   const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let isSimulated = false;
+  let entryCode = "";
 
   if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      { ok: false, message: "RSVP database is not configured yet." },
-      { status: 503 }
-    );
+    if (process.env.NODE_ENV === "development") {
+      isSimulated = true;
+      const letters = generateRandomLetters(2);
+      const digits = Math.floor(Math.random() * 10000)
+        .toString()
+        .padStart(4, "0");
+      entryCode = `KDE-2026-${letters}${digits}`;
+    } else {
+      return NextResponse.json(
+        { ok: false, message: "RSVP database is not configured yet." },
+        { status: 503 }
+      );
+    }
   }
 
   let body: RsvpPayload;
@@ -105,50 +116,53 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false }
-  });
+  if (!isSimulated) {
+    const supabase = createClient(supabaseUrl!, serviceRoleKey!, {
+      auth: { persistSession: false }
+    });
 
-  const entryCode = await generateEntryCode(supabase);
+    entryCode = await generateEntryCode(supabase);
 
-  const { data: existing, error: existsError } = await supabase
-    .from("rsvp_submissions")
-    .select("id")
-    .eq("email", email)
-    .maybeSingle();
+    const { data: existing, error: existsError } = await supabase
+      .from("rsvp_submissions")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
 
-  if (existsError) {
-    return NextResponse.json(
-      { ok: false, message: existsError.message ?? "RSVP validation failed." },
-      { status: 500 }
-    );
-  }
+    if (existsError) {
+      return NextResponse.json(
+        { ok: false, message: existsError.message ?? "RSVP validation failed." },
+        { status: 500 }
+      );
+    }
 
-  if (existing) {
-    return NextResponse.json(
-      {
-        ok: false,
-        message: "This email has already been registered."
-      },
-      { status: 409 }
-    );
-  }
+    if (existing) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "This email has already been registered."
+        },
+        { status: 409 }
+      );
+    }
 
-  const { data, error } = await supabase.from("rsvp_submissions").insert({
-    title: title === "(No Prefix)" ? null : title,
-    full_name: fullName,
-    email,
-    phone: phone || null,
-    note: note || null,
-    adult_agreement: adultAgreement,
-    entry_code: entryCode,
-  });
+    const { error } = await supabase.from("rsvp_submissions").insert({
+      title: title === "(No Prefix)" ? null : title,
+      full_name: fullName,
+      email,
+      phone: phone || null,
+      note: note || null,
+      adult_agreement: adultAgreement,
+      entry_code: entryCode,
+      attending: "yes",
+    });
 
-  if (error) {
-    return NextResponse.json(
-      { ok: false, message: error.message ?? "RSVP failed." },
-      { status: 500 }
-    );
+    if (error) {
+      return NextResponse.json(
+        { ok: false, message: error.message ?? "RSVP failed." },
+        { status: 500 }
+      );
+    }
   }
 
   const emailUser = process.env.EMAIL_USER;
@@ -166,8 +180,9 @@ export async function POST(request: Request) {
       socketTimeout: 10_000,
     });
 
+    const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
     const cardBuffer = await generateAccessCardImage({
-      fullName,
+      fullName: displayFullName,
       entryCode,
       attendees: 1,
       phone,
@@ -189,13 +204,21 @@ export async function POST(request: Request) {
       attachmentBuffer = cardBuffer;
     }
 
-    const htmlBody = `<div style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 18px; background: #fff;">
-      <h2 style="color: #333;">King David &amp; Esther Wedding RSVP Confirmation</h2>
-      <p style="color: #555; font-size: 16px; line-height: 1.6;">Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!</p>
-      <div style="margin-top: 24px; text-align: center;">
-        <img src="cid:access-card@kde2026" alt="Access card" style="width:100%;max-width:640px;border-radius:20px;display:block;margin-inline:auto;" />
+    const htmlBody = `<div style="font-family: 'Montserrat', Arial, sans-serif; background-color: #fbf6ed; padding: 40px 20px; text-align: center;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #2f0c0f; border: 2px solid #eadfc9; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: left;">
+        <h2 style="color: #eadfc9; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(234, 223, 201, 0.2); padding-bottom: 15px; text-align: center;">King David &amp; Esther</h2>
+        <p style="color: #f7ede6; font-size: 16px; line-height: 1.8; margin-bottom: 24px;">
+          Hello <strong>${fullName}</strong>,<br><br>
+          Thank you for RSVPing to our wedding. Your official access card has been generated successfully. Please save the attached image to your mobile device and present it at the entrance. We look forward to celebrating with you!
+        </p>
+        <div style="margin: 30px 0; text-align: center; border-radius: 16px; overflow: hidden; background-color: #3f1013; padding: 15px;">
+          <img src="cid:access-card@kde2026" alt="Access Card" style="width: 100%; max-width: 500px; border-radius: 12px; display: block; margin: 0 auto;" />
+        </div>
+        <div style="border-top: 1px solid rgba(234, 223, 201, 0.2); padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="color: #e9c0b6; font-size: 12px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 8px 0;">Strictly Adults Only • Non-Transferable</p>
+          <p style="color: #c89485; font-size: 13px; margin: 0;">We look forward to celebrating our special day with you!</p>
+        </div>
       </div>
-      <p style="color: #777; font-size: 14px; margin-top: 28px; border-top: 1px solid #eaeaea; padding-top: 16px;">Please keep this card safe and present it at the entrance. This access card is non-transferable.</p>
     </div>`;
 
     const mailOptions = {

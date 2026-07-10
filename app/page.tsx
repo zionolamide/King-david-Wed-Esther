@@ -19,10 +19,11 @@ import {
   Sparkles,
   Users
 } from "lucide-react";
+import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState, useRef } from "react";
 
 const weddingDate = new Date("2026-08-22T11:00:00+01:00");
-const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 100);
+const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
 const palette = [
   ["Sage", "#737b54"],
@@ -255,10 +256,12 @@ function SoundButton({
 function StoryArch() {
   return (
     <div className="story-arch relative mx-auto h-[28rem] max-w-xs overflow-hidden rounded-t-full bg-champagne shadow-soft sm:h-[30rem] sm:max-w-sm">
-      <img
+      <Image
         src="/couple-images/indoor-promise.png"
         alt="King David and Esther together"
-        className="absolute inset-0 h-full w-full object-cover"
+        fill
+        sizes="(max-width: 640px) 320px, 384px"
+        className="object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/70" />
       <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
@@ -592,21 +595,21 @@ function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
       <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
       {isLadies ? (
         <>
-          <div className="absolute left-[35%] top-9 h-12 w-12 rounded-full bg-[#8b5c4c]" />
+          <div className="absolute left-[35%] top-9 h-12 w-12 rounded-full bg-cocoa" />
           <div className="absolute left-[31%] top-[5.2rem] h-28 w-[5.6rem] rounded-t-full bg-blush" />
           <div className="absolute left-[24%] bottom-0 h-40 w-36 rounded-t-[5rem] bg-rose/90" />
-          <div className="absolute left-[25%] bottom-0 h-36 w-32 rounded-t-[5rem] bg-[linear-gradient(90deg,rgba(251,246,237,0.3),transparent,rgba(123,0,20,0.12))]" />
+          <div className="absolute left-[25%] bottom-0 h-36 w-32 rounded-t-[5rem] bg-[linear-gradient(90deg,rgba(251,246,237,0.3),transparent,rgba(110,13,27,0.12))]" />
           <div className="absolute right-[25%] top-12 h-9 w-28 rotate-[-8deg] rounded-full border border-wine/20 bg-champagne" />
           <div className="absolute right-[28%] top-[4.4rem] h-4 w-20 rotate-[-8deg] bg-wine/70" />
         </>
       ) : (
         <>
-          <div className="absolute left-[42%] top-9 h-12 w-12 rounded-full bg-[#7a513f]" />
+          <div className="absolute left-[42%] top-9 h-12 w-12 rounded-full bg-cocoa" />
           <div className="absolute left-[35%] top-[5.1rem] h-32 w-28 rounded-t-3xl bg-moss" />
           <div className="absolute left-[38%] top-[5.5rem] h-28 w-16 bg-ivory" />
           <div className="absolute left-[42%] top-[6rem] h-24 w-8 bg-wine" />
-          <div className="absolute left-[34%] bottom-0 h-24 w-10 bg-[#2f3420]" />
-          <div className="absolute right-[35%] bottom-0 h-24 w-10 bg-[#2f3420]" />
+          <div className="absolute left-[34%] bottom-0 h-24 w-10 bg-moss" />
+          <div className="absolute right-[35%] bottom-0 h-24 w-10 bg-moss" />
           <div className="absolute right-[18%] top-16 h-28 w-20 rounded-t-full bg-sage/35" />
         </>
       )}
@@ -622,7 +625,7 @@ function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
 
 function GuestNoticeSection() {
   return (
-    <section className="guest-notice-section bg-[#f1e5d2] py-14 sm:py-20">
+    <section className="guest-notice-section bg-champagne/70 py-14 sm:py-20">
       <div className="section-shell">
         <FadeIn>
           <div className="invitation-border mx-auto max-w-3xl bg-ivory p-8 shadow-soft sm:p-12">
@@ -656,6 +659,7 @@ export default function Home() {
     "idle"
   );
   const [message, setMessage] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [retryAttempts, setRetryAttempts] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -671,14 +675,48 @@ export default function Home() {
   useEffect(() => {
     // prepare audio element
     try {
-      const audio = new Audio('/music/background.mp3');
+      const audio = new Audio("/music/when-god-made-you.mp3");
       audio.loop = true;
-      audio.preload = 'auto';
+      audio.preload = "auto";
+      audio.volume = 0.35;
       audioRef.current = audio;
     } catch (e) {
       // ignore
     }
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  async function copyToClipboard(text: string) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        setToast("Copied to clipboard");
+        return true;
+      }
+    } catch {}
+
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "true");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setToast(ok ? "Copied to clipboard" : "Copy failed");
+      return ok;
+    } catch {
+      setToast("Copy failed");
+      return false;
+    }
+  }
 
   useEffect(() => {
     return () => {
@@ -853,6 +891,13 @@ export default function Home() {
 
   return (
     <main className="overflow-hidden text-ink page-backdrop">
+      {toast ? (
+        <div className="fixed left-1/2 top-20 z-[60] -translate-x-1/2 px-4" aria-live="polite">
+          <div className="invitation-border rounded-full bg-ivory/90 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-moss shadow-soft backdrop-blur">
+            {toast}
+          </div>
+        </div>
+      ) : null}
       <SoundButton
         audioRef={audioRef}
         soundOn={soundOn}
@@ -930,7 +975,13 @@ export default function Home() {
             ].map((item, index) => (
               <FadeIn key={item.title} delay={index * 0.08}>
                 <div className="photo-placeholder group relative h-80 overflow-hidden bg-champagne shadow-soft sm:h-[28rem]">
-                  <img src={item.image} alt={item.title} className="absolute inset-0 h-full w-full object-cover" />
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition duration-700 group-hover:scale-[1.03]"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-moss/70 via-moss/15 to-transparent" />
                   <div className="absolute inset-6 border border-ivory/70" />
                   <div className="absolute bottom-8 left-6 right-6 text-center text-ivory">
@@ -1105,14 +1156,32 @@ export default function Home() {
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Guaranty Trust Bank
                   </p>
-                  <p className="mt-2 font-serif text-2xl text-ink sm:text-3xl">0012782278</p>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <p className="font-serif text-2xl text-ink sm:text-3xl">0012782278</p>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard("0012782278")}
+                      className="rounded-full bg-wine/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-wine transition hover:bg-wine/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine/30"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
                 <div className="bg-blush/32 p-5">
                   <p className="font-serif text-xl text-moss sm:text-2xl">Blessing Timehin</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Access Bank
                   </p>
-                  <p className="mt-2 font-serif text-2xl text-ink sm:text-3xl">0733934621</p>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <p className="font-serif text-2xl text-ink sm:text-3xl">0733934621</p>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard("0733934621")}
+                      className="rounded-full bg-wine/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-wine transition hover:bg-wine/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine/30"
+                    >
+                      Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1124,7 +1193,7 @@ export default function Home() {
       <GuestNoticeSection />
 
       {/* RSVP */}
-      <section id="rsvp" className="bg-[#ede0cc] py-16 sm:py-24">
+      <section id="rsvp" className="bg-champagne/60 py-16 sm:py-24">
         <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
@@ -1191,9 +1260,18 @@ export default function Home() {
                     <p className="mt-2 font-serif text-3xl text-moss">Entry code ready</p>
                     <p className="mt-3 leading-7 text-ink/75">Your RSVP was received successfully. Download your access card below or save it directly to your device.</p>
                     {entryCode ? (
-                      <p className="mt-4 rounded-full bg-wine/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-wine inline-block">
-                        ENTRY CODE: {entryCode}
-                      </p>
+                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <p className="rounded-full bg-wine/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-wine">
+                          ENTRY CODE: {entryCode}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(entryCode)}
+                          className="rounded-full bg-moss px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine/30"
+                        >
+                          Copy code
+                        </button>
+                      </div>
                     ) : null}
                     {accessCardUrl ? (
                       <>

@@ -25,6 +25,11 @@ package.json.[0-9]*
 history/*.json
 .sync
 .vite_cache
+*.tsbuildinfo
+/_app_source/
+
+# Supabase
+/supabase/secrets/
 
 # Editor directories and files
 .vscode/*

@@ -29,12 +29,14 @@
 }
 
 html {
+  overflow-x: hidden;
   background-color: #fbf6ed;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   overflow-y: auto;
   background:
     radial-gradient(circle at 15% 8%, rgba(235, 194, 187, 0.55), transparent 32rem),
@@ -66,6 +68,10 @@ body {
   margin-inline: auto;
   position: relative;
   z-index: 1;
+}
+
+#home {
+  overflow-x: hidden;
 }
 
 .premium-section {

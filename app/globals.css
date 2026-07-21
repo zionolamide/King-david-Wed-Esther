@@ -349,6 +349,8 @@ body {
 .curtain-stage {
   perspective: 1200px;
   perspective-origin: 50% 30%;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Stage lighting overlay */
@@ -372,41 +374,15 @@ body {
   left: 0;
   right: 0;
   z-index: 20;
-  height: 74px;
-  background:
-    linear-gradient(180deg, #1a0004 0%, #3d000a 40%, #5c0010 70%, transparent 100%),
-    repeating-linear-gradient(90deg,
-      #1a0004 0px 10px,
-      #3d000a 10px 22px,
-      #5c0012 22px 34px,
-      #3d000a 34px 46px
-    );
+  height: 60px;
+  background: linear-gradient(180deg, #3d000a 0%, #5c0010 60%, transparent 100%);
   box-shadow: 0 6px 24px rgba(10, 0, 2, 0.5);
   pointer-events: none;
-  transition: transform 1s ease, opacity 1s ease;
+  transition: transform 0.8s ease, opacity 0.8s ease;
 }
-
 .curtain-valance.opened {
   transform: translateY(-100%);
   opacity: 0;
-}
-
-/* Gold trim along bottom of valance */
-.curtain-valance::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: repeating-linear-gradient(90deg,
-    transparent 0px,
-    transparent 18px,
-    rgba(240, 210, 150, 0.55) 18px,
-    rgba(240, 210, 150, 0.55) 22px,
-    transparent 22px,
-    transparent 40px
-  );
 }
 
 /* ===== CURTAIN PANELS ===== */
@@ -416,73 +392,51 @@ body {
   top: 0;
   z-index: 15;
   height: 100%;
-  width: 55%;
-  box-shadow:
-    inset -36px 0 80px rgba(8, 0, 2, 0.75),
-    6px 0 28px rgba(0, 0, 0, 0.55);
-  transition: transform 2.4s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
+  width: 50%;
+  overflow: hidden;
 }
 
 .curtain-left { left: 0; }
-.curtain-right { right: 0; transform: scaleX(-1); }
+.curtain-right { right: 0; }
 
 .curtain-left.opened {
   transform: translateX(-100%);
+  transition: transform 1.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .curtain-right.opened {
-  transform: scaleX(-1) translateX(-100%);
+  transform: translateX(100%);
+  transition: transform 1.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Velvet fabric effect — tight repeating pleat stripes */
+/* Velvet fabric with deep red tones and subtle pleats */
 .curtain-panel .curtain-fabric {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(90deg,
-    #1e0005 0px 5px,
-    #4a000e 5px 12px,
-    #830018 12px 19px,
-    #b8001e 19px 24px,
-    #d40024 24px 27px,
-    #c20020 27px 32px,
-    #8a0018 32px 39px,
-    #4a000e 39px 46px,
-    #1e0005 46px 52px,
-    #320009 52px 60px,
-    #6a0014 60px 68px,
-    #a6001c 68px 74px,
-    #c00022 74px 77px,
-    #a6001c 77px 83px,
-    #6a0014 83px 91px,
-    #320009 91px 98px
-  );
-}
-
-/* Right panel — mirror the fabric so pleats face the same way */
-.curtain-panel.curtain-right .curtain-fabric {
-  transform: scaleX(-1);
+  background:
+    linear-gradient(180deg, #2a0006 0%, #4a000e 30%, #6e0014 55%, #4a000e 80%, #2a0006 100%),
+    repeating-linear-gradient(90deg,
+      transparent 0px,
+      rgba(0,0,0,0.12) 6px, rgba(0,0,0,0.03) 8px,
+      transparent 16px,
+      rgba(255,255,255,0.03) 22px, transparent 28px,
+      rgba(0,0,0,0.06) 34px, rgba(0,0,0,0.10) 36px, transparent 42px
+    );
+  background-blend-mode: overlay, normal;
 }
 
 /* ===== CURTAIN TIES ===== */
 
 .curtain-tie {
   position: absolute;
-  top: 58%;
+  top: 55%;
   z-index: 17;
-  width: 78px;
-  height: 22px;
-  background: linear-gradient(180deg,
-    #f7e5a8 0%,
-    #d4a830 30%,
-    #a87820 50%,
-    #d4a830 70%,
-    #f7e5a8 100%
-  );
+  width: 56px;
+  height: 16px;
+  background: linear-gradient(180deg, #3d000a, #5c0010, #3d000a);
   border-radius: 999px;
-  box-shadow:
-    0 3px 10px rgba(0, 0, 0, 0.55),
-    inset 0 1px 3px rgba(255, 255, 255, 0.55);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(60, 10, 20, 0.3);
 }
 
 .curtain-tie::after {
@@ -491,26 +445,14 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: radial-gradient(circle,
-    #f7e5a8 0%,
-    #b88a18 50%,
-    #8a6010 100%
-  );
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle, #5c0010, #3d000a);
 }
 
-.curtain-tie-left {
-  left: 8%;
-  right: auto;
-}
-
-.curtain-tie-right {
-  right: 8%;
-  left: auto;
-}
+.curtain-tie-left { left: 5%; right: auto; }
+.curtain-tie-right { right: 5%; left: auto; }
 
 /* ===== TAP OVERLAY ===== */
 
@@ -524,7 +466,6 @@ body {
   justify-content: center;
   text-align: center;
   transition: opacity 0.7s ease, transform 0.7s ease;
-  transform: translateY(0);
 }
 
 .curtain-overlay.hidden {
@@ -533,7 +474,7 @@ body {
   transform: translateY(-18px);
 }
 
-/* ===== TAP TO OPEN BUTTON WITH FLOATING GLOW ===== */
+/* ===== TAP TO OPEN BUTTON ===== */
 
 .tap-to-open-btn {
   animation: tap-float 3s ease-in-out infinite;
@@ -561,108 +502,20 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
+  width: 160px;
   height: 100%;
   z-index: 13;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(ellipse 200px 70% at 50% 30%,
-    rgba(255, 245, 225, 0.25),
-    rgba(255, 240, 220, 0.08) 50%,
+  background: radial-gradient(ellipse 160px 70% at 50% 30%,
+    rgba(255, 245, 225, 0.2),
     transparent 70%);
-  filter: blur(40px);
-  transition: opacity 1.4s ease;
+  filter: blur(30px);
+  transition: opacity 1s ease;
 }
 .curtain-center-glow.is-open { opacity: 1; }
 
-/* ─── Curtain Overlay/Tap Card ─────────────────────────────────── */
-
-.closed-curtain-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(234, 223, 201, 0.75);
-  box-shadow: 0 28px 64px rgba(201, 120, 94, 0.20);
-  overflow: hidden;
-}
-
-.closed-curtain-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(145deg, rgba(255, 220, 217, 0.08), transparent 45%), radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 14%);
-  pointer-events: none;
-}
-
-.closed-curtain-card p,
-.closed-curtain-card span,
-.closed-curtain-card button {
-  color: var(--color-ink);
-}
-
-.closed-curtain-card::after {
-  content: "";
-  position: absolute;
-  left: -30%;
-  top: -30%;
-  width: 180%;
-  height: 70%;
-  background: rgba(234, 223, 201, 0.35);
-  transform: rotate(18deg);
-  filter: blur(18px);
-  opacity: 0.75;
-  pointer-events: none;
-}
-
-.tap-open-btn {
-  box-shadow: 0 14px 52px rgba(110, 13, 27, 0.22), inset 0 0 0 rgba(0,0,0,0);
-  border: 1px solid rgba(234, 223, 201, 0.55);
-  background: linear-gradient(135deg, rgba(201, 120, 94, 0.96), rgba(110, 13, 27, 0.98));
-  color: rgba(255, 255, 255, 0.98);
-  animation: tap-pulse 2.2s infinite ease-in-out, button-glow 4.5s infinite ease-in-out;
-}
-
-.button-bottom-wave {
-  display: block;
-  width: 110px;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(234, 223, 201, 0.5), rgba(201, 120, 94, 0.85), rgba(234, 223, 201, 0.5));
-  box-shadow: 0 0 18px rgba(110, 13, 27, 0.16);
-  animation: wave-pulse 3.2s infinite ease-in-out;
-}
-
-@keyframes wave-pulse {
-  0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.78; }
-  50% { transform: translateY(-4px) scaleX(1.05); opacity: 1; }
-}
-
-.page-backdrop {
-  background: transparent;
-}
-
-.hero-content,
-.section-shell,
-#home {
-  position: relative;
-  z-index: 3;
-}
-
-@keyframes button-glow {
-  0%, 100% { box-shadow: 0 12px 36px rgba(194, 88, 60, 0.16), 0 0 0 rgba(255, 235, 225, 0.12); }
-  50% { box-shadow: 0 18px 60px rgba(194, 88, 60, 0.28), 0 0 45px rgba(255, 211, 196, 0.14); }
-}
-
-.footer-glass {
-  position: relative;
-  z-index: 40;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(18px);
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-}
-
-.hero-title {
-  font-size: clamp(3.8rem, 17vw, 7.5rem);
-}
+/* ─── Hero background ──────────────────────────── */
 
 .floating-heart {
   position: absolute;

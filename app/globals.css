@@ -349,7 +349,8 @@ body {
 .curtain-stage {
   perspective: 1200px;
   perspective-origin: 50% 30%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   position: relative;
 }
 

@@ -26,12 +26,7 @@ export async function POST(request: Request) {
   try {
     const imageBuffer = await generateAccessCardImage(payload);
     // Convert Node Buffer to ArrayBuffer slice compatible with Web Response
-    const uint8 = new Uint8Array(
-      imageBuffer.buffer,
-      imageBuffer.byteOffset,
-      imageBuffer.byteLength
-    );
-    return new Response(uint8 as any, {
+    return new Response(imageBuffer as unknown as Blob, {
       status: 200,
       headers: {
         "Content-Type": "image/png",

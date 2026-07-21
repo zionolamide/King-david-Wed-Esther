@@ -10,210 +10,341 @@ export type AccessCardOptions = {
   whatsappContacts?: Array<{ name: string; phone: string }>;
 };
 
-const CANVAS_WIDTH = 760;
-const CANVAS_HEIGHT = 520;
+const CANVAS_WIDTH = 1000;
+const CANVAS_HEIGHT = 700;
 
-let _fontRegistered = false;
+let fontRegistered = false;
 
-const THEME = {
-  background: "#2f0c0f",      // Deep Wine
-  boxBackground: "#3f1013",   // Lighter Wine
-  gold: "#eadfc9",            // Champagne / Gold
-  cream: "#f7ede6",           // Soft Cream
-  blush: "#e9c0b6",           // Blush Pink
-  rose: "#c89485",            // Dusty Rose
-  terracotta: "#c97658",      // Terracotta Orange
-  border: "rgba(234, 223, 201, 0.25)", // Champagne border line
-};
+const palette = [
+  ["Sage Green", "#6F7A57"],
+  ["Deep Wine", "#6E0D1B"],
+  ["Warm Brown", "#8B5A46"],
+  ["Terracotta", "#C9785E"],
+  ["Dusty Nude", "#D7A79C"],
+  ["Blush Pink", "#EBC2BB"],
+];
 
 function drawRoundedRect(ctx: any, x: number, y: number, width: number, height: number, radius: number) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
   ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.moveTo(x + safeRadius, y);
+  ctx.lineTo(x + width - safeRadius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  ctx.lineTo(x + width, y + height - safeRadius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  ctx.lineTo(x + safeRadius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  ctx.lineTo(x, y + safeRadius);
+  ctx.quadraticCurveTo(x, y, x + safeRadius, y);
   ctx.closePath();
 }
 
-export async function generateAccessCardImage(options: AccessCardOptions) {
-  // Attempt to register a local/system font for consistent rendering.
-  try {
-    if (!_fontRegistered) {
-      const candidates = [
-        path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
-        "C:\\Windows\\Fonts\\Montserrat-Regular.ttf",
-        "C:\\Windows\\Fonts\\Arial.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-      ];
-      for (const p of candidates) {
-        try {
-          if (p && fs.existsSync(p)) {
-            registerFont(p, { family: "KDEFont" });
-            _fontRegistered = true;
-            break;
-          }
-        } catch (e) {
-          // ignore and try next
-        }
+function fillRound(ctx: any, x: number, y: number, width: number, height: number, radius: number) {
+  drawRoundedRect(ctx, x, y, width, height, radius);
+  ctx.fill();
+}
+
+function strokeRound(ctx: any, x: number, y: number, width: number, height: number, radius: number) {
+  drawRoundedRect(ctx, x, y, width, height, radius);
+  ctx.stroke();
+}
+
+function registerCardFont() {
+  if (fontRegistered) return "KDEFont";
+
+  const candidates = [
+    path.join(process.cwd(), "public", "fonts", "Montserrat-Regular.ttf"),
+    "C:\\Windows\\Fonts\\arial.ttf",
+    "C:\\Windows\\Fonts\\calibri.ttf",
+    "C:\\Windows\\Fonts\\segoeui.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+  ];
+
+  for (const fontPath of candidates) {
+    try {
+      if (fs.existsSync(fontPath)) {
+        registerFont(fontPath, { family: "KDEFont" });
+        fontRegistered = true;
+        return "KDEFont";
       }
+    } catch {
+      // Try the next font.
     }
-  } catch (e) {
-    // ignore font registration errors
   }
 
+  return "Arial";
+}
+
+function fitText(ctx: any, text: string, maxWidth: number, startSize: number, minSize: number, family: string) {
+  let size = startSize;
+  ctx.font = `700 ${size}px "${family}"`;
+  while (ctx.measureText(text).width > maxWidth && size > minSize) {
+    size -= 1;
+    ctx.font = `700 ${size}px "${family}"`;
+  }
+}
+
+function drawWrappedText(ctx: any, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+  const words = text.split(" ");
+  let line = "";
+  let currentY = y;
+
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (ctx.measureText(next).width > maxWidth && line) {
+      ctx.fillText(line, x, currentY);
+      line = word;
+      currentY += lineHeight;
+    } else {
+      line = next;
+    }
+  }
+
+  if (line) ctx.fillText(line, x, currentY);
+  return currentY + lineHeight;
+}
+
+function drawFlower(ctx: any, x: number, y: number, scale: number, rotation = 0) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.scale(scale, scale);
+
+  const petals: any[] = [
+    ["#EBC2BB", -24, -8, 28, 15, -0.45],
+    ["#D7A79C", 24, -8, 28, 15, 0.45],
+    ["#C9785E", 0, 24, 26, 14, 1.2],
+    ["#FFF8EF", 0, -26, 24, 13, -1.2],
+  ];
+
+  for (const [color, px, py, width, height, angle] of petals) {
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(angle);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.88;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, width, height, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#6E0D1B";
+  ctx.beginPath();
+  ctx.arc(0, 0, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(111,122,87,0.38)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(8, 22);
+  ctx.bezierCurveTo(34, 52, 70, 58, 104, 72);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSmallFlower(ctx: any, x: number, y: number, scale: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  // Simple 4-petal flower
+  const petalColor = "rgba(235,194,187,0.6)";
+  ctx.fillStyle = petalColor;
+  for (let i = 0; i < 4; i++) {
+    ctx.save();
+    ctx.rotate((i * Math.PI) / 2);
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 6, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.fillStyle = "#C9785E";
+  ctx.beginPath();
+  ctx.arc(0, 0, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCornerOrnaments(ctx: any, fontFamily: string) {
+  // Top-left corner vine
+  ctx.strokeStyle = "rgba(111,122,87,0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(60, 60);
+  ctx.quadraticCurveTo(90, 42, 120, 65);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(60, 60);
+  ctx.quadraticCurveTo(42, 90, 65, 120);
+  ctx.stroke();
+
+  // Bottom-right corner vine
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_WIDTH - 60, CANVAS_HEIGHT - 60);
+  ctx.quadraticCurveTo(CANVAS_WIDTH - 90, CANVAS_HEIGHT - 42, CANVAS_WIDTH - 120, CANVAS_HEIGHT - 65);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_WIDTH - 60, CANVAS_HEIGHT - 60);
+  ctx.quadraticCurveTo(CANVAS_WIDTH - 42, CANVAS_HEIGHT - 90, CANVAS_WIDTH - 65, CANVAS_HEIGHT - 120);
+  ctx.stroke();
+
+  drawSmallFlower(ctx, 120, 65, 0.7);
+  drawSmallFlower(ctx, 65, 120, 0.7);
+  drawSmallFlower(ctx, CANVAS_WIDTH - 120, CANVAS_HEIGHT - 65, 0.7);
+  drawSmallFlower(ctx, CANVAS_WIDTH - 65, CANVAS_HEIGHT - 120, 0.7);
+}
+
+function drawPaletteStrip(ctx: any, fontFamily: string) {
+  const swatchWidth = 118;
+  const gap = 10;
+  const total = swatchWidth * palette.length + gap * (palette.length - 1);
+  let x = (CANVAS_WIDTH - total) / 2;
+  const y = 635;
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.font = `700 7px "${fontFamily}"`;
+
+  for (const [name, color] of palette) {
+    ctx.fillStyle = "rgba(255,248,239,0.88)";
+    fillRound(ctx, x, y, swatchWidth, 38, 14);
+    ctx.fillStyle = color;
+    fillRound(ctx, x + 14, y + 7, swatchWidth - 28, 10, 999);
+    ctx.fillStyle = "#2F3A22";
+    ctx.fillText(name.toUpperCase(), x + swatchWidth / 2, y + 22);
+    x += swatchWidth + gap;
+  }
+}
+
+export async function generateAccessCardImage(options: AccessCardOptions) {
+  const fontFamily = registerCardFont();
   const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   const ctx: any = canvas.getContext("2d");
 
-  // Base background
-  ctx.fillStyle = THEME.background;
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  bg.addColorStop(0, "#FFFFFF");
+  bg.addColorStop(0.4, "#FBF6ED");
+  bg.addColorStop(1, "#EADFC9");
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Outer Border (Gold)
-  ctx.strokeStyle = THEME.gold;
-  ctx.lineWidth = 2;
-  drawRoundedRect(ctx, 20, 20, CANVAS_WIDTH - 40, CANVAS_HEIGHT - 40, 24);
-  ctx.stroke();
+  // Decorative flowers in background
+  ctx.globalAlpha = 0.18;
+  drawFlower(ctx, 96, 100, 1.35, -0.5);
+  drawFlower(ctx, 910, 100, 1.18, 2.55);
+  drawFlower(ctx, 88, 580, 1.0, -1.2);
+  drawFlower(ctx, 920, 570, 1.1, 2.3);
+  ctx.globalAlpha = 1;
 
-  // Header
-  ctx.fillStyle = THEME.gold;
-  ctx.font = "bold 32px KDEFont, Arial, sans-serif";
+  // Corner ornaments
+  drawCornerOrnaments(ctx, fontFamily);
+
+  // Outer border card
+  ctx.fillStyle = "rgba(255,248,239,0.82)";
+  fillRound(ctx, 30, 25, CANVAS_WIDTH - 60, CANVAS_HEIGHT - 50, 50);
+  ctx.strokeStyle = "rgba(110,13,27,0.15)";
+  ctx.lineWidth = 1.5;
+  strokeRound(ctx, 30, 25, CANVAS_WIDTH - 60, CANVAS_HEIGHT - 50, 50);
+
+  // Inner card area
+  const cardGradient = ctx.createLinearGradient(70, 65, 930, 500);
+  cardGradient.addColorStop(0, "#FFFDF8");
+  cardGradient.addColorStop(0.45, "#F4E5DB");
+  cardGradient.addColorStop(1, "#EADFC9");
+  ctx.fillStyle = cardGradient;
+  fillRound(ctx, 70, 65, CANVAS_WIDTH - 140, 480, 36);
+  ctx.strokeStyle = "rgba(110,13,27,0.12)";
+  ctx.lineWidth = 1;
+  strokeRound(ctx, 70, 65, CANVAS_WIDTH - 140, 480, 36);
+
+  // === TOP SECTION: KOBO seal ===
+  const sealGradient = ctx.createLinearGradient(380, 90, 620, 290);
+  sealGradient.addColorStop(0, "#6E0D1B");
+  sealGradient.addColorStop(0.5, "#8B5A46");
+  sealGradient.addColorStop(1, "#2F3A22");
+  ctx.fillStyle = sealGradient;
+  fillRound(ctx, 400, 92, 200, 200, 100);
+  ctx.strokeStyle = "rgba(255,248,239,0.75)";
+  ctx.lineWidth = 6;
+  strokeRound(ctx, 418, 110, 164, 164, 82);
+
+  ctx.fillStyle = "#FFF8EF";
   ctx.textAlign = "center";
-  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 70);
+  ctx.textBaseline = "middle";
+  ctx.font = `700 44px "${fontFamily}"`;
+  ctx.fillText("KDE", CANVAS_WIDTH / 2, 200);
 
-  ctx.fillStyle = THEME.rose;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 92);
+  // === COUPLE NAMES ===
+  ctx.fillStyle = "#6E0D1B";
+  ctx.font = `700 32px "${fontFamily}"`;
+  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 335);
 
-  // Divider Line
-  ctx.strokeStyle = THEME.border;
+  ctx.fillStyle = "#2F3A22";
+  ctx.font = `600 13px "${fontFamily}"`;
+  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 370);
+
+  // === DETAILS ROW ===
+  ctx.fillStyle = "#2D241F";
+  ctx.font = `500 15px "${fontFamily}"`;
+  ctx.textAlign = "center";
+  ctx.fillText("Saturday • 22 August 2026 • 10:00 AM", CANVAS_WIDTH / 2, 408);
+  ctx.fillStyle = "#6E0D1B";
+  ctx.font = `600 16px "${fontFamily}"`;
+  ctx.fillText("Camp Young, Ede, Osun State, Nigeria", CANVAS_WIDTH / 2, 432);
+
+  // Divider
+  ctx.strokeStyle = "rgba(110,13,27,0.15)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(40, 110);
-  ctx.lineTo(CANVAS_WIDTH - 40, 110);
+  ctx.moveTo(140, 450);
+  ctx.lineTo(860, 450);
   ctx.stroke();
 
-  // Left Column: Event details (x = 50 to 360, width = 310)
+  // === GUEST INFO PASS STRIP ===
+  const passGradient = ctx.createLinearGradient(100, 470, 900, 540);
+  passGradient.addColorStop(0, "#2F3A22");
+  passGradient.addColorStop(0.42, "#6E0D1B");
+  passGradient.addColorStop(1, "#8B5A46");
+  ctx.fillStyle = passGradient;
+  fillRound(ctx, 100, 468, 800, 75, 24);
+
+  // Guest name
+  ctx.fillStyle = "#FFF8EF";
   ctx.textAlign = "left";
-  
-  ctx.fillStyle = THEME.rose;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("EVENT DETAILS", 50, 145);
+  ctx.textBaseline = "middle";
+  ctx.font = `600 14px "${fontFamily}"`;
+  ctx.fillText("GUEST", 130, 490);
+  fitText(ctx, options.fullName, 320, 26, 14, fontFamily);
+  ctx.fillText(options.fullName, 130, 518);
 
-  ctx.fillStyle = THEME.blush;
-  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
-  ctx.fillText("DATE", 50, 175);
-  ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
-  ctx.fillText("Saturday, 22nd August 2026", 50, 195);
-
-  ctx.fillStyle = THEME.blush;
-  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
-  ctx.fillText("VENUE", 50, 230);
-  ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
-  ctx.fillText("Camp Young, Ede", 50, 250);
-
-  ctx.fillStyle = THEME.blush;
-  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
-  ctx.fillText("TIME", 50, 285);
-  ctx.fillStyle = THEME.cream;
-  ctx.font = "bold 15px KDEFont, Arial, sans-serif";
-  ctx.fillText("Ceremony: 10:00 AM", 50, 305);
-  ctx.font = "500 15px KDEFont, Arial, sans-serif";
-  ctx.fillText("Reception follows immediately", 50, 325);
-
-  ctx.fillStyle = THEME.terracotta;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("IMPORTANT NOTICE", 50, 375);
-  
-  ctx.fillStyle = THEME.blush;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("• STRICTLY ADULTS ONLY", 50, 400);
-  ctx.fillText("• CARD IS NON-TRANSFERABLE", 50, 420);
-
-  ctx.fillStyle = THEME.gold;
-  ctx.font = "italic 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("Please present this card at the entrance.", 50, 455);
-
-  // Right Column: Guest details (x = 400 to 710, width = 310)
-  // Draw guest details box
-  const boxX = 400;
-  const boxY = 135;
-  const boxW = 310;
-  const boxH = 320;
-  
-  ctx.fillStyle = THEME.boxBackground;
-  drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 20);
-  ctx.fill();
-  
-  ctx.strokeStyle = THEME.border;
-  ctx.lineWidth = 1;
-  drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 20);
-  ctx.stroke();
-
+  // Entry code
   ctx.textAlign = "center";
-  const centerX = boxX + boxW / 2; // 555
+  ctx.font = `600 12px "${fontFamily}"`;
+  ctx.fillText("ENTRY CODE", 672, 490);
+  ctx.font = `700 30px "${fontFamily}"`;
+  ctx.fillText(options.entryCode, 672, 525);
 
-  ctx.fillStyle = THEME.rose;
-  ctx.font = "bold 11px KDEFont, Arial, sans-serif";
-  ctx.fillText("GUEST PASS", centerX, boxY + 35);
+  // === DETAILS BELOW PASS ===
+  ctx.fillStyle = "#2D241F";
+  ctx.textAlign = "left";
+  ctx.font = `500 13px "${fontFamily}"`;
+  ctx.fillText("📋 Wedding ceremony · Reception immediately after", 130, 568);
 
-  // Guest Name (dynamic scale down if too long)
-  let nameFontSize = 22;
-  ctx.font = `bold ${nameFontSize}px KDEFont, Arial, sans-serif`;
-  while (ctx.measureText(options.fullName).width > boxW - 30 && nameFontSize > 14) {
-    nameFontSize -= 1;
-    ctx.font = `bold ${nameFontSize}px KDEFont, Arial, sans-serif`;
-  }
-  ctx.fillStyle = THEME.gold;
-  ctx.fillText(options.fullName, centerX, boxY + 80);
+  ctx.textAlign = "right";
+  ctx.fillText(`${options.attendees} Adult${options.attendees !== 1 ? "s" : ""} · Non-transferable`, 870, 568);
 
-  // Phone
-  ctx.fillStyle = THEME.cream;
-  ctx.font = "500 13px KDEFont, Arial, sans-serif";
-  if (options.phone) {
-    ctx.fillText(`WhatsApp: ${options.phone}`, centerX, boxY + 115);
-  }
+  // === PALETTE STRIP ===
+  drawPaletteStrip(ctx, fontFamily);
 
-  // Entry code pill
-  const pillW = 260;
-  const pillH = 36;
-  const pillX = centerX - pillW / 2;
-  const pillY = boxY + 138;
-  
-  ctx.fillStyle = THEME.gold;
-  drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 18);
-  ctx.fill();
-
-  ctx.fillStyle = THEME.background;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText(`ENTRY CODE: ${options.entryCode}`, centerX, pillY + 23);
-
-  // Adult Pass label
-  ctx.fillStyle = THEME.terracotta;
-  ctx.font = "bold 13px KDEFont, Arial, sans-serif";
-  ctx.fillText(`${options.attendees} ADULT PASS`, centerX, boxY + 210);
-
-  // Dashed ticket tear-off line inside guest pass box
-  ctx.strokeStyle = THEME.border;
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6, 4]);
-  ctx.beginPath();
-  ctx.moveTo(boxX + 20, boxY + 245);
-  ctx.lineTo(boxX + boxW - 20, boxY + 245);
-  ctx.stroke();
-  ctx.setLineDash([]); // Reset line dash
-
-  // Thank you message at the bottom of the card
-  ctx.fillStyle = THEME.gold;
-  ctx.font = "italic 13px KDEFont, Arial, sans-serif";
-  ctx.fillText("Thank you for celebrating with us!", centerX, boxY + 285);
+  // === WATERMARK ===
+  ctx.fillStyle = "rgba(110,13,27,0.04)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `600 9px "${fontFamily}"`;
+  ctx.fillText("KING DAVID & ESTHER · 22 AUG 2026", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 14);
 
   return canvas.toBuffer("image/png");
 }
-

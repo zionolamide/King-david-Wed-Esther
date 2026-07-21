@@ -22,23 +22,23 @@ import {
 import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState, useRef } from "react";
 
-const weddingDate = new Date("2026-08-22T11:00:00+01:00");
+const weddingDate = new Date("2026-08-22T10:00:00+01:00");
 const rsvpLimit = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
 const palette = [
-  ["Sage", "#737b54"],
-  ["Wine", "#7b0014"],
-  ["Dusty Rose", "#c89485"],
-  ["Terracotta", "#c97658"],
-  ["Blush", "#e9c0b6"],
-  ["Champagne", "#eadfc9"]
+  ["Sage green", "#6f7a57"],
+  ["Deep wine/burgundy", "#6e0d1b"],
+  ["Warm brown", "#8b5a46"],
+  ["Terracotta/peach", "#c9785e"],
+  ["Dusty nude pink", "#d7a79c"],
+  ["Blush pink", "#ebc2bb"]
 ];
 
 const venueQuery = "Camp Young, Ede, Osun State, Nigeria";
 const encodedVenue = encodeURIComponent(venueQuery);
 
 const schedule = [
-  { time: "11:00 AM", title: "Wedding ceremony" },
+  { time: "10:00 AM", title: "Wedding ceremony" },
   { time: "Immediately after", title: "Reception celebration" }
 ];
 
@@ -80,11 +80,13 @@ function useCountdown() {
 function FadeIn({
   children,
   delay = 0,
-  className = ""
+  className = "",
+  variant = "up"
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  variant?: "up" | "scale" | "left" | "right" | "stagger" | "zoom";
 }) {
   const controls = useAnimation();
   const ref = useRef<HTMLDivElement | null>(null);
@@ -101,19 +103,92 @@ function FadeIn({
           }
         });
       },
-      { threshold: 0.12, rootMargin: "-60px" }
+      { threshold: 0.08, rootMargin: "-40px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [controls]);
 
   const variants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.75, delay, ease: [0.76, 0, 0.24, 1] } }
+    up: {
+      hidden: { opacity: 0, y: 40, scale: 0.97 },
+      visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, delay, ease: [0.76, 0, 0.24, 1] } }
+    },
+    scale: {
+      hidden: { opacity: 0, scale: 0.88, filter: "blur(4px)" },
+      visible: { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.9, delay, ease: [0.76, 0, 0.24, 1] } }
+    },
+    left: {
+      hidden: { opacity: 0, x: -60 },
+      visible: { opacity: 1, x: 0, transition: { duration: 0.8, delay, ease: [0.76, 0, 0.24, 1] } }
+    },
+    right: {
+      hidden: { opacity: 0, x: 60 },
+      visible: { opacity: 1, x: 0, transition: { duration: 0.8, delay, ease: [0.76, 0, 0.24, 1] } }
+    },
+    stagger: {
+      hidden: { opacity: 0, y: 30 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay, ease: [0.76, 0, 0.24, 1] } }
+    },
+    zoom: {
+      hidden: { opacity: 0, scale: 0.92 },
+      visible: { opacity: 1, scale: 1, transition: { duration: 0.9, delay, ease: [0.76, 0, 0.24, 1] } }
+    }
   };
 
   return (
-    <motion.div ref={ref} initial="hidden" animate={controls} variants={variants} className={className}>
+    <motion.div ref={ref} initial="hidden" animate={controls} variants={variants[variant]} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+function SectionShell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`section-shell ${className}`}>{children}</div>;
+}
+
+function StaggerChildren({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const controls = useAnimation();
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          controls.start("visible");
+          obs.unobserve(el);
+        }
+      },
+      { threshold: 0.08 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [controls]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={controls}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function StaggerItem({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1] } }
+      }}
+      className={className}
+    >
       {children}
     </motion.div>
   );
@@ -138,9 +213,9 @@ function SuccessAnimation() {
             rotate: { duration: 2, repeat: Infinity, ease: "linear" },
             scale: { duration: 2, repeat: Infinity }
           }}
-          className="text-5xl sm:text-6xl"
+          className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-wine/10 text-wine sm:h-20 sm:w-20"
         >
-          💍
+          <Heart className="h-8 w-8 sm:h-10 sm:w-10" />
         </motion.div>
       </motion.div>
 
@@ -162,7 +237,7 @@ function SuccessAnimation() {
         <p className="text-base leading-7 text-ink/75 font-medium">
           ✓ Your RSVP has been received
         </p>
-        <p className="text-sm leading-7 text-ink/72">
+        <p className="text-sm leading-7 text-ink/70">
           Thank you for confirming your attendance. A confirmation email is on its way. We&apos;re excited to celebrate with you on August 22, 2026!
         </p>
       </motion.div>
@@ -190,13 +265,11 @@ function SoundButton({
   audioRef,
   soundOn,
   setSoundOn,
-  audioStarted,
   setAudioStarted
 }: {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   soundOn: boolean;
   setSoundOn: (v: boolean) => void;
-  audioStarted: boolean;
   setAudioStarted: (v: boolean) => void;
 }) {
   useEffect(() => {
@@ -255,20 +328,23 @@ function SoundButton({
 
 function StoryArch() {
   return (
-    <div className="story-arch relative mx-auto h-[28rem] max-w-xs overflow-hidden rounded-t-full bg-champagne shadow-soft sm:h-[30rem] sm:max-w-sm">
-      <Image
-        src="/couple-images/indoor-promise.png"
-        alt="King David and Esther together"
-        fill
-        sizes="(max-width: 640px) 320px, 384px"
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-ivory/20 via-rose/20 to-moss/70" />
-      <div className="absolute inset-x-6 bottom-8 text-center text-ivory">
-        <p className="font-script text-4xl sm:text-5xl">A Garden Promise</p>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em]">
-          King David &amp; Esther
+    <div className="story-keepsake relative mx-auto max-w-xs overflow-hidden rounded-[2rem] border border-wine/10 bg-white/85 p-7 shadow-soft backdrop-blur sm:max-w-sm">
+      <div className="story-vine" aria-hidden />
+      <div className="relative z-10 rounded-[1.5rem] border border-champagne/80 bg-ivory/70 p-6 text-center">
+        <p className="font-script text-5xl leading-none text-wine sm:text-6xl">Rooted in Grace</p>
+        <p className="mx-auto mt-5 max-w-xs text-sm leading-7 text-ink/70">
+          A quiet keepsake of faith, friendship, family and the joy of choosing forever.
         </p>
+        <div className="mt-7 grid gap-3 text-left">
+          {[{ icon: Heart, label: "Faith" }, { icon: Heart, label: "Friendship" }, { icon: Heart, label: "Forever" }].map((item) => (
+            <div key={item.label} className="group flex items-center gap-3 rounded-2xl border border-wine/10 bg-white/70 px-4 py-3 transition hover:bg-white/90 hover:shadow-soft">
+              <item.icon size={16} className="text-wine/50 group-hover:text-wine transition-colors" />
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -285,6 +361,35 @@ function FloatingPetals() {
             left: `${8 + index * 8}%`,
             animationDelay: `${index * 0.55}s`,
             animationDuration: `${7 + (index % 4)}s`
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function RomanticAmbience({ variant = "soft" }: { variant?: "soft" | "curtain" | "gallery" | "details" }) {
+  return (
+    <div className={`romantic-ambience romantic-ambience-${variant}`} aria-hidden>
+      {Array.from({ length: 9 }).map((_, index) => (
+        <span
+          key={`heart-${index}`}
+          className="ambience-heart"
+          style={{
+            left: `${8 + ((index * 13) % 82)}%`,
+            animationDelay: `${index * 0.55}s`,
+            animationDuration: `${8 + (index % 4)}s`
+          }}
+        />
+      ))}
+      {Array.from({ length: 7 }).map((_, index) => (
+        <span
+          key={`spark-${index}`}
+          className="ambience-spark"
+          style={{
+            left: `${12 + ((index * 17) % 76)}%`,
+            top: `${16 + ((index * 19) % 68)}%`,
+            animationDelay: `${index * 0.7}s`
           }}
         />
       ))}
@@ -381,7 +486,7 @@ function ScratchDateCard() {
 
   return (
     <div
-      className={`scratch-card invitation-border relative mx-auto w-full max-w-lg overflow-hidden bg-ivory/84 p-7 text-center shadow-soft ${
+      className={`scratch-card invitation-border relative mx-auto w-full max-w-lg overflow-hidden bg-ivory/85 p-7 text-center shadow-soft ${
         revealed ? "is-revealed" : ""
       }`}
       onPointerDown={scratch}
@@ -421,90 +526,126 @@ function ScratchDateCard() {
   );
 }
 
-function CurtainHero({ onOpen }: { onOpen: () => void }) {
-  const [opened, setOpened] = useState(false);
+function CurtainHero({
+  opened,
+  setOpened,
+  onOpen
+}: {
+  opened: boolean;
+  setOpened: (v: boolean) => void;
+  onOpen: () => void;
+}) {
   const countdown = useCountdown();
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden";
+    document.documentElement.style.overflow = opened ? "" : "hidden";
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [opened]);
 
   return (
-    <section id="home" className="relative min-h-[100svh]">
-      <div className="relative flex min-h-[100svh] items-center overflow-hidden pt-16 sm:pt-20 page-backdrop">
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(255,215,205,0.16),transparent_30%),linear-gradient(180deg,rgba(54,9,12,0.92),rgba(23,2,4,0.96))]" />
+    <section id="home" className={`relative ${opened ? "min-h-screen" : "min-h-[100svh]"}`}>
+      <div className={`curtain-stage relative flex ${opened ? "min-h-screen is-open" : "min-h-[100svh]"} items-center pt-16 sm:pt-20 page-backdrop ${opened ? "" : "overflow-hidden"}`}>
+        <div className="absolute inset-0 -z-20" style={{background: "linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),linear-gradient(135deg,#e9c0b6 0%,#eadfc9 50%,#d4c9a8 100%)"}} />
+        {!opened ? <RomanticAmbience variant="curtain" /> : null}
         <FloatingPetals />
 
-        {/* Valance bar across full top */}
-        <div className="curtain-valance pointer-events-none" />
+        {/* Center glow */}
+        <div className={`curtain-center-glow ${opened ? "is-open" : ""}`} />
+
+        {/* Valance — hidden when open */}
+        <div className={`curtain-valance pointer-events-none ${opened ? "opened" : ""}`} />
 
         {/* Left curtain panel */}
-        <motion.div
-          className="curtain-panel left-0"
-          animate={{ x: opened ? "-102%" : "0%" }}
-          transition={{ duration: 1.95, ease: [0.76, 0, 0.24, 1] }}
+        <div
+          id="curtain-left"
+          className={`curtain-panel curtain-left ${opened ? "opened" : ""}`}
         >
+          <div className="curtain-fabric" />
           <span className="curtain-tie curtain-tie-left" />
-        </motion.div>
+        </div>
 
         {/* Right curtain panel */}
-        <motion.div
-          className="curtain-panel right-0 scale-x-[-1]"
-          animate={{ x: opened ? "102%" : "0%" }}
-          transition={{ duration: 1.95, ease: [0.76, 0, 0.24, 1] }}
+        <div
+          id="curtain-right"
+          className={`curtain-panel curtain-right ${opened ? "opened" : ""}`}
         >
+          <div className="curtain-fabric" />
           <span className="curtain-tie curtain-tie-right" />
-        </motion.div>
+        </div>
 
-        {/* Tap to Open overlay */}
+        {/* Tap overlay — standalone pulsing button */}
+        <div className={`curtain-overlay px-6 sm:px-12 ${opened ? "hidden" : ""}`}>
+          <button
+            type="button"
+            onClick={() => {
+              setOpened(true);
+              try { onOpen(); } catch (e) { /* ignore */ }
+            }}
+            className="tap-to-open-btn group relative"
+          >
+            <span className="tap-to-open-ring absolute inset-[-4px] rounded-full" />
+            <span className="relative z-10 inline-flex items-center gap-2 rounded-full border border-ivory/60 bg-ivory/85 px-8 py-4 text-xs font-semibold uppercase tracking-[0.3em] text-wine shadow-soft backdrop-blur transition-all duration-300 group-hover:bg-wine group-hover:text-ivory group-hover:scale-105 sm:px-10 sm:py-5 sm:text-sm">
+              <Sparkles size={16} className="text-wine/60 group-hover:text-ivory/80" />
+              Tap to Open
+              <Sparkles size={16} className="text-wine/60 group-hover:text-ivory/80" />
+            </span>
+          </button>
+        </div>
+
+        {/* Light flash overlay */}
         <motion.div
-          className="absolute inset-x-6 top-[35%] z-30 text-center sm:inset-x-12 sm:top-[40%]"
-          animate={{ opacity: opened ? 0 : 1, y: opened ? -18 : 0 }}
-          transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-          style={{ pointerEvents: opened ? "none" : "auto" }}
-        >
-          <div className="closed-curtain-card mx-auto max-w-xl rounded-[2rem] border border-ivory/80 bg-white/92 px-6 py-9 shadow-soft shadow-rose/20 backdrop-blur-md sm:px-10 sm:py-10">
-            <div className="flex items-center justify-center relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setOpened(true);
-                  try { onOpen(); } catch (e) { /* ignore */ }
-                }}
-                className="tap-open-btn mt-8 inline-flex rounded-full px-8 py-5 text-sm font-semibold uppercase tracking-[0.28em] text-ivory shadow-soft backdrop-blur-sm liquid-btn"
-              >
-                Tap to Open
-              </button>
-              <div className="button-bottom-wave" />
-            </div>
-          </div>
-        </motion.div>
+          className="pointer-events-none absolute inset-0 z-12"
+          initial={{ opacity: 0 }}
+          animate={opened ? { opacity: [0, 0.25, 0] } : { opacity: 0 }}
+          transition={{ duration: 0.5, times: [0, 0.08, 0.5] }}
+          style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(255,245,225,0.6), transparent 70%)" }}
+        />
 
-        {/* Hero content revealed after curtain opens */}
+        {/* Hero content revealed after curtain opens — staggered entrance */}
         <motion.div
           className="hero-content section-shell relative z-10 grid gap-6 py-6 sm:gap-10 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
           initial={false}
-          animate={{ opacity: opened ? 1 : 0, y: opened ? 0 : 38, scale: opened ? 1 : 0.98 }}
-          transition={{ duration: 0.9, delay: opened ? 0.9 : 0, ease: [0.76, 0, 0.24, 1] }}
-          style={{ pointerEvents: opened ? "auto" : "none" }}
+          animate={{ opacity: opened ? 1 : 0, pointerEvents: opened ? "auto" : "none" }}
+          transition={{ duration: 0.01, delay: 0.5 }}
         >
           <div className="text-center lg:text-left">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.34em] text-wine">
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={opened ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.7, ease: [0.76, 0, 0.24, 1] }}
+              className="mb-4 text-xs font-semibold uppercase tracking-[0.34em] text-wine"
+            >
               Formal Garden Elegance
-            </p>
-            <h1 className="hero-title font-script leading-[0.82] text-moss">
+            </motion.p>
+            <motion.h1
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={opened ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 0.9, delay: 0.85, ease: [0.76, 0, 0.24, 1] }}
+              className="hero-title font-script leading-[0.82] text-moss"
+            >
               King David
               <span className="block font-serif text-2xl italic text-wine sm:text-4xl">&amp;</span>
               Esther
-            </h1>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-ink/74 sm:text-base lg:mx-0">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 25 }}
+              animate={opened ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 1.0, ease: [0.76, 0, 0.24, 1] }}
+              className="mx-auto mt-5 max-w-xl text-sm leading-7 text-ink/75 sm:text-base lg:mx-0"
+            >
               With grateful hearts, we invite you to celebrate a warm garden wedding
               at Camp Young, Ede. Reception follows immediately.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={opened ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 1.15, ease: [0.76, 0, 0.24, 1] }}
+              className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start"
+            >
               <a
                 href="#date-reveal"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-wine/90 sm:px-7 sm:py-4"
@@ -517,39 +658,42 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
               >
                 <MapPin size={16} /> Details
               </a>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="countdown-card invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
-            <div className="rounded-[1.5rem] bg-champagne/45 p-4 text-center sm:p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-moss sm:mb-5">
-                Countdown to our day
-              </p>
-              <div className="grid grid-cols-4 gap-1 sm:gap-2">
-                {Object.entries(countdown).map(([label, value]) => (
-                  <div key={label} className="bg-ivory/80 px-1 py-3 sm:px-2 sm:py-4">
-                    <strong className="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl">
-                      {String(value).padStart(2, "0")}
-                    </strong>
-                    <span className="text-[0.55rem] uppercase tracking-[0.14em] text-ink/62 sm:text-[0.62rem] sm:tracking-[0.18em]">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
+            animate={opened ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
+            transition={{ duration: 1.0, delay: 1.3, ease: [0.76, 0, 0.24, 1] }}
+            className="countdown-card"
+          >
+            <div className="invitation-border rounded-[2rem] bg-ivory/80 p-4 shadow-soft backdrop-blur sm:p-5">
+              <div className="rounded-[1.5rem] bg-champagne/45 p-4 text-center sm:p-5">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-moss sm:mb-5">
+                  Countdown to our day
+                </p>
+                <div className="countdown-grid grid grid-cols-4 gap-1 sm:gap-2">
+                  {Object.entries(countdown).map(([label, value]) => (
+                    <div key={label} className="bg-ivory/80 px-1 py-3 sm:px-2 sm:py-4">
+                      <motion.strong
+                        key={String(value)}
+                        initial={{ scale: 1 }}
+                        animate={{ scale: [1.15, 1] }}
+                        transition={{ duration: 0.3 }}
+                        className="block font-serif text-2xl text-wine sm:text-3xl lg:text-4xl"
+                      >
+                        {String(value).padStart(2, "0")}
+                      </motion.strong>
+                      <span className="text-[0.55rem] uppercase tracking-[0.14em] text-ink/60 sm:text-[0.62rem] sm:tracking-[0.18em]">
                       {label}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="mt-5 flex justify-center gap-2 sm:mt-6 sm:gap-3">
-                {palette.map(([name, color]) => (
-                  <span
-                    key={name}
-                    title={name}
-                    className="h-6 w-6 rounded-full border-2 border-ivory shadow sm:h-8 sm:w-8"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
             </div>
           </div>
         </motion.div>
+      </motion.div>
       </div>
     </section>
   );
@@ -557,9 +701,10 @@ function CurtainHero({ onOpen }: { onOpen: () => void }) {
 
 function DateRevealSection() {
   return (
-    <section id="date-reveal" className="date-reveal-section py-16 sm:py-24">
+    <section id="date-reveal" className="premium-section date-reveal-section py-24 sm:py-32">
+      <RomanticAmbience variant="soft" />
       <div className="section-shell">
-        <FadeIn className="mx-auto max-w-2xl text-center">
+        <FadeIn variant="scale" className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
             Your Invitation
           </p>
@@ -591,7 +736,7 @@ function DateRevealSection() {
 function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
   const isLadies = type === "ladies";
   return (
-    <div className="attire-illustration relative mb-6 h-56 overflow-hidden bg-ivory/70 sm:h-64">
+    <div className="attire-illustration relative mb-4 h-36 overflow-hidden bg-ivory/50 sm:h-48 lg:h-64">
       <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
       {isLadies ? (
         <>
@@ -614,21 +759,17 @@ function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
         </>
       )}
       <div className="absolute left-5 top-5 h-16 w-16 rounded-full bg-white/60 blur-sm" />
-      <div className="absolute bottom-5 right-5 flex gap-1">
-        {palette.slice(0, 5).map(([name, color]) => (
-          <span key={name} className="h-4 w-4 rounded-full" style={{ backgroundColor: color }} />
-        ))}
-      </div>
     </div>
   );
 }
 
 function GuestNoticeSection() {
   return (
-    <section className="guest-notice-section bg-champagne/70 py-14 sm:py-20">
+    <section className="premium-section guest-notice-section bg-white py-20 sm:py-24">
+      <RomanticAmbience variant="soft" />
       <div className="section-shell">
         <FadeIn>
-          <div className="invitation-border mx-auto max-w-3xl bg-ivory p-8 shadow-soft sm:p-12">
+          <div className="premium-card mx-auto max-w-3xl p-8 shadow-soft sm:p-12">
             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
               <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-wine/10">
                 <Info className="text-wine" size={28} />
@@ -655,6 +796,7 @@ function GuestNoticeSection() {
 }
 
 export default function Home() {
+  const [opened, setOpened] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "closed" | "error">(
     "idle"
   );
@@ -890,7 +1032,7 @@ export default function Home() {
   }
 
   return (
-    <main className="overflow-hidden text-ink page-backdrop">
+    <main className="text-ink page-backdrop">
       {toast ? (
         <div className="fixed left-1/2 top-20 z-[60] -translate-x-1/2 px-4" aria-live="polite">
           <div className="invitation-border rounded-full bg-ivory/90 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-moss shadow-soft backdrop-blur">
@@ -902,45 +1044,57 @@ export default function Home() {
         audioRef={audioRef}
         soundOn={soundOn}
         setSoundOn={setSoundOn}
-        audioStarted={audioStarted}
         setAudioStarted={setAudioStarted}
       />
 
-      {/* Navigation */}
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/82 backdrop-blur-xl">
-        <div className="section-shell flex h-16 items-center justify-between">
-          <a href="#home" className="font-serif text-lg text-moss sm:text-xl">
-            King David &amp; Esther
-          </a>
-          <a
-            href="#rsvp"
-            className="inline-flex items-center gap-1.5 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft transition hover:bg-wine/90"
-          >
-            <Send size={13} /> RSVP
-          </a>
-        </div>
-      </nav>
+      {/* Navigation with glass shimmer */}
+      {opened && (
+        <motion.nav
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+          className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-ivory/80 backdrop-blur-xl"
+        >
+          <div className="section-shell flex h-14 items-center justify-between sm:h-16">
+            <a href="#home" className="group font-serif text-lg text-moss sm:text-xl">
+              King David &amp; Esther
+              <span className="block h-0.5 w-0 bg-wine/40 transition-all duration-500 group-hover:w-full" />
+            </a>
+            <motion.a
+              href="#rsvp"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-wine px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft transition hover:bg-wine/90"
+            >
+              <Send size={13} /> RSVP
+            </motion.a>
+          </div>
+        </motion.nav>
+      )}
 
       {/* Hero with curtain */}
-      <CurtainHero onOpen={playAudioOnce} />
+      <CurtainHero opened={opened} setOpened={setOpened} onOpen={playAudioOnce} />
 
-      {/* Date Reveal / Scratch Card */}
-      <DateRevealSection />
+      {/* Wrap other elements in a container that stays completely hidden when closed */}
+      <div className={opened ? "block animate-fade-in" : "hidden"}>
+        {/* Date Reveal / Scratch Card */}
+        <DateRevealSection />
 
       {/* Our Story */}
-      <section id="story" className="py-16 sm:py-24">
+      <section id="story" className="premium-section section-story py-24 sm:py-32">
+        <RomanticAmbience variant="soft" />
         <div className="section-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <FadeIn>
+          <FadeIn variant="left">
             <StoryArch />
           </FadeIn>
-          <FadeIn delay={0.12}>
+          <FadeIn variant="right" delay={0.12} className="text-center lg:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Our Story
             </p>
             <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
               A love rooted in grace, friendship and promise.
             </h2>
-            <p className="mt-6 text-base leading-8 text-ink/75">
+            <p className="mx-auto mt-6 max-w-lg text-base leading-8 text-ink/75 lg:mx-0 lg:max-w-none">
               Our journey has been shaped by faith, laughter, family and the quiet
               certainty of choosing each other. As we begin this new chapter, we are
               honoured to gather the people we love for a celebration filled with
@@ -951,30 +1105,30 @@ export default function Home() {
       </section>
 
       {/* Pre-Wedding Portraits */}
-      <section id="pre-wedding" className="relative bg-ivory py-16 sm:py-24">
+      <section id="pre-wedding" className="premium-section section-gallery relative bg-white py-24 sm:py-32">
+        <RomanticAmbience variant="gallery" />
         <FloatingPetals />
         <div className="section-shell relative z-10">
-          <FadeIn className="mx-auto max-w-3xl text-center">
+          <FadeIn variant="zoom" className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Pre-Wedding Portraits
             </p>
             <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
-              A quiet gallery for the memories before the day.
+              A soft gallery with room for every moment to breathe.
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/72">
-              Portraits will be added here soon. For now, these soft editorial frames
-              hold the space for the couple&apos;s pre-wedding moments.
+            <p className="mx-auto mt-5 max-w-2xl leading-8 text-ink/70">
+              A clean editorial space for the couple&apos;s pre-wedding portraits, with gentle motion and soft palette accents.
             </p>
           </FadeIn>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+          <StaggerChildren className="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
             {[
               { title: "Garden Walk", image: "/couple-images/garden-car.png" },
               { title: "Soft Portrait", image: "/couple-images/portrait-one.png" },
               { title: "Evening Promise", image: "/couple-images/portrait-two.png" }
-            ].map((item, index) => (
-              <FadeIn key={item.title} delay={index * 0.08}>
-                <div className="photo-placeholder group relative h-80 overflow-hidden bg-champagne shadow-soft sm:h-[28rem]">
+            ].map((item) => (
+              <StaggerItem key={item.title}>
+                <div className="photo-placeholder group relative h-56 overflow-hidden bg-champagne shadow-soft transition-all duration-500 hover:shadow-[0_30px_90px_rgba(201,120,94,0.35)] hover:ring-2 hover:ring-rose/30 sm:h-72 lg:h-96">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -991,34 +1145,34 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-              </FadeIn>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerChildren>
         </div>
       </section>
 
       {/* Wedding Details */}
-      <section id="details" className="bg-moss py-16 text-ivory sm:py-24">
+      <section id="details" className="premium-section section-details bg-ivory py-24 text-ink sm:py-32">
+        <RomanticAmbience variant="details" />
         <div className="section-shell">
-          <FadeIn className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
+          <FadeIn variant="scale" className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Wedding Details
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-              Saturday, 22 August 2026
+            <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
+              Ceremony, reception and directions.
             </h2>
           </FadeIn>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 sm:grid-cols-2">
             {[
-              { icon: CalendarDays, label: "Date", value: "Saturday, 22 Aug 2026" },
               { icon: MapPin, label: "Venue", value: "Camp Young, Ede" },
               { icon: Clock, label: "Reception", value: "Follows immediately" }
             ].map((item) => (
               <FadeIn key={item.label}>
-                <div className="h-full border border-ivory/18 bg-ivory/8 p-6 backdrop-blur sm:p-7">
-                  <item.icon className="mb-4 text-blush sm:mb-5" size={24} />
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne">
+                <div className="premium-card h-full p-6 sm:p-7">
+                  <item.icon className="mb-4 text-wine sm:mb-5" size={24} />
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-moss/70">
                     {item.label}
                   </p>
                   <p className="mt-3 font-serif text-2xl sm:text-3xl">{item.value}</p>
@@ -1029,7 +1183,7 @@ export default function Home() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <FadeIn>
-              <div className="bg-ivory p-6 text-ink shadow-soft sm:p-7">
+              <div className="premium-card p-6 text-ink sm:p-7">
                 <h3 className="font-serif text-3xl text-moss sm:text-4xl">Order of Celebration</h3>
                 <div className="mt-6 space-y-5">
                   {schedule.map((item) => (
@@ -1046,12 +1200,12 @@ export default function Home() {
                 </div>
               </div>
             </FadeIn>
-            <FadeIn delay={0.12}>
-              <div className="overflow-hidden bg-ivory shadow-soft">
+            <FadeIn variant="right" delay={0.12}>
+              <div className="premium-card overflow-hidden p-0">
                 <iframe
                   title="Camp Young Ede map"
                   src={`https://www.google.com/maps?q=${encodedVenue}&output=embed`}
-                  className="h-72 w-full border-0 sm:h-80"
+                  className="h-48 w-full border-0 sm:h-56 lg:h-80"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
@@ -1070,15 +1224,16 @@ export default function Home() {
       </section>
 
       {/* Dress Code */}
-      <section id="dress-code" className="py-16 sm:py-24">
+      <section id="dress-code" className="premium-section section-style py-24 sm:py-32">
+        <RomanticAmbience variant="soft" />
         <div className="section-shell">
-          <FadeIn className="floral-frame invitation-border bg-ivory/78 p-6 shadow-soft sm:p-12">
+          <FadeIn variant="zoom" className="floral-frame invitation-border bg-white/90 p-6 shadow-soft sm:p-12">
             <div className="relative z-10 mx-auto max-w-4xl text-center">
               <p className="font-script text-4xl text-sage sm:text-5xl lg:text-6xl">Style Inspiration</p>
               <h2 className="mt-2 font-serif text-4xl italic leading-tight text-moss sm:text-5xl lg:text-7xl">
                 Formal Garden Elegance
               </h2>
-              <p className="mx-auto mt-6 max-w-3xl leading-8 text-ink/76">
+              <p className="mx-auto mt-6 max-w-3xl leading-8 text-ink/75">
                 In honour of this special occasion, guests are kindly requested to
                 dress in modest, elegant, and formal outfits inspired by our curated
                 color palette.
@@ -1089,39 +1244,51 @@ export default function Home() {
             </div>
 
             <div className="relative z-10 mt-10 grid gap-6 sm:grid-cols-2">
-              <div className="bg-champagne/56 p-6 sm:p-7">
+              <div className="bg-champagne/20 p-6 sm:p-7">
                 <AttireIllustration type="ladies" />
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {palette.slice(0, 4).map(([name, color]) => (
-                    <span key={`${name}-ladies`} className="rounded-full border border-moss/15 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-moss" style={{ backgroundColor: `${color}18` }}>
-                      {name}
-                    </span>
-                  ))}
-                </div>
                 <Flower2 className="mb-4 mt-5 text-wine sm:mb-5" />
                 <h3 className="font-serif text-3xl text-moss sm:text-4xl">Ladies</h3>
-                <p className="mt-4 leading-8 text-ink/76">
+                <p className="mt-4 leading-8 text-ink/75">
                   Long dresses or refined midi-length dresses with tasteful coverage
                   and soft, elegant detailing. Fascinators or subtle headpieces are
                   welcome to complement the overall look.
                 </p>
               </div>
-              <div className="bg-blush/34 p-6 sm:p-7">
+              <div className="bg-blush/15 p-6 sm:p-7">
                 <AttireIllustration type="gentlemen" />
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {palette.slice(2, 6).map(([name, color]) => (
-                    <span key={`${name}-gentlemen`} className="rounded-full border border-moss/15 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-moss" style={{ backgroundColor: `${color}18` }}>
-                      {name}
-                    </span>
-                  ))}
-                </div>
                 <Sparkles className="mb-4 mt-5 text-wine sm:mb-5" />
                 <h3 className="font-serif text-3xl text-moss sm:text-4xl">Gentlemen</h3>
-                <p className="mt-4 leading-8 text-ink/76">
+                <p className="mt-4 leading-8 text-ink/75">
                   Well-tailored suits or blazers with dress trousers. Those who prefer
                   not to wear suits may opt for a neatly styled long-sleeved shirt
                   paired with formal trousers and polished shoes.
                 </p>
+              </div>
+            </div>
+
+            {/* Color Palette Showcase */}
+            <div className="relative z-10 mt-14 text-center">
+              <div className="mx-auto max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
+                  Wedding Color Palette
+                </p>
+                <h3 className="mt-2 font-serif text-3xl leading-tight text-moss sm:text-4xl">
+                  A garden-inspired collection of hues
+                </h3>
+              </div>
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                {palette.map(([name, color]) => (
+                  <div key={name} className="flex items-center gap-3 rounded-2xl border border-moss/10 bg-white/70 p-3 text-left shadow-soft transition hover:bg-white/90">
+                    <span
+                      className="h-10 w-10 flex-shrink-0 rounded-full border-2 border-white shadow"
+                      style={{ backgroundColor: color }}
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-moss">{name}</p>
+                      <p className="text-xs text-ink/60 font-mono">{color}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </FadeIn>
@@ -1129,20 +1296,21 @@ export default function Home() {
       </section>
 
       {/* Gifts */}
-      <section id="gifts" className="relative bg-moss py-16 text-ivory sm:py-24">
+      <section id="gifts" className="premium-section section-gifts relative bg-white py-24 text-ink sm:py-32">
+        <RomanticAmbience variant="soft" />
         <FloatingPetals />
         <div className="section-shell relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <FadeIn>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blush">
+          <FadeIn variant="left">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               Gifts
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl lg:text-6xl">
               Your presence is our greatest gift.
             </h2>
           </FadeIn>
 
-          <FadeIn delay={0.12}>
-            <div className="invitation-border bg-ivory p-6 text-ink shadow-soft sm:p-10">
+          <FadeIn variant="right" delay={0.12}>
+            <div className="premium-card p-6 text-ink sm:p-10">
               <Gift className="mb-5 text-wine" size={28} />
               <h3 className="font-serif text-3xl text-moss sm:text-4xl">Gifts</h3>
               <p className="mt-4 leading-8 text-ink/74">
@@ -1151,8 +1319,8 @@ export default function Home() {
                 would be received with deep gratitude and love.
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                <div className="bg-champagne/60 p-5">
-                  <p className="font-serif text-xl text-moss sm:text-2xl">King-David Duruihuoma</p>
+                <div className="rounded-2xl bg-champagne/20 p-4 sm:p-5">
+                  <p className="font-serif text-xl text-moss sm:text-2xl">King David Duruihuoma</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Guaranty Trust Bank
                   </p>
@@ -1167,7 +1335,7 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-                <div className="bg-blush/32 p-5">
+                <div className="rounded-2xl bg-blush/15 p-4 sm:p-5">
                   <p className="font-serif text-xl text-moss sm:text-2xl">Blessing Timehin</p>
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-wine">
                     Access Bank
@@ -1193,9 +1361,10 @@ export default function Home() {
       <GuestNoticeSection />
 
       {/* RSVP */}
-      <section id="rsvp" className="bg-champagne/60 py-16 sm:py-24">
+      <section id="rsvp" className="premium-section section-rsvp bg-ivory/15 py-24 sm:py-32">
+        <RomanticAmbience variant="soft" />
         <div className="section-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-          <FadeIn>
+          <FadeIn variant="scale">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">
               RSVP
             </p>
@@ -1225,15 +1394,15 @@ export default function Home() {
                     className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition hover:bg-wine/5"
                   >
                     <span className="font-medium text-ink">{contact.name}</span>
-                    <span className="text-ink/62">{contact.phone}</span>
+                    <span className="text-ink/60">{contact.phone}</span>
                   </a>
                 ))}
               </div>
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.12}>
-            <form onSubmit={submitRsvp} className="invitation-border bg-ivory p-6 shadow-soft sm:p-9">
+          <FadeIn variant="stagger" delay={0.12}>
+            <form onSubmit={submitRsvp} className="premium-card p-6 shadow-soft sm:p-9">
               {status === "closed" ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -1248,7 +1417,7 @@ export default function Home() {
                     🛑
                   </motion.div>
                   <p className="font-serif text-3xl text-wine sm:text-4xl">RSVP Closed</p>
-                  <p className="mt-3 leading-7 text-ink/72">
+                  <p className="mt-3 leading-7 text-ink/70">
                     {message || "Capacity has been reached."}
                   </p>
                 </motion.div>
@@ -1275,7 +1444,7 @@ export default function Home() {
                     ) : null}
                     {accessCardUrl ? (
                       <>
-                        <div className="mt-6 rounded-[2rem] border border-ivory/20 bg-[#2f0c0f]/76 p-4">
+                        <div className="mt-6 rounded-[2rem] border border-ivory/20 bg-[#2f0c0f]/75 p-4">
                           <img
                             src={accessCardUrl}
                             alt="Access card preview"
@@ -1343,7 +1512,7 @@ export default function Home() {
                       required
                       className="mt-1 h-5 w-5 cursor-pointer rounded border-[1.5px] border-wine/40 bg-ivory accent-wine"
                     />
-                    <span className="text-sm leading-6 text-ink/76">
+                    <span className="text-sm leading-6 text-ink/75">
                       I understand this invite is strictly for me alone and my unique code will only grant access to <strong>one adult</strong>.
                     </span>
                   </label>
@@ -1352,7 +1521,7 @@ export default function Home() {
                   ) : null}
                   {status === "error" && lastPayload ? (
                     <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-wine/10 bg-rose/5 p-3">
-                      <p className="text-sm text-ink/72">Submission failed. You can retry sending your RSVP.</p>
+                      <p className="text-sm text-ink/70">Submission failed. You can retry sending your RSVP.</p>
                       <div className="flex items-center gap-2">
                         {isRetrying ? (
                           <span className="text-xs text-ink/60">Retrying ({retryAttempts})…</span>
@@ -1428,6 +1597,27 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-moss py-12 text-center text-ivory sm:py-14">
+        <div className="section-shell">
+          <motion.p
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="font-script text-4xl sm:text-5xl"
+          >
+            King David &amp; Esther
+          </motion.p>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-champagne/70">
+            Camp Young, Ede
+          </p>
+          <p className="mt-5 text-xs text-ivory/40">
+            Made with love
+          </p>
+        </div>
+      </footer>
+      </div>
     </main>
   );
 }
+

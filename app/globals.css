@@ -416,20 +416,26 @@ body {
   transition: transform 1.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Velvet fabric with deep red tones and subtle pleats */
+/* Velvet fabric with deep red tones and crisp pleats */
 .curtain-panel .curtain-fabric {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, #2a0006 0%, #4a000e 30%, #6e0014 55%, #4a000e 80%, #2a0006 100%),
-    repeating-linear-gradient(90deg,
-      transparent 0px,
-      rgba(0,0,0,0.12) 6px, rgba(0,0,0,0.03) 8px,
-      transparent 16px,
-      rgba(255,255,255,0.03) 22px, transparent 28px,
-      rgba(0,0,0,0.06) 34px, rgba(0,0,0,0.10) 36px, transparent 42px
-    );
-  background-blend-mode: overlay, normal;
+    linear-gradient(180deg, #2a0006 0%, #4a000e 25%, #6e0014 50%, #4a000e 75%, #2a0006 100%);
+}
+
+/* Crisp fold stripes overlay */
+.curtain-panel .curtain-pleats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg,
+    transparent 0px,
+    rgba(0,0,0,0.15) 6px, rgba(0,0,0,0.04) 8px,
+    transparent 16px,
+    rgba(255,255,255,0.04) 22px, transparent 28px,
+    rgba(0,0,0,0.08) 34px, rgba(0,0,0,0.12) 36px, transparent 44px
+  );
 }
 
 /* ===== CURTAIN TIES ===== */

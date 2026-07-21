@@ -565,6 +565,7 @@ function CurtainHero({
           className={`curtain-panel curtain-left ${opened ? "opened" : ""}`}
         >
           <div className="curtain-fabric" />
+          <div className="curtain-pleats" />
           <span className="curtain-tie curtain-tie-left" />
         </div>
 
@@ -574,11 +575,61 @@ function CurtainHero({
           className={`curtain-panel curtain-right ${opened ? "opened" : ""}`}
         >
           <div className="curtain-fabric" />
+          <div className="curtain-pleats" />
           <span className="curtain-tie curtain-tie-right" />
         </div>
 
-        {/* Tap overlay — standalone pulsing button */}
+        {/* Floating hearts/sparkles on closed curtain */}
+        {!opened && (
+          <div className="pointer-events-none absolute inset-0 z-25 overflow-hidden">
+            <motion.span
+              className="absolute h-3 w-3 rounded-full bg-rose/30"
+              style={{ left: '15%', top: '30%' }}
+              animate={{ y: [-10, 10, -10], opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.span
+              className="absolute h-2 w-2 rounded-full bg-champagne/40"
+              style={{ left: '75%', top: '25%' }}
+              animate={{ y: [0, -15, 0], opacity: [0.2, 0.6, 0.2] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            />
+            <motion.span
+              className="absolute h-2.5 w-2.5 rounded-full bg-rose/25"
+              style={{ left: '40%', top: '60%' }}
+              animate={{ y: [-8, 8, -8], opacity: [0.2, 0.5, 0.2] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+            />
+            <motion.span
+              className="absolute h-1.5 w-1.5 rounded-full bg-champagne/30"
+              style={{ left: '55%', top: '40%' }}
+              animate={{ y: [0, -12, 0], opacity: [0.1, 0.4, 0.1] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+            />
+            <motion.span
+              className="absolute h-2 w-2 rounded-full bg-rose/20"
+              style={{ left: '85%', top: '55%' }}
+              animate={{ y: [-6, 6, -6], opacity: [0.15, 0.45, 0.15] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+            />
+            <motion.span
+              className="absolute h-3 w-3 rounded-full bg-champagne/25"
+              style={{ left: '25%', top: '70%' }}
+              animate={{ y: [0, -10, 0], opacity: [0.1, 0.35, 0.1] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+            />
+          </div>
+        )}
+
+        {/* Tap overlay — standalone pulsing button with lovely glow */}
         <div className={`curtain-overlay px-6 sm:px-12 ${opened ? "hidden" : ""}`}>
+          <motion.div
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="mb-4"
+          >
+            <span className="font-script text-2xl text-ivory/70 sm:text-3xl">Begin the celebration</span>
+          </motion.div>
           <button
             type="button"
             onClick={() => {

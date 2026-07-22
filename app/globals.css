@@ -530,6 +530,10 @@ body {
 
 /* ─── Hero background ──────────────────────────── */
 
+.hero-title {
+  font-size: clamp(3.8rem, 17vw, 7.5rem);
+}
+
 .floating-heart {
   position: absolute;
   bottom: -40px;

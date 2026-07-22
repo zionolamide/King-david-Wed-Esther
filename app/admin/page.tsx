@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 const ADMIN_PASSWORD = "KDE-admin2026";
 
 type Guest = {
-  id: number;
+  id: string;
   title?: string | null;
   full_name: string;
   email: string;
@@ -26,7 +26,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [tab, setTab] = useState<"all" | "checkin">("all");
-  const [checkedInIds, setCheckedInIds] = useState<Set<number>>(new Set());
+  const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -112,7 +112,7 @@ export default function AdminPage() {
       g.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const displayGuests = tab === "checkin" ? filtered.filter((g) => !g.checked_in) : filtered;
+  const displayGuests = filtered;
 
   if (!authed) {
     return (

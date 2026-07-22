@@ -174,29 +174,36 @@ export async function POST(request: Request) {
     });
 
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
-    const cardBuffer = await generateAccessCardImage({
-      fullName: displayFullName,
-      entryCode,
-      attendees: 1,
-      phone,
-      whatsappContacts: RSVP_WHATSAPP_CONTACTS,
-    });
 
-    // If the generated PNG is large, create a smaller compressed variant via sharp
-    let attachmentBuffer = cardBuffer;
+    // Generate access card and send email (wrapped in try/catch for Vercel serverless)
+    let attachmentBuffer: Buffer | null = null;
     try {
-      if (cardBuffer && cardBuffer.byteLength > 200 * 1024) {
-        const targetWidth = Math.round(760 * 0.6);
-        const compressed = await sharp(cardBuffer).resize({ width: targetWidth }).png({ compressionLevel: 9 }).toBuffer();
-        if (compressed.byteLength < cardBuffer.byteLength) {
-          attachmentBuffer = compressed;
-        }
-      }
-    } catch (sharpErr) {
-      console.warn("Sharp compression failed, using original buffer:", sharpErr);
+      const cardBuffer = await generateAccessCardImage({
+        fullName: displayFullName,
+        entryCode,
+        attendees: 1,
+        phone,
+        whatsappContacts: RSVP_WHATSAPP_CONTACTS,
+      });
+
       attachmentBuffer = cardBuffer;
+      try {
+        if (cardBuffer && cardBuffer.byteLength > 200 * 1024) {
+          const targetWidth = Math.round(760 * 0.6);
+          const compressed = await sharp(cardBuffer).resize({ width: targetWidth }).png({ compressionLevel: 9 }).toBuffer();
+          if (compressed.byteLength < cardBuffer.byteLength) {
+            attachmentBuffer = compressed;
+          }
+        }
+      } catch (sharpErr) {
+        console.warn("Sharp compression failed, using original buffer:", sharpErr);
+        attachmentBuffer = cardBuffer;
+      }
+    } catch (cardErr) {
+      console.warn("Access card generation failed (Vercel serverless limitation):", cardErr);
     }
 
+    if (attachmentBuffer) {
     const htmlBody = `<div style="font-family: 'Montserrat', Arial, sans-serif; background-color: #fbf6ed; padding: 40px 20px; text-align: center;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #2f0c0f; border: 2px solid #eadfc9; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: left;">
         <h2 style="color: #eadfc9; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(234, 223, 201, 0.2); padding-bottom: 15px; text-align: center;">King David &amp; Esther</h2>
@@ -220,9 +227,9 @@ export async function POST(request: Request) {
       subject: "King David & Esther Wedding - RSVP Confirmation",
       text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
       html: htmlBody,
-      attachments: [
+      attachments: attachmentBuffer ? [
         { filename: "access-card.png", content: attachmentBuffer, cid: "access-card@kde2026" },
-      ],
+      ] : [],
     };
 
     async function sendMailWithRetries(options: any, attempts = 3) {
@@ -269,7 +276,8 @@ export async function POST(request: Request) {
     } catch (notifyErr) {
       console.warn("Notification email failed:", notifyErr);
     }
-  }
+    } // end if (attachmentBuffer)
+  } // end if (emailUser && emailPassword)
 
   return NextResponse.json({
     ok: true,

@@ -123,7 +123,7 @@ export default function AdminPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (password === ADMIN_PASSWORD) setAuthed(true);
+              if (password.trim() === ADMIN_PASSWORD) setAuthed(true);
               else setMessage("Wrong password");
             }}
             className="mt-6 space-y-4"

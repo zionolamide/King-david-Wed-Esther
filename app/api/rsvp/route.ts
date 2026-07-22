@@ -1,9 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import sharp from "sharp";
 import { randomBytes } from "crypto";
-import { generateAccessCardImage } from "../../lib/access-card";
 
 type RsvpPayload = {
   title?: unknown;
@@ -174,48 +172,56 @@ export async function POST(request: Request) {
 
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
 
-    // Generate access card and send email (wrapped in try/catch for Vercel serverless)
-    let attachmentBuffer: Buffer | null = null;
-    try {
-      const cardBuffer = await generateAccessCardImage({
-        fullName: displayFullName,
-        entryCode,
-        attendees: 1,
-        phone,
-        whatsappContacts: RSVP_WHATSAPP_CONTACTS,
-      });
-
-      attachmentBuffer = cardBuffer;
-      try {
-        if (cardBuffer && cardBuffer.byteLength > 200 * 1024) {
-          const targetWidth = Math.round(760 * 0.6);
-          const compressed = await sharp(cardBuffer).resize({ width: targetWidth }).png({ compressionLevel: 9 }).toBuffer();
-          if (compressed.byteLength < cardBuffer.byteLength) {
-            attachmentBuffer = compressed;
-          }
-        }
-      } catch (sharpErr) {
-        console.warn("Sharp compression failed, using original buffer:", sharpErr);
-        attachmentBuffer = cardBuffer;
-      }
-    } catch (cardErr) {
-      console.warn("Access card generation failed (Vercel serverless limitation):", cardErr);
-    }
-
-    if (attachmentBuffer) {
-    const htmlBody = `<div style="font-family: 'Montserrat', Arial, sans-serif; background-color: #fbf6ed; padding: 40px 20px; text-align: center;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #2f0c0f; border: 2px solid #eadfc9; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: left;">
-        <h2 style="color: #eadfc9; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid rgba(234, 223, 201, 0.2); padding-bottom: 15px; text-align: center;">King David &amp; Esther</h2>
-        <p style="color: #f7ede6; font-size: 16px; line-height: 1.8; margin-bottom: 24px;">
-          Hello <strong>${fullName}</strong>,<br><br>
-          Thank you for RSVPing to our wedding. Your official access card has been generated successfully. Please save the attached image to your mobile device and present it at the entrance. We look forward to celebrating with you!
-        </p>
-        <div style="margin: 30px 0; text-align: center; border-radius: 16px; overflow: hidden; background-color: #3f1013; padding: 15px;">
-          <img src="cid:access-card@kde2026" alt="Access Card" style="width: 100%; max-width: 500px; border-radius: 12px; display: block; margin: 0 auto;" />
+    // Build the email with a self-contained styled access card (no canvas dependency)
+    const emailCardHtml = `
+    <div style="max-width:420px;margin:0 auto;font-family:'Montserrat',Arial,sans-serif;border:2px solid #eadfc9;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);background:#ffffff;">
+      <!-- Header with monogram style -->
+      <div style="background:linear-gradient(135deg,#6e0d1b,#8b5a46,#2f3a22);padding:24px 20px;text-align:center;">
+        <div style="width:64px;height:64px;margin:0 auto 12px;border:2px solid rgba(255,248,239,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#FFF8EF;">KDE</span>
         </div>
-        <div style="border-top: 1px solid rgba(234, 223, 201, 0.2); padding-top: 20px; margin-top: 30px; text-align: center;">
-          <p style="color: #e9c0b6; font-size: 12px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 8px 0;">Strictly Adults Only • Non-Transferable</p>
-          <p style="color: #c89485; font-size: 13px; margin: 0;">We look forward to celebrating our special day with you!</p>
+        <h3 style="margin:0;font-family:Georgia,serif;font-size:20px;color:#FFF8EF;">King-David &amp; Esther</h3>
+        <p style="margin:4px 0 0;font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(234,223,201,0.7);">Wedding Access Pass</p>
+      </div>
+      <!-- Body -->
+      <div style="background:#fbf6ed;padding:20px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="width:50%;background:rgba(255,255,255,0.9);border-radius:10px;padding:12px;vertical-align:top;">
+              <p style="margin:0;font-size:8px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Guest</p>
+              <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:14px;color:#2f3a22;">${displayFullName}</p>
+            </td>
+            <td style="width:10px;"></td>
+            <td style="width:50%;background:rgba(255,255,255,0.9);border-radius:10px;padding:12px;vertical-align:top;text-align:right;">
+              <p style="margin:0;font-size:8px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Entry Code</p>
+              <p style="margin:4px 0 0;font-family:monospace;font-size:16px;font-weight:bold;color:#2f3a22;">${entryCode}</p>
+            </td>
+          </tr>
+        </table>
+        <div style="margin-top:12px;background:rgba(255,255,255,0.6);border:1px solid rgba(234,223,201,0.5);border-radius:10px;padding:12px;">
+          <p style="margin:0;font-size:8px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Event Details</p>
+          <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:14px;color:#2f3a22;">Camp Young, Ede</p>
+          <p style="margin:2px 0 0;font-size:11px;color:rgba(45,36,31,0.6);">Saturday, 22 August 2026 · 10:00 AM</p>
+        </div>
+        <!-- Palette strip -->
+        <div style="margin-top:10px;display:flex;gap:4px;border-radius:6px;overflow:hidden;">
+          ${["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map(c => `<div style="flex:1;height:6px;background:${c};"></div>`).join('')}
+        </div>
+        <p style="margin:10px 0 0;text-align:center;font-size:7px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:rgba(45,36,31,0.4);">1 Adult · Non-transferable</p>
+      </div>
+    </div>`;
+
+    const htmlBody = `<div style="font-family: 'Montserrat', Arial, sans-serif; background-color: #fbf6ed; padding: 30px 15px; text-align: center;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #2f0c0f; border: 2px solid #eadfc9; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: left;">
+        <h2 style="color: #eadfc9; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; margin: 0 0 15px; border-bottom: 1px solid rgba(234, 223, 201, 0.2); padding-bottom: 12px; text-align: center;">King-David &amp; Esther</h2>
+        <p style="color: #f7ede6; font-size: 14px; line-height: 1.7; margin-bottom: 20px;">
+          Hello <strong>${fullName}</strong>,<br><br>
+          Thank you for RSVPing to our wedding. Your official access card is shown below. Please save it to your mobile device and present it at the entrance.
+        </p>
+        ${emailCardHtml}
+        <div style="border-top: 1px solid rgba(234, 223, 201, 0.2); padding-top: 20px; margin-top: 25px; text-align: center;">
+          <p style="color: #e9c0b6; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 6px;">Strictly Adults Only • Non-Transferable</p>
+          <p style="color: #c89485; font-size: 12px; margin: 0;">We look forward to celebrating our special day with you!</p>
         </div>
       </div>
     </div>`;
@@ -223,12 +229,9 @@ export async function POST(request: Request) {
     const mailOptions = {
       from: fromAddress,
       to: email,
-      subject: "King David & Esther Wedding - RSVP Confirmation",
-      text: `Hello ${fullName}, thank you for RSVPing. Your official access card for King David and Esther's wedding is attached. Please save this image to your phone and present it at the entrance. We look forward to seeing you!`,
+      subject: "King-David & Esther Wedding - RSVP Confirmation",
+      text: `Hello ${fullName},\n\nThank you for RSVPing to our wedding. Your entry code is: ${entryCode}\n\nVenue: Camp Young, Ede\nDate: Saturday, 22 August 2026 · 10:00 AM\n\nPresent your entry code at the entrance.\n\nWith love,\nKing-David & Esther`,
       html: htmlBody,
-      attachments: attachmentBuffer ? [
-        { filename: "access-card.png", content: attachmentBuffer, cid: "access-card@kde2026" },
-      ] : [],
     };
 
     async function sendMailWithRetries(options: any, attempts = 3) {
@@ -275,7 +278,6 @@ export async function POST(request: Request) {
     } catch (notifyErr) {
       console.warn("Notification email failed:", notifyErr);
     }
-    } // end if (attachmentBuffer)
   } // end if (emailUser && emailPassword)
 
   return NextResponse.json({

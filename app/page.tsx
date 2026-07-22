@@ -4,6 +4,7 @@ import { motion, useAnimation } from "framer-motion";
 import {
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Flower2,
   Gift,
@@ -292,6 +293,21 @@ function SoundButton({
       // ignore
     }
   }, [audioRef, setAudioStarted, setSoundOn]);
+
+  // Pause audio when page is minimized/hidden
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        const audio = audioRef.current;
+        if (audio && soundOn) {
+          audio.pause();
+          setSoundOn(false);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [audioRef, soundOn, setSoundOn]);
 
   async function toggleSound() {
     const audio = audioRef.current;
@@ -678,7 +694,7 @@ function CurtainHero({
               transition={{ duration: 0.9, delay: 0.85, ease: [0.76, 0, 0.24, 1] }}
               className="hero-title font-script leading-[0.82] text-moss"
             >
-              King David
+              King-David
               <span className="block font-serif text-2xl italic text-wine sm:text-4xl">&amp;</span>
               Esther
             </motion.h1>
@@ -695,20 +711,18 @@ function CurtainHero({
               initial={{ opacity: 0, y: 20 }}
               animate={opened ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 1.15, ease: [0.76, 0, 0.24, 1] }}
-              className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start"
+              className="mt-10 flex flex-col items-center gap-2"
             >
-              <a
-                href="#date-reveal"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-wine/90 sm:px-7 sm:py-4"
+              <motion.span
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="text-ink/40"
               >
-                <Heart size={16} /> Your Invitation
-              </a>
-              <a
-                href="#details"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-moss/25 bg-ivory/70 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-moss transition hover:bg-ivory/80 sm:px-7 sm:py-4"
-              >
-                <MapPin size={16} /> Details
-              </a>
+                <ChevronDown size={20} />
+              </motion.span>
+              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-ink/40">
+                Scroll to discover
+              </span>
             </motion.div>
           </div>
 
@@ -772,12 +786,18 @@ function DateRevealSection() {
         </FadeIn>
 
         <FadeIn delay={0.25} className="mt-8 flex justify-center">
-          <a
-            href="#rsvp"
-            className="inline-flex items-center gap-2 rounded-full bg-moss px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss/90"
-          >
-            <Send size={15} /> Reserve Your Seat
-          </a>
+          <div className="flex flex-col items-center gap-2">
+            <motion.span
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="text-moss/40"
+            >
+              <ChevronDown size={18} />
+            </motion.span>
+            <span className="text-[0.55rem] font-semibold uppercase tracking-[0.24em] text-moss/40">
+              Scroll for details
+            </span>
+          </div>
         </FadeIn>
       </div>
     </section>
@@ -1108,7 +1128,7 @@ export default function Home() {
         >
           <div className="section-shell flex h-14 items-center justify-between sm:h-16">
             <a href="#home" className="group font-serif text-lg text-moss sm:text-xl">
-              King David &amp; Esther
+              King-David &amp; Esther
               <span className="block h-0.5 w-0 bg-wine/40 transition-all duration-500 group-hover:w-full" />
             </a>
             <motion.a
@@ -1657,7 +1677,7 @@ export default function Home() {
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             className="font-script text-4xl sm:text-5xl"
           >
-            King David &amp; Esther
+            King-David &amp; Esther
           </motion.p>
           <p className="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-champagne/70">
             Camp Young, Ede

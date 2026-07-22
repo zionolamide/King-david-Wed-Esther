@@ -1070,5 +1070,24 @@ body {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    }
+}
+
+/* ─── Extra large screens ──────────────────────────────────────── */
+
+@media (min-width: 1920px) {
+  .section-shell {
+    width: min(1280px, calc(100% - 3rem));
+  }
+  
+  .curtain-tie {
+    width: 70px;
+    height: 20px;
+  }
+}
+
+@media (min-width: 2560px) {
+  .section-shell {
+    width: min(1440px, calc(100% - 4rem));
   }
 }

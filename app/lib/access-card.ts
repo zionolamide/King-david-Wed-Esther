@@ -260,7 +260,7 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.lineWidth = 1;
   strokeRound(ctx, 70, 65, CANVAS_WIDTH - 140, 480, 36);
 
-  // === TOP SECTION: KOBO seal ===
+  // === MONOGRAM SEAL — interlocking wedding logo ===
   const sealGradient = ctx.createLinearGradient(380, 90, 620, 290);
   sealGradient.addColorStop(0, "#6E0D1B");
   sealGradient.addColorStop(0.5, "#8B5A46");
@@ -271,16 +271,86 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   ctx.lineWidth = 6;
   strokeRound(ctx, 418, 110, 164, 164, 82);
 
+  // Decorative ring border inside seal
+  ctx.strokeStyle = "rgba(255,248,239,0.35)";
+  ctx.lineWidth = 1.5;
+  strokeRound(ctx, 432, 124, 136, 136, 68);
+
+  // Ornamental dots around the ring (top, bottom, left, right)
+  const dotPositions = [
+    [500, 126], [500, 274], [434, 200], [566, 200],
+    [445, 138], [555, 138], [445, 262], [555, 262]
+  ];
   ctx.fillStyle = "#FFF8EF";
+  for (const [dx, dy] of dotPositions) {
+    ctx.beginPath();
+    ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Monogram: large stylized "K" and "E" flanking a small "&" or decorative heart
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 44px "${fontFamily}"`;
-  ctx.fillText("KDE", CANVAS_WIDTH / 2, 200);
+
+  // Left letter: "K"
+  ctx.fillStyle = "#FFF8EF";
+  ctx.font = `700 52px "${fontFamily}"`;
+  ctx.fillText("K", 460, 192);
+
+  // Center decorative heart/diamond
+  ctx.save();
+  ctx.translate(500, 192);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = "#EBC2BB";
+  ctx.beginPath();
+  ctx.rect(-8, -8, 16, 16);
+  ctx.fill();
+  ctx.restore();
+
+  // Right letter: "E"
+  ctx.fillStyle = "#FFF8EF";
+  ctx.font = `700 52px "${fontFamily}"`;
+  ctx.fillText("E", 540, 192);
+
+  // Small "D" above the heart
+  ctx.font = `600 20px "${fontFamily}"`;
+  ctx.fillStyle = "#EBC2BB";
+  ctx.fillText("D", 500, 160);
+
+  // Small decorative leaves/vines curving from the seal sides
+  ctx.strokeStyle = "rgba(235,194,187,0.5)";
+  ctx.lineWidth = 2.5;
+  // Left vine
+  ctx.beginPath();
+  ctx.moveTo(418, 150);
+  ctx.quadraticCurveTo(395, 140, 390, 160);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(418, 145);
+  ctx.quadraticCurveTo(400, 120, 385, 135);
+  ctx.stroke();
+  // Right vine
+  ctx.beginPath();
+  ctx.moveTo(582, 150);
+  ctx.quadraticCurveTo(605, 140, 610, 160);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(582, 145);
+  ctx.quadraticCurveTo(600, 120, 615, 135);
+  ctx.stroke();
+
+  // Small leaf dots at vine ends
+  ctx.fillStyle = "rgba(235,194,187,0.6)";
+  for (const [lx, ly] of [[390, 160], [385, 135], [610, 160], [615, 135]]) {
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // === COUPLE NAMES ===
   ctx.fillStyle = "#6E0D1B";
   ctx.font = `700 32px "${fontFamily}"`;
-  ctx.fillText("King David & Esther", CANVAS_WIDTH / 2, 335);
+  ctx.fillText("King-David & Esther", CANVAS_WIDTH / 2, 335);
 
   ctx.fillStyle = "#2F3A22";
   ctx.font = `600 13px "${fontFamily}"`;

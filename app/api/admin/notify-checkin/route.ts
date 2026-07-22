@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "KDE-admin2026";
+const ADMIN_PASSWORD = "KDE-admin2026";
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");

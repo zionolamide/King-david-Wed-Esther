@@ -1593,8 +1593,8 @@ export default function Home() {
                     <p className="mt-2 text-xs text-wine">{formErrors.adultAgreement}</p>
                   ) : null}
                   {status === "error" && lastPayload ? (
-                    <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-wine/10 bg-rose/5 p-3">
-                      <p className="text-sm text-ink/70">Submission failed. You can retry sending your RSVP.</p>
+                    <div className="mt-4 rounded-md border border-wine/10 bg-rose/5 p-3">
+                      <p className="text-sm text-ink/70">{message || "Submission failed. You can retry sending your RSVP."}</p>
                       <div className="flex items-center gap-2">
                         {isRetrying ? (
                           <span className="text-xs text-ink/60">Retrying ({retryAttempts})…</span>

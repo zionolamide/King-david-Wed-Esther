@@ -74,19 +74,12 @@ export async function POST(request: Request) {
   let entryCode = "";
 
   if (!supabaseUrl || !serviceRoleKey) {
-    if (process.env.NODE_ENV === "development") {
-      isSimulated = true;
-      const letters = generateRandomLetters(2);
-      const digits = Math.floor(Math.random() * 10000)
-        .toString()
-        .padStart(4, "0");
-      entryCode = `KDE-2026-${letters}${digits}`;
-    } else {
-      return NextResponse.json(
-        { ok: false, message: "RSVP database is not configured yet." },
-        { status: 503 }
-      );
-    }
+    isSimulated = true;
+    const letters = generateRandomLetters(2);
+    const digits = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, "0");
+    entryCode = `KDE-2026-${letters}${digits}`;
   }
 
   let body: RsvpPayload;

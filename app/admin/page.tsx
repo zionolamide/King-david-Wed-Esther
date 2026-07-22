@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_PASSWORD = "KDE-admin2026";
 
 type Guest = {
   id: number;
@@ -15,6 +15,7 @@ type Guest = {
   checked_in_at?: string | null;
   created_at: string;
   attending?: string;
+  note?: string | null;
 };
 
 export default function AdminPage() {
@@ -24,6 +25,8 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [tab, setTab] = useState<"all" | "checkin">("all");
+  const [checkedInIds, setCheckedInIds] = useState<Set<number>>(new Set());
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -45,8 +48,22 @@ export default function AdminPage() {
     if (authed) fetchGuests();
   }, [authed, fetchGuests]);
 
+  useEffect(() => {
+    if (message) {
+      const t = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [message]);
+
   async function toggleCheckIn(guest: Guest) {
     const newVal = !guest.checked_in;
+    setCheckedInIds((prev) => {
+      const next = new Set(prev);
+      if (newVal) next.add(guest.id);
+      else next.delete(guest.id);
+      return next;
+    });
+
     const res = await fetch("/api/admin/guests", {
       method: "PATCH",
       headers: {
@@ -64,7 +81,23 @@ export default function AdminPage() {
             : g
         )
       );
+      // Notify on check-in
+      if (newVal) {
+        fetch("/api/admin/notify-checkin", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${ADMIN_PASSWORD}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fullName: guest.full_name, entryCode: guest.entry_code }),
+        }).catch(() => {});
+      }
     } else {
+      setCheckedInIds((prev) => {
+        const next = new Set(prev);
+        next.delete(guest.id);
+        return next;
+      });
       setMessage(data.message || "Update failed");
     }
   }
@@ -78,6 +111,8 @@ export default function AdminPage() {
       g.entry_code.toLowerCase().includes(search.toLowerCase()) ||
       g.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  const displayGuests = tab === "checkin" ? filtered.filter((g) => !g.checked_in) : filtered;
 
   if (!authed) {
     return (
@@ -120,7 +155,7 @@ export default function AdminPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-serif text-4xl text-moss sm:text-5xl">Guest Check-In</h1>
+            <h1 className="font-serif text-4xl text-moss sm:text-5xl">Guest List</h1>
             <p className="mt-1 text-sm text-ink/60">
               <strong className="text-moss">{checkedIn.length}</strong> checked in ·{" "}
               <strong className="text-wine">{pending.length}</strong> pending ·{" "}
@@ -143,12 +178,32 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Inline Tabs */}
+        <div className="mt-6 flex gap-1 rounded-2xl border border-wine/10 bg-white/70 p-1">
+          <button
+            onClick={() => setTab("all")}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+              tab === "all" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
+            }`}
+          >
+            All Guests ({guests.length})
+          </button>
+          <button
+            onClick={() => setTab("checkin")}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+              tab === "checkin" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
+            }`}
+          >
+            Check In ({pending.length})
+          </button>
+        </div>
+
         {/* Search */}
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="field mt-6"
+          className="field mt-4"
           placeholder="Search by name, entry code, or email..."
         />
 
@@ -156,18 +211,27 @@ export default function AdminPage() {
         <div className="mt-4 flex gap-3 rounded-2xl border border-wine/10 bg-white/70 p-3 text-xs text-ink/60">
           <span>🟢 <strong className="text-moss">{checkedIn.length}</strong> Checked In</span>
           <span>⚪ <strong className="text-wine">{pending.length}</strong> Pending</span>
+          {tab === "checkin" && (
+            <span className="ml-auto text-moss font-semibold">
+              {displayGuests.length} awaiting check-in
+            </span>
+          )}
         </div>
 
         {/* Guest List */}
         {loading ? (
           <div className="mt-8 text-center text-sm text-ink/60">Loading guests...</div>
-        ) : filtered.length === 0 ? (
+        ) : displayGuests.length === 0 ? (
           <div className="mt-8 text-center text-sm text-ink/60">
-            {guests.length === 0 ? "No RSVPs received yet." : "No guests match your search."}
+            {guests.length === 0
+              ? "No RSVPs received yet."
+              : tab === "checkin"
+              ? "All guests have been checked in!"
+              : "No guests match your search."}
           </div>
         ) : (
-          <div className="mt-6 space-y-2">
-            {filtered.map((guest) => (
+          <div className="mt-4 space-y-2">
+            {displayGuests.map((guest) => (
               <div
                 key={guest.id}
                 className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition ${
@@ -180,33 +244,49 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${guest.checked_in ? "bg-sage" : "bg-rose"}`} />
                     <p className="truncate font-medium text-ink">{guest.full_name}</p>
+                    {tab === "all" && guest.checked_in && (
+                      <span className="rounded-full bg-sage/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-sage">
+                        Checked In
+                      </span>
+                    )}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/60">
-                    <span>Code: <strong className="text-moss">{guest.entry_code}</strong></span>
+                    <span className="font-mono font-semibold text-moss">{guest.entry_code}</span>
                     <span>{guest.email}</span>
                     {guest.phone && <span>{guest.phone}</span>}
                     {guest.checked_in_at && (
-                      <span>Checked in: {new Date(guest.checked_in_at).toLocaleTimeString()}</span>
+                      <span>at {new Date(guest.checked_in_at).toLocaleTimeString()}</span>
                     )}
+                    {guest.note && <span className="italic">&ldquo;{guest.note}&rdquo;</span>}
                   </div>
                 </div>
-                <button
-                  onClick={() => toggleCheckIn(guest)}
-                  className={`flex-shrink-0 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition ${
-                    guest.checked_in
-                      ? "bg-sage/20 text-sage hover:bg-sage/30"
-                      : "bg-wine text-ivory hover:bg-wine/90"
-                  }`}
-                >
-                  {guest.checked_in ? "Checked In" : "Check In"}
-                </button>
+                {tab === "checkin" && (
+                  <button
+                    onClick={() => toggleCheckIn(guest)}
+                    disabled={checkedInIds.has(guest.id)}
+                    className="flex-shrink-0 rounded-full bg-wine px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
+                  >
+                    {checkedInIds.has(guest.id) ? "..." : "Check In"}
+                  </button>
+                )}
+                {tab === "all" && !guest.checked_in && (
+                  <button
+                    onClick={() => toggleCheckIn(guest)}
+                    disabled={checkedInIds.has(guest.id)}
+                    className="flex-shrink-0 rounded-full border border-wine/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-wine transition hover:bg-wine/5 disabled:opacity-50"
+                  >
+                    {checkedInIds.has(guest.id) ? "..." : "Check In"}
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
 
         {message && (
-          <div className="mt-6 text-center text-xs text-ink/60">{message}</div>
+          <div className="mt-6 rounded-2xl border border-wine/10 bg-wine/5 p-4 text-center text-xs text-wine">
+            {message}
+          </div>
         )}
       </div>
     </main>

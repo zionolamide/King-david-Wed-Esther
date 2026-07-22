@@ -56,7 +56,7 @@ const titleOptions = [
 
 const rsvpContacts = [
   { name: "Sister Rhoda", phone: "08106993435" },
-  { name: "Brother Joe", phone: "0812765976" },
+  { name: "Brother Joe", phone: "08102765976" },
   { name: "Bro Zion", phone: "09135037695" }
 ];
 
@@ -294,20 +294,22 @@ function SoundButton({
     }
   }, [audioRef, setAudioStarted, setSoundOn]);
 
-  // Pause audio when page is minimized/hidden
+  // Pause audio when page is minimized, resume from same position when back
   useEffect(() => {
     const handleVisibility = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
       if (document.hidden) {
-        const audio = audioRef.current;
-        if (audio && soundOn) {
-          audio.pause();
-          setSoundOn(false);
+        if (!audio.paused) audio.pause();
+      } else {
+        if (soundOn && audio.paused) {
+          audio.play().catch(() => {});
         }
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [audioRef, soundOn, setSoundOn]);
+  }, [soundOn]);
 
   async function toggleSound() {
     const audio = audioRef.current;

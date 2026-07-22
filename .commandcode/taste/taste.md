@@ -3,5 +3,5 @@
 [cmd]: https://commandcode.ai/
 
 # audio
-- Pause music/audio when the page tab loses visibility (minimized or background tab). Confidence: 0.70
+- Pause music/audio when tab loses visibility and resume from where it stopped when tab regains focus. Confidence: 0.75
 

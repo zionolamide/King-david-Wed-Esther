@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "KDE-admin2026";
 
 function unauthorized() {
   return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });

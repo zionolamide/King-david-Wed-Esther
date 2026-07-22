@@ -1501,9 +1501,26 @@ export default function Home() {
                   <div className="mx-auto max-w-xl overflow-hidden rounded-[1.75rem] border-2 border-wine/20 bg-white shadow-soft">
                     {/* Card header with monogram */}
                     <div className="bg-gradient-to-b from-[#6e0d1b] via-[#8b5a46] to-[#2f3a22] px-6 py-8 text-center">
-                      <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full border-2 border-ivory/60">
-                        <span className="font-serif text-3xl font-bold text-ivory">KDE</span>
-                      </div>
+                      {/* Wedding monogram — interlocking K + D + E */}
+                      <svg viewBox="0 0 100 100" className="mx-auto mb-4 h-24 w-24">
+                        {/* Outer ring */}
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,248,239,0.35)" strokeWidth="2" />
+                        <circle cx="50" cy="50" r="41" fill="none" stroke="rgba(255,248,239,0.15)" strokeWidth="1" />
+                        {/* Decorative dots */}
+                        {[[50,9],[50,91],[9,50],[91,50],[22,22],[78,22],[22,78],[78,78]].map(([cx,cy],i) => (
+                          <circle key={i} cx={cx} cy={cy} r="2" fill="rgba(255,248,239,0.5)" />
+                        ))}
+                        {/* K — large letter */}
+                        <text x="32" y="62" fontFamily="Georgia, serif" fontSize="36" fontWeight="bold" fill="#FFF8EF" textAnchor="middle">K</text>
+                        {/* D — smaller, above center */}
+                        <text x="50" y="42" fontFamily="Georgia, serif" fontSize="18" fontWeight="bold" fill="#EBC2BB" textAnchor="middle">D</text>
+                        {/* E — large letter */}
+                        <text x="68" y="62" fontFamily="Georgia, serif" fontSize="36" fontWeight="bold" fill="#FFF8EF" textAnchor="middle">E</text>
+                        {/* Decorative vine at bottom */}
+                        <path d="M30 78 Q50 88 70 78" fill="none" stroke="rgba(235,194,187,0.4)" strokeWidth="1.5" />
+                        <circle cx="30" cy="78" r="2.5" fill="rgba(235,194,187,0.5)" />
+                        <circle cx="70" cy="78" r="2.5" fill="rgba(235,194,187,0.5)" />
+                      </svg>
                       <h3 className="font-serif text-2xl text-ivory">King-David &amp; Esther</h3>
                       <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-champagne/80">
                         Wedding Access Pass

@@ -1497,51 +1497,69 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
-                  <div className="mx-auto max-w-xl rounded-[1.75rem] border border-wine/25 bg-ivory/10 p-6 shadow-soft backdrop-blur-xl text-left text-ink/80">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blush">Your digital access card</p>
-                    <p className="mt-2 font-serif text-3xl text-moss">Entry code ready</p>
-                    <p className="mt-3 leading-7 text-ink/75">Your RSVP was received successfully. Download your access card below or save it directly to your device.</p>
-                    {entryCode ? (
-                      <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <p className="rounded-full bg-wine/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-wine">
-                          ENTRY CODE: {entryCode}
-                        </p>
+                  {/* Inline digital access card — works on all platforms, no native deps */}
+                  <div className="mx-auto max-w-xl overflow-hidden rounded-[1.75rem] border-2 border-wine/20 bg-white shadow-soft">
+                    {/* Card header with monogram */}
+                    <div className="bg-gradient-to-b from-[#6e0d1b] via-[#8b5a46] to-[#2f3a22] px-6 py-8 text-center">
+                      <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full border-2 border-ivory/60">
+                        <span className="font-serif text-3xl font-bold text-ivory">KDE</span>
+                      </div>
+                      <h3 className="font-serif text-2xl text-ivory">King-David &amp; Esther</h3>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-champagne/80">
+                        Wedding Access Pass
+                      </p>
+                    </div>
+                    {/* Card body */}
+                    <div className="bg-[#fbf6ed] px-6 py-6 text-left">
+                      <div className="mb-4 grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-wine">Guest</p>
+                          <p className="mt-1 font-serif text-lg text-moss">{lastPayload?.fullName || "Guest"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-wine">Entry Code</p>
+                          <p className="mt-1 font-mono text-lg font-bold text-moss">{entryCode}</p>
+                        </div>
+                      </div>
+                      <div className="border-t border-champagne/60 pt-4">
+                        <p className="text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-wine">Venue &amp; Date</p>
+                        <p className="font-serif text-base text-ink">Camp Young, Ede</p>
+                        <p className="text-xs text-ink/60">Saturday, 22 August 2026 · 10:00 AM</p>
+                      </div>
+                      {/* Color palette strip */}
+                      <div className="mt-4 flex gap-1.5">
+                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (
+                          <span key={i} className="h-3 flex-1 rounded-full" style={{backgroundColor:c}} />
+                        ))}
+                      </div>
+                      <p className="mt-4 text-center text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-ink/40">
+                        1 Adult · Non-transferable
+                      </p>
+                    </div>
+                    {/* Card footer with download */}
+                    <div className="flex items-center justify-between bg-white px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-wine/10 px-3 py-1.5 font-mono text-xs font-bold text-wine">
+                          {entryCode}
+                        </span>
                         <button
                           type="button"
-                          onClick={() => copyToClipboard(entryCode)}
-                          className="rounded-full bg-moss px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-ivory shadow-soft transition hover:bg-moss/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wine/30"
+                          onClick={() => copyToClipboard(entryCode || "")}
+                          className="rounded-full bg-moss px-3 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90"
                         >
-                          Copy code
+                          Copy
                         </button>
                       </div>
-                    ) : null}
-                    {accessCardUrl ? (
-                      <>
-                        <div className="mt-6 rounded-[2rem] border border-ivory/20 bg-[#2f0c0f]/75 p-4">
-                          <img
-                            src={accessCardUrl}
-                            alt="Access card preview"
-                            className="mx-auto max-h-[320px] w-full object-contain rounded-[1.5rem] border border-wine/10 shadow-soft"
-                          />
-                        </div>
-                        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <a
-                            href={accessCardUrl}
-                            download={accessCardName}
-                            className="inline-flex items-center justify-center rounded-full bg-wine px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-ivory shadow-soft transition hover:bg-wine/90"
-                          >
-                            Download access card
-                          </a>
-                          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-champagne">Saved only for you</span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="mt-6 rounded-[1.25rem] border border-wine/20 bg-champagne/40 p-5 text-sm leading-7 text-ink/74">
-                        <p>A confirmation email is on its way with your access card attached.</p>
-                        <p className="mt-3 font-semibold text-moss">{message}</p>
-                      </div>
-                    )}
+                      <span className="text-[0.5rem] font-semibold uppercase tracking-[0.16em] text-ink/40">
+                        {lastPayload?.fullName || "Guest"}
+                      </span>
+                    </div>
                   </div>
+                  {entryCode && (
+                    <p className="text-xs text-ink/50">
+                      Entry code: <strong className="text-moss">{entryCode}</strong> — save this or present at the entrance.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <>

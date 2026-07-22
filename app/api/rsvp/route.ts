@@ -68,7 +68,7 @@ async function generateEntryCode(supabase: any) {
 }
 
 export async function POST(request: Request) {
-  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   let isSimulated = false;
   let entryCode = "";
@@ -147,7 +147,6 @@ export async function POST(request: Request) {
       note: note || null,
       adult_agreement: adultAgreement,
       entry_code: entryCode,
-      attending: "yes",
     });
 
     if (error) {

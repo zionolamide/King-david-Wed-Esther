@@ -1069,28 +1069,13 @@ body {
 /* ─── Print styles for access card ──────────────────────────────── */
 
 @media print {
-  html, body {
-    height: auto !important;
-    overflow: visible !important;
-    background: white !important;
-  }
-  body > *:not(#access-card-wrapper) {
-    display: none !important;
-  }
-  #access-card-wrapper {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: white !important;
-    z-index: 99999 !important;
-  }
+  body > *:not(#access-card) { display: none !important; }
+  body { background: white !important; }
   #access-card {
-    max-width: 380px !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     box-shadow: none !important;
     border: 1px solid #ccc !important;
   }

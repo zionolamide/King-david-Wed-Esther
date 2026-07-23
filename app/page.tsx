@@ -20,6 +20,7 @@ import {
   Sparkles,
   Users
 } from "lucide-react";
+import { toPng } from "html-to-image";
 import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState, useRef } from "react";
 
@@ -936,8 +937,16 @@ export default function Home() {
   async function downloadCard() {
     const card = document.getElementById("access-card");
     if (!card) return;
-    // Use browser's print to save/PDF — works everywhere
-    window.print();
+    try {
+      const dataUrl = await toPng(card, { quality: 1, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = accessCardName || "KDE2026-access-card.png";
+      link.href = dataUrl;
+      link.click();
+      setToast("Card downloaded");
+    } catch {
+      window.print();
+    }
   }
 
   useEffect(() => {
@@ -1504,102 +1513,66 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
-                  {/* Premium digital access card wrapped for print */}
-                  <div id="access-card-wrapper">
-                  <div id="access-card" className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft">
-                    {/* Card header — wine/sage gradient with monogram */}
-                    <div className="bg-gradient-to-br from-wine via-cocoa to-sage px-5 py-6 text-center sm:px-6 sm:py-8">
-                      {/* Wedding monogram — interlocking K + D + E with flourishes */}
-                      <svg viewBox="0 0 120 120" className="mx-auto mb-3 h-20 w-20 sm:h-24 sm:w-24">
-                        <defs>
-                          <linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#FFF8EF" />
-                            <stop offset="100%" stopColor="#EBC2BB" />
-                          </linearGradient>
-                        </defs>
-                        {/* Ornate outer ring */}
-                        <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,248,239,0.25)" strokeWidth="1.5" />
-                        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,248,239,0.12)" strokeWidth="0.5" />
-                        {/* Ring of dots */}
-                        {Array.from({length:12}).map((_,i)=>{const a=i*30*Math.PI/180;const r=52;return <circle key={i} cx={60+r*Math.sin(a)} cy={60-r*Math.cos(a)} r="1.5" fill="rgba(255,248,239,0.35)" />})}
-                        {/* Decorative top flourish */}
-                        <path d="M45 22 Q60 10 75 22" fill="none" stroke="rgba(235,194,187,0.35)" strokeWidth="1" />
-                        <circle cx="45" cy="22" r="2" fill="rgba(235,194,187,0.4)" />
-                        <circle cx="75" cy="22" r="2" fill="rgba(235,194,187,0.4)" />
-                        {/* Bottom vine flourish */}
-                        <path d="M35 98 Q60 110 85 98" fill="none" stroke="rgba(235,194,187,0.35)" strokeWidth="1.2" />
-                        <path d="M35 98 Q30 92 28 96" fill="none" stroke="rgba(235,194,187,0.3)" strokeWidth="1" />
-                        <path d="M85 98 Q90 92 92 96" fill="none" stroke="rgba(235,194,187,0.3)" strokeWidth="1" />
-                        <circle cx="28" cy="96" r="2" fill="rgba(235,194,187,0.4)" />
-                        <circle cx="92" cy="96" r="2" fill="rgba(235,194,187,0.4)" />
-                        {/* Left leaf */}
-                        <path d="M38 100 Q42 94 48 98" fill="none" stroke="rgba(235,194,187,0.25)" strokeWidth="1" />
-                        {/* K — large letter, left */}
-                        <text x="38" y="72" fontFamily="Georgia, serif" fontSize="44" fontWeight="bold" fill="#FFF8EF" textAnchor="middle" letterSpacing="-1">K</text>
-                        {/* D — smaller, centered above, rotated slightly */}
-                        <g transform="rotate(-8, 60, 48)">
-                          <text x="60" y="52" fontFamily="Georgia, serif" fontSize="22" fontWeight="bold" fill="url(#mg)" textAnchor="middle">D</text>
-                        </g>
-                        {/* E — large letter, right */}
-                        <text x="82" y="72" fontFamily="Georgia, serif" fontSize="44" fontWeight="bold" fill="#FFF8EF" textAnchor="middle" letterSpacing="-1">E</text>
-                        {/* Small decorative diamond between K and E */}
-                        <rect x="58" y="68" width="4" height="4" rx="1" fill="#EBC2BB" transform="rotate(45,60,70)" />
-                      </svg>
-                      <h3 className="font-serif text-lg text-ivory sm:text-xl">King-David &amp; Esther</h3>
-                      <p className="text-[0.55rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.6rem]">
-                        Wedding Access Pass
-                      </p>
-                    </div>
-                    {/* Card body with palette colors */}
-                    <div className="bg-ivory px-5 py-5 text-left sm:px-6 sm:py-6">
-                      <div className="mb-3 grid grid-cols-2 gap-3">
-                        <div className="rounded-xl bg-white/90 p-3 shadow-sm">
-                          <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>
-                          <p className="mt-0.5 truncate font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
+                  {/* Digital access card — 1063x690 landscape ID card */}
+                  <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px'}}>
+                    <div className="flex flex-col sm:flex-row">
+                      {/* LEFT: Monogram + Couple Name */}
+                      <div className="bg-gradient-to-br from-wine via-cocoa to-sage flex flex-col items-center justify-center p-6 text-center sm:w-[280px] sm:p-8">
+                        <img src="/monogram.png" alt="Monogram" className="mb-4 h-20 w-20 object-contain sm:h-24 sm:w-24" />
+                        <h3 className="font-serif text-lg text-ivory sm:text-xl">King-David &amp; Esther</h3>
+                        <p className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
+                          Wedding Access Pass
+                        </p>
+                      </div>
+                      {/* RIGHT: Guest Info */}
+                      <div className="flex flex-1 flex-col justify-center bg-ivory p-5 sm:p-6">
+                        <div className="mb-3 grid grid-cols-2 gap-3">
+                          <div className="rounded-xl bg-white/90 p-3 shadow-sm">
+                            <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>
+                            <p className="mt-0.5 truncate font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
+                          </div>
+                          <div className="rounded-xl bg-white/90 p-3 text-right shadow-sm">
+                            <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Entry Code</p>
+                            <p className="mt-0.5 font-mono text-sm font-bold text-moss sm:text-base">{entryCode}</p>
+                          </div>
                         </div>
-                        <div className="rounded-xl bg-white/90 p-3 text-right shadow-sm">
-                          <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Entry Code</p>
-                          <p className="mt-0.5 font-mono text-sm font-bold text-moss sm:text-base">{entryCode}</p>
+                        <div className="rounded-xl border border-champagne/50 bg-white/60 p-3">
+                          <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Event Details</p>
+                          <p className="font-serif text-sm text-moss sm:text-base">Camp Young, Ede</p>
+                          <p className="text-[0.6rem] text-ink/60 sm:text-xs">Saturday, 22 August 2026 · 10:00 AM</p>
+                        </div>
+                        <div className="mt-3 flex gap-1 overflow-hidden rounded-lg">
+                          {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (
+                            <div key={i} className="h-2 flex-1" style={{backgroundColor:c}} />
+                          ))}
+                        </div>
+                        <p className="mt-2 text-center text-[0.4rem] font-semibold uppercase tracking-[0.25em] text-ink/40 sm:text-[0.45rem]">
+                          1 Adult · Non-transferable
+                        </p>
+                        {/* Footer buttons inline */}
+                        <div className="mt-3 flex items-center justify-between gap-2 border-t border-champagne/30 pt-3">
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-full bg-wine/10 px-2.5 py-1 font-mono text-[0.6rem] font-bold text-wine sm:text-xs">
+                              {entryCode}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(entryCode || "")}
+                              className="rounded-full bg-moss px-2.5 py-1 text-[0.5rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90 sm:text-[0.55rem]"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => downloadCard()}
+                            className="rounded-full bg-wine px-4 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 sm:text-[0.6rem]"
+                          >
+                            Download PNG
+                          </button>
                         </div>
                       </div>
-                      <div className="rounded-xl border border-champagne/50 bg-white/60 p-3">
-                        <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Event Details</p>
-                        <p className="font-serif text-sm text-moss sm:text-base">Camp Young, Ede</p>
-                        <p className="text-[0.6rem] text-ink/60 sm:text-xs">Saturday, 22 August 2026 · 10:00 AM</p>
-                      </div>
-                      {/* Color palette strip */}
-                      <div className="mt-3 flex gap-1 overflow-hidden rounded-lg">
-                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (
-                          <div key={i} className="h-2 flex-1" style={{backgroundColor:c}} />
-                        ))}
-                      </div>
-                      <p className="mt-3 text-center text-[0.4rem] font-semibold uppercase tracking-[0.25em] text-ink/40 sm:text-[0.45rem]">
-                        1 Adult · Non-transferable
-                      </p>
                     </div>
-                    {/* Card footer with buttons */}
-                    <div className="flex items-center justify-between gap-2 border-t border-champagne/30 bg-white px-4 py-3 sm:px-5">
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-wine/10 px-2.5 py-1 font-mono text-[0.6rem] font-bold text-wine sm:text-xs">
-                          {entryCode}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(entryCode || "")}
-                          className="rounded-full bg-moss px-2.5 py-1 text-[0.5rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90 sm:text-[0.55rem]"
-                        >
-                          Copy
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => downloadCard()}
-                        className="rounded-full bg-wine px-4 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 sm:text-[0.6rem]"
-                      >
-                        Save Card
-                      </button>
-                    </div>
-                  </div>
                   </div>
                   {entryCode && (
                     <p className="text-xs text-ink/50">

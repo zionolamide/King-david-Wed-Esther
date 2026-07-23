@@ -231,55 +231,89 @@ export default function AdminPage() {
           </div>
         ) : (
           <div className="mt-4 space-y-2">
-            {displayGuests.map((guest) => (
-              <div
-                key={guest.id}
-                className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition ${
-                  guest.checked_in
-                    ? "border-sage/30 bg-sage/5"
-                    : "border-wine/10 bg-white/80"
-                }`}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${guest.checked_in ? "bg-sage" : "bg-rose"}`} />
-                    <p className="truncate font-medium text-ink">{guest.full_name}</p>
-                    {tab === "all" && guest.checked_in && (
-                      <span className="rounded-full bg-sage/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.1em] text-sage">
-                        Checked In
-                      </span>
-                    )}
+            {tab === "all" ? (
+              <>
+                {/* Checked In section */}
+                {filtered.filter((g) => g.checked_in).length > 0 && (
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-center gap-2 px-1">
+                      <span className="h-3 w-3 rounded-full bg-sage" />
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
+                        Checked In ({filtered.filter((g) => g.checked_in).length})
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {filtered.filter((g) => g.checked_in).map((guest) => (
+                        <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-sage/20 bg-sage/5 px-4 py-2.5">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-sage" />
+                              <p className="truncate text-sm font-medium text-ink">{guest.full_name}</p>
+                            </div>
+                            <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                              <span className="font-mono text-sage">{guest.entry_code}</span>
+                              <span>{guest.email}</span>
+                              {guest.checked_in_at && <span>at {new Date(guest.checked_in_at).toLocaleTimeString()}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/60">
-                    <span className="font-mono font-semibold text-moss">{guest.entry_code}</span>
-                    <span>{guest.email}</span>
-                    {guest.phone && <span>{guest.phone}</span>}
-                    {guest.checked_in_at && (
-                      <span>at {new Date(guest.checked_in_at).toLocaleTimeString()}</span>
-                    )}
-                    {guest.note && <span className="italic">&ldquo;{guest.note}&rdquo;</span>}
+                )}
+                {/* Pending section */}
+                {filtered.filter((g) => !g.checked_in).length > 0 && (
+                  <div>
+                    <div className="mb-2 flex items-center gap-2 px-1">
+                      <span className="h-3 w-3 rounded-full bg-rose" />
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                        Pending ({filtered.filter((g) => !g.checked_in).length})
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {filtered.filter((g) => !g.checked_in).map((guest) => (
+                        <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-2.5">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-rose" />
+                              <p className="truncate text-sm font-medium text-ink">{guest.full_name}</p>
+                            </div>
+                            <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                              <span className="font-mono font-semibold text-wine">{guest.entry_code}</span>
+                              <span>{guest.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                )}
+              </>
+            ) : (
+              /* Tab 2 — Check In action list (pending only) */
+              displayGuests.length > 0 ? (
+                <div className="space-y-2">
+                  {displayGuests.map((guest) => (
+                    <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-ink">{guest.full_name}</p>
+                        <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                          <span className="font-mono font-semibold text-wine">{guest.entry_code}</span>
+                          <span>{guest.email}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleCheckIn(guest)}
+                        disabled={checkedInIds.has(guest.id)}
+                        className="flex-shrink-0 rounded-full bg-wine px-7 py-3 text-xs font-bold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
+                      >
+                        {checkedInIds.has(guest.id) ? "..." : "CHECK IN"}
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                {tab === "checkin" && (
-                  <button
-                    onClick={() => toggleCheckIn(guest)}
-                    disabled={checkedInIds.has(guest.id)}
-                    className="flex-shrink-0 rounded-full bg-wine px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
-                  >
-                    {checkedInIds.has(guest.id) ? "..." : "Check In"}
-                  </button>
-                )}
-                {tab === "all" && !guest.checked_in && (
-                  <button
-                    onClick={() => toggleCheckIn(guest)}
-                    disabled={checkedInIds.has(guest.id)}
-                    className="flex-shrink-0 rounded-full border border-wine/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-wine transition hover:bg-wine/5 disabled:opacity-50"
-                  >
-                    {checkedInIds.has(guest.id) ? "..." : "Check In"}
-                  </button>
-                )}
-              </div>
-            ))}
+              ) : null
+            )}
           </div>
         )}
 

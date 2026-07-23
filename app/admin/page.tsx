@@ -112,7 +112,7 @@ export default function AdminPage() {
       g.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const displayGuests = filtered;
+  const displayGuests = tab === "checkin" ? filtered.filter((g) => !g.checked_in) : filtered;
 
   if (!authed) {
     return (

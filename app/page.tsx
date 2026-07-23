@@ -933,6 +933,13 @@ export default function Home() {
     }
   }
 
+  async function downloadCard() {
+    const card = document.getElementById("access-card");
+    if (!card) return;
+    // Use browser's print to save/PDF — works everywhere
+    window.print();
+  }
+
   useEffect(() => {
     return () => {
       if (accessCardUrl) {
@@ -1586,7 +1593,7 @@ export default function Home() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => window.print()}
+                        onClick={() => downloadCard()}
                         className="rounded-full bg-wine px-4 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 sm:text-[0.6rem]"
                       >
                         Save Card

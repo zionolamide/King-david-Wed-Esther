@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head><title>Access Card Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fbf6ed;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Montserrat,Arial,sans-serif;padding:20px}
+
+/* ID-CARD SIZE: ~384px wide, ~243px tall = ~1.58:1 ratio (standard ID card) */
+.card{
+  width:100%;max-width:384px;
+  border-radius:16px;border:2px solid #eadfc9;
+  background:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#6e0d1b,#8b5a46,#2f3a22);
+  padding:20px 18px 16px;text-align:center;
+}
+
+/* Monogram SVG */
+.monogram{width:72px;height:72px;margin:0 auto 10px;display:block}
+
+.couple-name{
+  font-family:Georgia,serif;font-size:18px;color:#FFF8EF;
+  margin-bottom:2px;
+}
+.pass-label{
+  font-size:9px;font-weight:600;letter-spacing:0.22em;
+  text-transform:uppercase;color:rgba(234,223,201,0.7);
+}
+
+/* Body */
+.body{
+  background:#fbf6ed;padding:16px 18px 14px;
+}
+
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-bottom:10px;
+}
+.info-box{
+  background:rgba(255,255,255,0.9);border-radius:10px;
+  padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.info-box.right{text-align:right}
+.label-top{
+  font-size:7px;font-weight:600;letter-spacing:0.2em;
+  text-transform:uppercase;color:#6e0d1b;margin-bottom:3px;
+}
+.guest-name{
+  font-family:Georgia,serif;font-size:13px;color:#2f3a22;
+}
+.entry-code{
+  font-family:monospace;font-size:15px;font-weight:bold;color:#2f3a22;
+}
+
+.detail-box{
+  background:rgba(255,255,255,0.6);
+  border:1px solid rgba(234,223,201,0.5);
+  border-radius:10px;padding:10px;margin-bottom:10px;
+}
+.venue{font-family:Georgia,serif;font-size:13px;color:#2f3a22;margin-top:2px}
+.date{font-size:10px;color:rgba(45,36,31,0.6);margin-top:1px}
+
+/* Palette strip */
+.palette{display:flex;gap:3px;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.palette div{flex:1;height:5px}
+.palette div:nth-child(1){background:#6f7a57}
+.palette div:nth-child(2){background:#6e0d1b}
+.palette div:nth-child(3){background:#8b5a46}
+.palette div:nth-child(4){background:#c9785e}
+.palette div:nth-child(5){background:#d7a79c}
+.palette div:nth-child(6){background:#ebc2bb}
+
+.footer-text{
+  text-align:center;font-size:6px;font-weight:600;letter-spacing:0.25em;
+  text-transform:uppercase;color:rgba(45,36,31,0.4);
+}
+
+/* Footer */
+.footer{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;border-top:1px solid rgba(234,223,201,0.3);
+  background:#fff;padding:10px 16px;
+}
+.code-pill{
+  background:rgba(110,13,27,0.08);
+  border-radius:999px;padding:4px 10px;
+  font-family:monospace;font-size:10px;font-weight:bold;color:#6e0d1b;
+}
+.copy-btn{
+  background:#2f3a22;border:none;border-radius:999px;
+  padding:4px 10px;color:#fbf6ed;
+  font-size:8px;font-weight:600;letter-spacing:0.14em;
+  text-transform:uppercase;cursor:pointer;
+}
+.save-btn{
+  background:#6e0d1b;border:none;border-radius:999px;
+  padding:6px 14px;color:#fbf6ed;
+  font-size:9px;font-weight:600;letter-spacing:0.14em;
+  text-transform:uppercase;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+.name-label{font-size:7px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:rgba(45,36,31,0.4)}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <svg viewBox="0 0 120 120" class="monogram">
+      <defs>
+        <linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFF8EF" />
+          <stop offset="100%" stopColor="#EBC2BB" />
+        </linearGradient>
+      </defs>
+      <!-- Outer rings -->
+      <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,248,239,0.25)" stroke-width="1.5" />
+      <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,248,239,0.12)" stroke-width="0.5" />
+      <!-- 12 dots around ring -->
+      <circle cx="60" cy="8" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="86.5" cy="16" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="104" cy="40" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="112" cy="60" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="104" cy="80" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="86.5" cy="104" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="60" cy="112" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="33.5" cy="104" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="16" cy="80" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="8" cy="60" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="16" cy="40" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <circle cx="33.5" cy="16" r="1.5" fill="rgba(255,248,239,0.35)" />
+      <!-- Top flourish -->
+      <path d="M45 22 Q60 10 75 22" fill="none" stroke="rgba(235,194,187,0.35)" stroke-width="1" />
+      <circle cx="45" cy="22" r="2" fill="rgba(235,194,187,0.4)" />
+      <circle cx="75" cy="22" r="2" fill="rgba(235,194,187,0.4)" />
+      <!-- Bottom vine -->
+      <path d="M35 98 Q60 110 85 98" fill="none" stroke="rgba(235,194,187,0.35)" stroke-width="1.2" />
+      <path d="M35 98 Q30 92 28 96" fill="none" stroke="rgba(235,194,187,0.3)" stroke-width="1" />
+      <path d="M85 98 Q90 92 92 96" fill="none" stroke="rgba(235,194,187,0.3)" stroke-width="1" />
+      <circle cx="28" cy="96" r="2" fill="rgba(235,194,187,0.4)" />
+      <circle cx="92" cy="96" r="2" fill="rgba(235,194,187,0.4)" />
+      <path d="M38 100 Q42 94 48 98" fill="none" stroke="rgba(235,194,187,0.25)" stroke-width="1" />
+      <!-- K -->
+      <text x="38" y="72" font-family="Georgia, serif" font-size="44" font-weight="bold" fill="#FFF8EF" text-anchor="middle" letter-spacing="-1">K</text>
+      <!-- D (rotated) -->
+      <g transform="rotate(-8, 60, 48)">
+        <text x="60" y="52" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="url(#mg)" text-anchor="middle">D</text>
+      </g>
+      <!-- E -->
+      <text x="82" y="72" font-family="Georgia, serif" font-size="44" font-weight="bold" fill="#FFF8EF" text-anchor="middle" letter-spacing="-1">E</text>
+      <!-- Diamond -->
+      <rect x="58" y="68" width="4" height="4" rx="1" fill="#EBC2BB" transform="rotate(45,60,70)" />
+    </svg>
+    <div class="couple-name">King-David &amp; Esther</div>
+    <div class="pass-label">Wedding Access Pass</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="label-top">Guest</div>
+        <div class="guest-name">Olamide Zion</div>
+      </div>
+      <div class="info-box right">
+        <div class="label-top">Entry Code</div>
+        <div class="entry-code">KDE-2026-AB1234</div>
+      </div>
+    </div>
+    <div class="detail-box">
+      <div class="label-top">Event Details</div>
+      <div class="venue">Camp Young, Ede</div>
+      <div class="date">Saturday, 22 August 2026 · 10:00 AM</div>
+    </div>
+    <div class="palette"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    <div class="footer-text">1 Adult · Non-transferable</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span class="code-pill">KDE-2026-AB1234</span>
+      <button class="copy-btn">Copy</button>
+    </div>
+    <button class="save-btn">Save Card</button>
+  </div>
+
+</div>
+
+<p style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(45,36,31,0.3);text-align:center;white-space:nowrap">
+  Card width: ~384px · ID-card ratio ~1.58:1
+</p>
+
+</body>
+</html>

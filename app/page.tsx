@@ -760,8 +760,8 @@ function CurtainHero({
               </div>
             </div>
           </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
       </div>
     </section>
   );
@@ -1513,72 +1513,67 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
-                  {/* Digital access card — 1063x690 landscape ID card */}
+                  {/* Digital access card — clean design, buttons outside */}
                   <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px'}}>
                     <div className="flex flex-col sm:flex-row">
-                      {/* LEFT: Monogram + Couple Name */}
-                      <div className="bg-gradient-to-br from-wine via-cocoa to-sage flex flex-col items-center justify-center p-6 text-center sm:w-[280px] sm:p-8">
-                        <img src="/monogram.png" alt="Monogram" className="mb-4 h-20 w-20 object-contain sm:h-24 sm:w-24" />
-                        <h3 className="font-serif text-lg text-ivory sm:text-xl">King-David &amp; Esther</h3>
+                      {/* LEFT: Monogram + Couple Name — warm wine→terracotta gradient */}
+                      <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-6 text-center sm:w-[280px] sm:p-8">
+                        <img src="/monogram.png" alt="Monogram" className="mb-5 h-32 w-32 object-contain sm:h-36 sm:w-36" />
+                        <h3 className="font-serif text-xl text-ivory sm:text-2xl">King-David &amp; Esther</h3>
                         <p className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
                           Wedding Access Pass
                         </p>
                       </div>
-                      {/* RIGHT: Guest Info */}
+                      {/* RIGHT: Guest Info — warm champagne/ivory tones */}
                       <div className="flex flex-1 flex-col justify-center bg-ivory p-5 sm:p-6">
                         <div className="mb-3 grid grid-cols-2 gap-3">
-                          <div className="rounded-xl bg-white/90 p-3 shadow-sm">
+                          <div className="rounded-xl bg-champagne/40 p-3">
                             <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>
                             <p className="mt-0.5 truncate font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
                           </div>
-                          <div className="rounded-xl bg-white/90 p-3 text-right shadow-sm">
+                          <div className="rounded-xl bg-champagne/40 p-3 text-right">
                             <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Entry Code</p>
-                            <p className="mt-0.5 font-mono text-sm font-bold text-moss sm:text-base">{entryCode}</p>
+                            <p className="mt-0.5 font-mono text-sm font-bold text-moss sm:text-lg">{entryCode}</p>
                           </div>
                         </div>
-                        <div className="rounded-xl border border-champagne/50 bg-white/60 p-3">
+                        <div className="rounded-xl bg-blush/20 border border-blush/30 p-3">
                           <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Event Details</p>
                           <p className="font-serif text-sm text-moss sm:text-base">Camp Young, Ede</p>
                           <p className="text-[0.6rem] text-ink/60 sm:text-xs">Saturday, 22 August 2026 · 10:00 AM</p>
                         </div>
                         <div className="mt-3 flex gap-1 overflow-hidden rounded-lg">
                           {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (
-                            <div key={i} className="h-2 flex-1" style={{backgroundColor:c}} />
+                            <div key={i} className="h-2.5 flex-1" style={{backgroundColor:c}} />
                           ))}
                         </div>
                         <p className="mt-2 text-center text-[0.4rem] font-semibold uppercase tracking-[0.25em] text-ink/40 sm:text-[0.45rem]">
                           1 Adult · Non-transferable
                         </p>
-                        {/* Footer buttons inline */}
-                        <div className="mt-3 flex items-center justify-between gap-2 border-t border-champagne/30 pt-3">
-                          <div className="flex items-center gap-2">
-                            <span className="rounded-full bg-wine/10 px-2.5 py-1 font-mono text-[0.6rem] font-bold text-wine sm:text-xs">
-                              {entryCode}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => copyToClipboard(entryCode || "")}
-                              className="rounded-full bg-moss px-2.5 py-1 text-[0.5rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90 sm:text-[0.55rem]"
-                            >
-                              Copy
-                            </button>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => downloadCard()}
-                            className="rounded-full bg-wine px-4 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 sm:text-[0.6rem]"
-                          >
-                            Download PNG
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>
-                  {entryCode && (
-                    <p className="text-xs text-ink/50">
-                      Entry code: <strong className="text-moss">{entryCode}</strong> — save this or present at the entrance.
-                    </p>
-                  )}
+                  {/* Buttons OUTSIDE the card */}
+                  <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'700px'}}>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-wine/10 px-3 py-1.5 font-mono text-xs font-bold text-wine">
+                        {entryCode}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(entryCode || "")}
+                        className="rounded-full bg-moss px-3 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => downloadCard()}
+                      className="rounded-full bg-wine px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90"
+                    >
+                      Download PNG
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>

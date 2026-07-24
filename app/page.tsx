@@ -813,24 +813,84 @@ function AttireIllustration({ type }: { type: "ladies" | "gentlemen" }) {
     <div className="attire-illustration relative mb-4 h-36 overflow-hidden bg-ivory/50 sm:h-48 lg:h-64">
       <div className="absolute inset-x-8 bottom-0 h-32 rounded-t-full bg-sage/12" />
       {isLadies ? (
-        <>
-          <div className="absolute left-[35%] top-9 h-12 w-12 rounded-full bg-cocoa" />
-          <div className="absolute left-[31%] top-[5.2rem] h-28 w-[5.6rem] rounded-t-full bg-blush" />
-          <div className="absolute left-[24%] bottom-0 h-40 w-36 rounded-t-[5rem] bg-rose/90" />
-          <div className="absolute left-[25%] bottom-0 h-36 w-32 rounded-t-[5rem] bg-[linear-gradient(90deg,rgba(251,246,237,0.3),transparent,rgba(110,13,27,0.12))]" />
-          <div className="absolute right-[25%] top-12 h-9 w-28 rotate-[-8deg] rounded-full border border-wine/20 bg-champagne" />
-          <div className="absolute right-[28%] top-[4.4rem] h-4 w-20 rotate-[-8deg] bg-wine/70" />
-        </>
+        // Ladies — elegant dress silhouette using SVG
+        <svg viewBox="0 0 200 250" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="dressGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ebc2bb" />
+              <stop offset="100%" stopColor="#d7a79c" />
+            </linearGradient>
+            <linearGradient id="dressShade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(110,13,27,0.06)" />
+              <stop offset="50%" stopColor="transparent" />
+              <stop offset="100%" stopColor="rgba(110,13,27,0.10)" />
+            </linearGradient>
+          </defs>
+          {/* Head */}
+          <ellipse cx="100" cy="38" rx="16" ry="18" fill="#8b5a46" />
+          {/* Hair */}
+          <path d="M84 38 Q84 18 100 14 Q116 18 116 38 Q116 44 110 46 Q110 38 100 36 Q90 38 90 46 Q84 44 84 38Z" fill="#5c3a2e" opacity="0.6" />
+          {/* Neck */}
+          <rect x="94" y="54" width="12" height="10" rx="3" fill="#c9785e" opacity="0.5" />
+          {/* Dress body */}
+          <path d="M70 62 L64 210 L136 210 L130 62 Q100 48 70 62Z" fill="url(#dressGrad)" />
+          {/* Dress shade overlay */}
+          <path d="M70 62 L64 210 L136 210 L130 62 Q100 48 70 62Z" fill="url(#dressShade)" />
+          {/* Dress neckline */}
+          <path d="M82 62 Q100 48 118 62" fill="none" stroke="#c9785e" strokeWidth="1.5" opacity="0.4" />
+          {/* Decorative neckline detail */}
+          <path d="M86 68 Q100 84 114 68" fill="none" stroke="#6e0d1b" strokeWidth="1" opacity="0.15" />
+          {/* Arms */}
+          <path d="M70 62 Q52 90 48 120 Q54 116 64 110 Q58 90 70 76" fill="#ebc2bb" opacity="0.7" />
+          <path d="M130 62 Q148 90 152 120 Q146 116 136 110 Q142 90 130 76" fill="#ebc2bb" opacity="0.7" />
+          {/* Hat fascinator */}
+          <ellipse cx="110" cy="30" rx="14" ry="4" fill="#6e0d1b" opacity="0.6" />
+          <circle cx="114" cy="26" r="6" fill="#eadfc9" opacity="0.7" />
+          {/* Small flower on dress */}
+          <circle cx="100" cy="140" r="4" fill="#6f7a57" opacity="0.5" />
+          {[0,1,2,3,4].map(i => (
+            <circle key={i} cx={100+5*Math.cos(i*1.26)} cy={140+5*Math.sin(i*1.26)} r="2.5" fill="#ebc2bb" opacity="0.6" />
+          ))}
+        </svg>
       ) : (
-        <>
-          <div className="absolute left-[42%] top-9 h-12 w-12 rounded-full bg-cocoa" />
-          <div className="absolute left-[35%] top-[5.1rem] h-32 w-28 rounded-t-3xl bg-moss" />
-          <div className="absolute left-[38%] top-[5.5rem] h-28 w-16 bg-ivory" />
-          <div className="absolute left-[42%] top-[6rem] h-24 w-8 bg-wine" />
-          <div className="absolute left-[34%] bottom-0 h-24 w-10 bg-moss" />
-          <div className="absolute right-[35%] bottom-0 h-24 w-10 bg-moss" />
-          <div className="absolute right-[18%] top-16 h-28 w-20 rounded-t-full bg-sage/35" />
-        </>
+        // Gentlemen — suit silhouette using SVG
+        <svg viewBox="0 0 200 250" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="suitGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6f7a57" />
+              <stop offset="100%" stopColor="#2f3a22" />
+            </linearGradient>
+            <linearGradient id="suitShade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(0,0,0,0.08)" />
+              <stop offset="50%" stopColor="transparent" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.12)" />
+            </linearGradient>
+          </defs>
+          {/* Head */}
+          <ellipse cx="100" cy="38" rx="16" ry="18" fill="#8b5a46" />
+          {/* Hair */}
+          <path d="M84 38 Q84 16 100 12 Q116 16 116 38 Q116 42 110 44 Q110 38 100 36 Q90 38 90 44 Q84 42 84 38Z" fill="#2f3a22" opacity="0.7" />
+          {/* Neck */}
+          <rect x="94" y="54" width="12" height="8" rx="3" fill="#c9785e" opacity="0.5" />
+          {/* Suit jacket */}
+          <path d="M72 60 L60 210 L140 210 L128 60 Q100 44 72 60Z" fill="url(#suitGrad)" />
+          {/* Suit shade overlay */}
+          <path d="M72 60 L60 210 L140 210 L128 60 Q100 44 72 60Z" fill="url(#suitShade)" />
+          {/* Collar / lapels */}
+          <path d="M88 62 L100 90 L112 62" fill="none" stroke="#1e2a14" strokeWidth="2" opacity="0.4" />
+          <path d="M92 60 L100 84 L108 60" fill="none" stroke="#1e2a14" strokeWidth="1" opacity="0.25" />
+          {/* White shirt triangle */}
+          <path d="M94 64 L100 82 L106 64 Z" fill="#fbf6ed" opacity="0.7" />
+          {/* Tie */}
+          <path d="M98 80 L96 130 L100 134 L104 130 L102 80Z" fill="#6e0d1b" opacity="0.7" />
+          {/* Arms */}
+          <path d="M72 60 Q48 100 44 130 Q50 126 62 118 Q56 100 72 78" fill="#6f7a57" opacity="0.7" />
+          <path d="M128 60 Q152 100 156 130 Q150 126 138 118 Q144 100 128 78" fill="#6f7a57" opacity="0.7" />
+          {/* Pocket square */}
+          <path d="M112 96 L116 92 L120 96Z" fill="#ebc2bb" opacity="0.6" />
+          {/* Boutonniere (small flower) */}
+          <circle cx="112" cy="88" r="3" fill="#c9785e" opacity="0.6" />
+        </svg>
       )}
       <div className="absolute left-5 top-5 h-16 w-16 rounded-full bg-white/60 blur-sm" />
     </div>
@@ -946,7 +1006,11 @@ export default function Home() {
     const card = document.getElementById("access-card");
     if (!card) return;
     try {
-      const dataUrl = await toPng(card, { quality: 1, pixelRatio: 2 });
+      // Set white background before capture to avoid gray
+      const origBg = card.style.background;
+      card.style.background = "white";
+      const dataUrl = await toPng(card, { quality: 1, pixelRatio: 2, backgroundColor: "white" });
+      card.style.background = origBg;
       const link = document.createElement("a");
       link.download = accessCardName || "KDE2026-access-card.png";
       link.href = dataUrl;
@@ -1087,8 +1151,12 @@ export default function Home() {
           setStatus("success");
           setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
           setSubmittedEmail(payload.email);
-          if (result.entryCode) {
-            await fetchAccessCardPreview(payload, result.entryCode);
+          const code = result.entryCode || result.entry_code;
+          if (code) {
+            setEntryCode(code);
+            setAccessCardName(`KDE2026-${code}.png`);
+            // Preview generation is optional — code is already set
+            fetchAccessCardPreview(payload, code).catch(() => {});
           }
           return true;
         } catch (err) {
@@ -1380,10 +1448,7 @@ export default function Home() {
                       className="h-10 w-10 flex-shrink-0 rounded-full border-2 border-white shadow"
                       style={{ backgroundColor: color }}
                     />
-                    <div>
-                      <p className="text-sm font-semibold text-moss">{name}</p>
-                      <p className="text-xs text-ink/60 font-mono">{color}</p>
-                    </div>
+                    <p className="text-sm font-semibold text-moss">{name}</p>
                   </div>
                 ))}
               </div>
@@ -1523,17 +1588,17 @@ export default function Home() {
                   <SuccessAnimation />
                   {/* Digital access card — clean design, buttons outside */}
                   <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px'}}>
-                    <div className="flex flex-col sm:flex-row">
+                    <div className="flex flex-row">
                       {/* LEFT: Monogram + Couple Name — warm wine→terracotta gradient */}
-                      <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-6 text-center sm:w-[280px] sm:p-8">
-                        <img src="/monograms.png" alt="Monogram" className="mb-5 h-32 w-32 object-contain sm:h-36 sm:w-36" />
-                        <h3 className="font-serif text-xl text-ivory sm:text-2xl">King-David &amp; Esther</h3>
-                        <p className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
+                      <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-3 text-center w-[140px] min-[400px]:w-[180px] sm:w-[280px] sm:p-8">
+                        <img src="/monograms.png" alt="Monogram" className="mb-3 h-16 w-16 object-contain sm:mb-5 sm:h-36 sm:w-36" />
+                        <h3 className="font-serif text-xs text-ivory sm:text-2xl leading-tight">King-David &amp; Esther</h3>
+                        <p className="mt-1 text-[0.4rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
                           Wedding Access Pass
                         </p>
                       </div>
                       {/* RIGHT: Guest Info — warm champagne/ivory tones */}
-                      <div className="flex flex-1 flex-col justify-center bg-ivory p-5 sm:p-6">
+                      <div className="flex flex-1 flex-col justify-center bg-ivory p-3 sm:p-6">
                         <div className="mb-3 grid grid-cols-2 gap-3">
                           <div className="rounded-xl bg-champagne/40 p-3">
                             <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>

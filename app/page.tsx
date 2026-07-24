@@ -1134,6 +1134,12 @@ export default function Home() {
             return false;
           }
 
+          if (response.status === 403) {
+            setStatus("closed");
+            setMessage(result.message ?? "Guest capacity has been reached.");
+            return false;
+          }
+
           if (!response.ok) {
             // server error, may retry
             if (response.status >= 500 && attempt < maxAttempts) {
@@ -1708,6 +1714,18 @@ export default function Home() {
                                   });
                                   const j = await res.json().catch(() => ({}));
                                   if (!res.ok) {
+                                    if (res.status === 403) {
+                                      setStatus("closed");
+                                      setMessage(j.message ?? "Capacity reached.");
+                                      setIsRetrying(false);
+                                      break;
+                                    }
+                                    if (res.status === 409) {
+                                      setStatus("closed");
+                                      setMessage(j.message ?? "Already registered.");
+                                      setIsRetrying(false);
+                                      break;
+                                    }
                                     if (res.status >= 500 && i < maxAttempts) {
                                       await new Promise((r) => setTimeout(r, 400 * Math.pow(2, i)));
                                       continue;
@@ -1719,8 +1737,11 @@ export default function Home() {
                                   }
                                   setStatus("success");
                                   setSubmittedEmail(lastPayload?.email ?? null);
-                                  if (j.entryCode && lastPayload) {
-                                    await fetchAccessCardPreview(lastPayload, j.entryCode);
+                                  const code = j.entryCode || j.entry_code;
+                                  if (code) {
+                                    setEntryCode(code);
+                                    setAccessCardName(`KDE2026-${code}.png`);
+                                    fetchAccessCardPreview(lastPayload, code).catch(() => {});
                                   }
                                   setIsRetrying(false);
                                   break;

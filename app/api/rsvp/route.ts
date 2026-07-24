@@ -112,6 +112,22 @@ export async function POST(request: Request) {
       auth: { persistSession: false }
     });
 
+    // Check capacity — count existing submissions
+    const { count, error: countError } = await supabase
+      .from("rsvp_submissions")
+      .select("id", { count: "exact", head: true });
+
+    if (countError) {
+      return NextResponse.json({ ok: false, message: countError.message }, { status: 500 });
+    }
+
+    if (count !== null && count >= RSVP_LIMIT) {
+      return NextResponse.json(
+        { ok: false, message: `We're sorry, the guest capacity of ${RSVP_LIMIT} has been reached. RSVP is now closed.` },
+        { status: 403 }
+      );
+    }
+
     entryCode = await generateEntryCode(supabase);
 
     const { data: existing, error: existsError } = await supabase

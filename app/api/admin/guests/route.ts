@@ -58,15 +58,41 @@ export async function PATCH(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${ADMIN_PASSWORD}`) return unauthorized();
 
-  let body: { id?: string; checked_in?: boolean };
+  let body: { id?: string; checked_in?: boolean; approve_wish?: boolean };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ ok: false, message: "Invalid request" }, { status: 400 });
   }
 
-  if (!body.id || body.checked_in === undefined) {
-    return NextResponse.json({ ok: false, message: "Missing id or checked_in" }, { status: 400 });
+  if (!body.id) {
+    return NextResponse.json({ ok: false, message: "Missing id" }, { status: 400 });
+  }
+
+  // Wish approval — doesn't need checked_in
+  if (body.approve_wish) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+    const { data: existing } = await supabase.from("rsvp_submissions").select("note").eq("id", body.id).maybeSingle();
+    if (!existing?.note) return NextResponse.json({ ok: false, message: "No note found" }, { status: 400 });
+
+    try {
+      const meta = JSON.parse(existing.note);
+      meta.approved = true;
+      await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", body.id);
+      return NextResponse.json({ ok: true });
+    } catch {
+      return NextResponse.json({ ok: false, message: "Invalid note format" }, { status: 400 });
+    }
+  }
+
+  if (body.checked_in === undefined) {
+    return NextResponse.json({ ok: false, message: "Missing checked_in" }, { status: 400 });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;

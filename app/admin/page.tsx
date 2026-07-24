@@ -25,8 +25,10 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"all" | "checkin">("all");
+  const [tab, setTab] = useState<"all" | "checkin" | "wishes">("all");
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
+  const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string }[]>([]);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -45,8 +47,56 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authed) fetchGuests();
+    if (authed) {
+      fetchGuests();
+      fetchPendingWishes();
+    }
   }, [authed, fetchGuests]);
+
+  async function fetchPendingWishes() {
+    try {
+      const res = await fetch("/api/admin/guests", {
+        headers: { authorization: `Bearer ${ADMIN_PASSWORD}` },
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const pending = (data.guests || []).filter((g: any) => {
+          try {
+            const meta = JSON.parse(g.note || "{}");
+            return meta.wish && !meta.approved;
+          } catch { return false; }
+        }).map((g: any) => {
+          const meta = JSON.parse(g.note);
+          return { id: g.id, name: g.full_name, wish: meta.wish };
+        });
+        setPendingWishes(pending);
+      }
+    } catch {}
+  }
+
+  async function approveWish(id: string) {
+    setApprovingId(id);
+    try {
+      const res = await fetch("/api/admin/guests", {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${ADMIN_PASSWORD}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, approve_wish: true }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setPendingWishes((prev) => prev.filter((w) => w.id !== id));
+        setMessage("Wish approved");
+      } else {
+        setMessage(data.message || "Failed to approve");
+      }
+    } catch {
+      setMessage("Network error");
+    }
+    setApprovingId(null);
+  }
 
   useEffect(() => {
     if (message) {
@@ -196,6 +246,14 @@ export default function AdminPage() {
           >
             Check In ({pending.length})
           </button>
+          <button
+            onClick={() => setTab("wishes")}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+              tab === "wishes" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
+            }`}
+          >
+            Wishes ({pendingWishes.length})
+          </button>
         </div>
 
         {/* Search */}
@@ -313,6 +371,31 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : null
+            )}
+          </div>
+        )}
+
+        {/* Wishes Tab */}
+        {tab === "wishes" && (
+          <div className="mt-4 space-y-2">
+            {pendingWishes.length === 0 ? (
+              <div className="mt-8 text-center text-sm text-ink/60">No pending wishes to approve.</div>
+            ) : (
+              pendingWishes.map((w) => (
+                <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
+                  </div>
+                  <button
+                    onClick={() => approveWish(w.id)}
+                    disabled={approvingId === w.id}
+                    className="flex-shrink-0 rounded-full bg-moss px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:bg-moss/90 disabled:opacity-50"
+                  >
+                    {approvingId === w.id ? "..." : "Approve"}
+                  </button>
+                </div>
+              ))
             )}
           </div>
         )}

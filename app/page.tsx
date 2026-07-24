@@ -887,6 +887,14 @@ export default function Home() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [soundOn, setSoundOn] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
+  const [wishes, setWishes] = useState<{ name: string; wish: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/wishes")
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setWishes(d.wishes); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     // prepare audio element
@@ -1529,7 +1537,7 @@ export default function Home() {
                         <div className="mb-3 grid grid-cols-2 gap-3">
                           <div className="rounded-xl bg-champagne/40 p-3">
                             <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>
-                            <p className="mt-0.5 truncate font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
+                            <p className="mt-0.5 break-words font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
                           </div>
                           <div className="rounded-xl bg-champagne/40 p-3 text-right">
                             <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Entry Code</p>
@@ -1595,7 +1603,7 @@ export default function Home() {
                     </label>
                   </div>
                   <label className="mt-4 block sm:mt-5">
-                    <span className="label">Message (optional)</span>
+                    <span className="label">Leave a wish (optional)</span>
                     <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" />
                   </label>
                   <label className="mt-5 flex items-start gap-3">
@@ -1690,6 +1698,30 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+
+      {/* Wishes & Blessings */}
+      {wishes.length > 0 && (
+        <section className="premium-section bg-white py-20 sm:py-24">
+          <div className="section-shell">
+            <FadeIn className="mx-auto max-w-3xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">Wishes &amp; Blessings</p>
+              <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl">
+                Messages from our guests
+              </h2>
+            </FadeIn>
+            <StaggerChildren className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {wishes.map((w, i) => (
+                <StaggerItem key={i}>
+                  <div className="rounded-2xl border border-blush/20 bg-ivory/60 p-5 shadow-soft">
+                    <p className="leading-relaxed text-ink/75 italic text-sm">&ldquo;{w.wish}&rdquo;</p>
+                    <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-wine">— {w.name}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerChildren>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-moss py-12 text-center text-ivory sm:py-14">

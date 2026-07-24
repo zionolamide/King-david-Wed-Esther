@@ -142,7 +142,7 @@ export async function POST(request: Request) {
       full_name: fullName,
       email,
       phone: phone || null,
-      note: note || null,
+      note: note ? JSON.stringify({ wish: note, approved: false }) : null,
       adult_agreement: adultAgreement,
       entry_code: entryCode,
     });

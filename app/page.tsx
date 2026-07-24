@@ -1518,7 +1518,7 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row">
                       {/* LEFT: Monogram + Couple Name — warm wine→terracotta gradient */}
                       <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-6 text-center sm:w-[280px] sm:p-8">
-                        <img src="/monogram.png" alt="Monogram" className="mb-5 h-32 w-32 object-contain sm:h-36 sm:w-36" />
+                        <img src="/monograms.png" alt="Monogram" className="mb-5 h-32 w-32 object-contain sm:h-36 sm:w-36" />
                         <h3 className="font-serif text-xl text-ivory sm:text-2xl">King-David &amp; Esther</h3>
                         <p className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
                           Wedding Access Pass

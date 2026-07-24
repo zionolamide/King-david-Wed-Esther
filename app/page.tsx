@@ -1552,20 +1552,8 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  {/* Buttons OUTSIDE the card */}
+                  {/* Download button outside card — entry code only inside card */}
                   <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'700px'}}>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-wine/10 px-3 py-1.5 font-mono text-xs font-bold text-wine">
-                        {entryCode}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => copyToClipboard(entryCode || "")}
-                        className="rounded-full bg-moss px-3 py-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-ivory transition hover:bg-moss/90"
-                      >
-                        Copy
-                      </button>
-                    </div>
                     <button
                       type="button"
                       onClick={() => downloadCard()}

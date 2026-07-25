@@ -188,30 +188,17 @@ export async function POST(request: Request) {
 
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
 
-    // Build the email with a self-contained styled access card matching the in-page design
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || "https://king-david-wed-esther.vercel.app";
+    const monogramUrl = `${baseUrl}/monograms.png`;
+
+    // Build the email with a self-contained styled access card matching the in-page design exactly
     const emailCardHtml = `
     <div style="max-width:420px;margin:0 auto;font-family:'Montserrat',Arial,sans-serif;border:2px solid #eadfc9;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);background:#ffffff;">
       <table style="width:100%;border-collapse:collapse;">
         <tr>
           <!-- LEFT: Monogram + Couple Name (wine→terracotta gradient) -->
           <td style="width:280px;background:linear-gradient(135deg,#6e0d1b,#c9785e);padding:32px 24px;text-align:center;vertical-align:middle;">
-            <!-- Inline SVG monogram matching the site (no external images) -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width:100px;height:100px;margin:0 auto 16px;display:block;">
-              <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,248,239,0.25)" stroke-width="1.5"/>
-              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,248,239,0.12)" stroke-width="0.5"/>
-              ${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r=52;return '<circle cx="'+(60+r*Math.sin(a))+'" cy="'+(60-r*Math.cos(a))+'" r="1.5" fill="rgba(255,248,239,0.35)"/>';}).join('')}
-              <path d="M45 22 Q60 10 75 22" fill="none" stroke="rgba(235,194,187,0.35)" stroke-width="1"/>
-              <circle cx="45" cy="22" r="2" fill="rgba(235,194,187,0.4)"/><circle cx="75" cy="22" r="2" fill="rgba(235,194,187,0.4)"/>
-              <path d="M35 98 Q60 110 85 98" fill="none" stroke="rgba(235,194,187,0.35)" stroke-width="1.2"/>
-              <path d="M35 98 Q30 92 28 96" fill="none" stroke="rgba(235,194,187,0.3)" stroke-width="1"/>
-              <path d="M85 98 Q90 92 92 96" fill="none" stroke="rgba(235,194,187,0.3)" stroke-width="1"/>
-              <circle cx="28" cy="96" r="2" fill="rgba(235,194,187,0.4)"/><circle cx="92" cy="96" r="2" fill="rgba(235,194,187,0.4)"/>
-              <path d="M38 100 Q42 94 48 98" fill="none" stroke="rgba(235,194,187,0.25)" stroke-width="1"/>
-              <text x="38" y="72" font-family="Georgia,serif" font-size="44" font-weight="bold" fill="#FFF8EF" text-anchor="middle" letter-spacing="-1">K</text>
-              <g transform="rotate(-8,60,48)"><text x="60" y="52" font-family="Georgia,serif" font-size="22" font-weight="bold" fill="#EBC2BB" text-anchor="middle">D</text></g>
-              <text x="82" y="72" font-family="Georgia,serif" font-size="44" font-weight="bold" fill="#FFF8EF" text-anchor="middle" letter-spacing="-1">E</text>
-              <rect x="58" y="68" width="4" height="4" rx="1" fill="#EBC2BB" transform="rotate(45,60,70)"/>
-            </svg>
+            <img src="${monogramUrl}" alt="Monogram" style="width:100px;height:100px;margin:0 auto 16px;display:block;object-fit:contain;" />
             <div style="font-family:Georgia,serif;font-size:18px;color:#FFF8EF;">King-David &amp; Esther</div>
             <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Wedding Access Pass</div>
           </td>

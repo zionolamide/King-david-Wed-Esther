@@ -1161,8 +1161,6 @@ export default function Home() {
           if (code) {
             setEntryCode(code);
             setAccessCardName(`KDE2026-${code}.png`);
-            // Preview generation is optional — code is already set
-            fetchAccessCardPreview(payload, code).catch(() => {});
           }
           return true;
         } catch (err) {
@@ -1593,11 +1591,10 @@ export default function Home() {
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
                   {/* Digital access card — clean design, buttons outside */}
-                  <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px'}}>
-                    <div className="flex flex-row">
+                  <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px', aspectRatio:'1050/600', display:'flex', flexDirection:'row'}}>
                       {/* LEFT: Monogram + Couple Name — warm wine→terracotta gradient */}
                       <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-3 text-center w-[140px] min-[400px]:w-[180px] sm:w-[280px] sm:p-8">
-                        <img src="/monograms.png" alt="Monogram" className="mb-3 h-16 w-16 object-contain sm:mb-5 sm:h-36 sm:w-36" />
+                        <img src="/monograms.png" alt="Monogram" width="144" height="144" fetchPriority="high" className="mb-3 h-16 w-16 object-contain sm:mb-5 sm:h-36 sm:w-36" />
                         <h3 className="font-serif text-xs text-ivory sm:text-2xl leading-tight">King-David &amp; Esther</h3>
                         <p className="mt-1 text-[0.4rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
                           Wedding Access Pass
@@ -1629,7 +1626,6 @@ export default function Home() {
                           1 Adult · Non-transferable
                         </p>
                       </div>
-                    </div>
                   </div>
                   {/* Download button outside card — entry code only inside card */}
                   <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'700px'}}>
@@ -1741,7 +1737,6 @@ export default function Home() {
                                   if (code) {
                                     setEntryCode(code);
                                     setAccessCardName(`KDE2026-${code}.png`);
-                                    fetchAccessCardPreview(lastPayload, code).catch(() => {});
                                   }
                                   setIsRetrying(false);
                                   break;

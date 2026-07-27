@@ -1207,6 +1207,16 @@ export default function Home() {
         {/* Date Reveal / Scratch Card */}
         <DateRevealSection onReveal={() => setDateRevealed(true)} />
 
+      {/* Prompt barrier when date not yet revealed */}
+      {!dateRevealed ? (
+        <div className="pointer-events-none flex flex-col items-center justify-center py-10 text-center select-none">
+          <div className="rounded-2xl border border-wine/10 bg-wine/5 px-6 py-4 backdrop-blur">
+            <p className="font-serif text-lg text-wine">✨ Scratch to reveal the date above</p>
+            <p className="mt-1 text-xs text-ink/50">The rest of the invitation will appear once the date is revealed.</p>
+          </div>
+        </div>
+      ) : null}
+
       <div className={!dateRevealed ? "date-not-revealed" : ""}>
       {/* Our Story */}
       <section id="story" className="premium-section section-story py-24 sm:py-32">

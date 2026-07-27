@@ -9,14 +9,14 @@
 - Add `overflow-x: hidden` on all parent containers (html, body, section) when using `translateX(100%)` slide animations to prevent horizontal scroll overflow. Confidence: 0.70
 
 # vercel
-- Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.80
+- Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.85
 
 # access-card
 - Use fixed 1050×600 pixel dimensions with horizontal layout for the access card; enforce consistent aspect ratio that scales responsively on all devices. Confidence: 0.75
 
 # email
 - Send notification email to the couple's `EMAIL_USER` when a guest RSVPs (guest name, entry code, contact details) and when a guest is checked in at the venue. Confidence: 0.85
-- Use the exact same access card design (same monogram, same layout, same colors) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.70
+- Use the exact same access card design (same monogram, same layout, same colors) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.75
 
 # admin
 - Hardcode admin password as a constant string (e.g., `ADMIN_PASSWORD = "KDE-admin2026"`) in the admin page and API routes; do not use process.env fallbacks to avoid environment variable confusion across deployments. Confidence: 0.80

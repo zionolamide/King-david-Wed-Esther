@@ -1067,6 +1067,61 @@ body {
   }
 }
 
+/* ─── Curtain floating particles (CSS-only, appears only when curtain closed) ──── */
+
+.curtain-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: curtain-particle-float linear infinite;
+}
+
+.curtain-particle:nth-child(1) { width:8px; height:8px; left:12%; bottom:-10px; background:rgba(235,194,187,0.5); animation-duration:7s; animation-delay:0s; }
+.curtain-particle:nth-child(2) { width:6px; height:6px; left:28%; bottom:-10px; background:rgba(234,223,201,0.4); animation-duration:9s; animation-delay:1.5s; }
+.curtain-particle:nth-child(3) { width:10px; height:10px; left:45%; bottom:-10px; background:rgba(215,167,156,0.35); animation-duration:11s; animation-delay:0.8s; }
+.curtain-particle:nth-child(4) { width:5px; height:5px; left:60%; bottom:-10px; background:rgba(235,194,187,0.45); animation-duration:8s; animation-delay:2.5s; }
+.curtain-particle:nth-child(5) { width:7px; height:7px; left:75%; bottom:-10px; background:rgba(234,223,201,0.35); animation-duration:10s; animation-delay:1s; }
+.curtain-particle:nth-child(6) { width:9px; height:9px; left:88%; bottom:-10px; background:rgba(215,167,156,0.3); animation-duration:12s; animation-delay:3s; }
+
+@keyframes curtain-particle-float {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-110vh) scale(1.1); }
+}
+
+/* ─── Scratch reveal blur overlay ──────────────────────────────── */
+
+.date-not-revealed {
+  filter: blur(6px) saturate(0.6);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.6s ease, opacity 0.6s ease;
+  opacity: 0.5;
+}
+
+.date-not-revealed-overlay {
+  position: relative;
+}
+
+.date-not-revealed-overlay::after {
+  content: "👆 Reveal the date above first";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #6e0d1b;
+  background: rgba(251,246,237,0.6);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
 /* ─── Print styles for access card ──────────────────────────────── */
 
 @media print {

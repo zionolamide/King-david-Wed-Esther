@@ -416,12 +416,15 @@ function RomanticAmbience({ variant = "soft" }: { variant?: "soft" | "curtain" |
   );
 }
 
-function ScratchDateCard() {
+function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
   const [progress, setProgress] = useState(0);
   const revealed = progress >= 4;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   function scratch() {
+    if (!revealed && progress + 1 >= 4) {
+      onReveal?.();
+    }
     setProgress((current) => Math.min(current + 1, 4));
   }
 
@@ -598,45 +601,15 @@ function CurtainHero({
           <span className="curtain-tie curtain-tie-right" />
         </div>
 
-        {/* Floating hearts/sparkles on closed curtain */}
+        {/* CSS-only floating particles on closed curtain */}
         {!opened && (
           <div className="pointer-events-none absolute inset-0 z-25 overflow-hidden">
-            <motion.span
-              className="absolute h-3 w-3 rounded-full bg-rose/30"
-              style={{ left: '15%', top: '30%' }}
-              animate={{ y: [-10, 10, -10], opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.span
-              className="absolute h-2 w-2 rounded-full bg-champagne/40"
-              style={{ left: '75%', top: '25%' }}
-              animate={{ y: [0, -15, 0], opacity: [0.2, 0.6, 0.2] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            />
-            <motion.span
-              className="absolute h-2.5 w-2.5 rounded-full bg-rose/25"
-              style={{ left: '40%', top: '60%' }}
-              animate={{ y: [-8, 8, -8], opacity: [0.2, 0.5, 0.2] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-            />
-            <motion.span
-              className="absolute h-1.5 w-1.5 rounded-full bg-champagne/30"
-              style={{ left: '55%', top: '40%' }}
-              animate={{ y: [0, -12, 0], opacity: [0.1, 0.4, 0.1] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-            />
-            <motion.span
-              className="absolute h-2 w-2 rounded-full bg-rose/20"
-              style={{ left: '85%', top: '55%' }}
-              animate={{ y: [-6, 6, -6], opacity: [0.15, 0.45, 0.15] }}
-              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-            />
-            <motion.span
-              className="absolute h-3 w-3 rounded-full bg-champagne/25"
-              style={{ left: '25%', top: '70%' }}
-              animate={{ y: [0, -10, 0], opacity: [0.1, 0.35, 0.1] }}
-              transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-            />
+            <span className="curtain-particle" />
+            <span className="curtain-particle" />
+            <span className="curtain-particle" />
+            <span className="curtain-particle" />
+            <span className="curtain-particle" />
+            <span className="curtain-particle" />
           </div>
         )}
 
@@ -767,7 +740,7 @@ function CurtainHero({
   );
 }
 
-function DateRevealSection() {
+function DateRevealSection({ onReveal }: { onReveal?: () => void }) {
   return (
     <section id="date-reveal" className="premium-section date-reveal-section py-24 sm:py-32">
       <RomanticAmbience variant="soft" />
@@ -785,7 +758,7 @@ function DateRevealSection() {
         </FadeIn>
 
         <FadeIn delay={0.15} className="mt-10 flex justify-center">
-          <ScratchDateCard />
+          <ScratchDateCard onReveal={onReveal} />
         </FadeIn>
 
         <FadeIn delay={0.25} className="mt-8 flex justify-center">
@@ -947,6 +920,7 @@ export default function Home() {
   const [soundOn, setSoundOn] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
   const [wishes, setWishes] = useState<{ name: string; wish: string }[]>([]);
+  const [dateRevealed, setDateRevealed] = useState(false);
 
   useEffect(() => {
     fetch("/api/wishes")
@@ -1210,8 +1184,10 @@ export default function Home() {
       {/* Wrap other elements in a container that stays completely hidden when closed */}
       <div className={opened ? "block animate-fade-in" : "hidden"}>
         {/* Date Reveal / Scratch Card */}
-        <DateRevealSection />
+        <DateRevealSection onReveal={() => setDateRevealed(true)} />
 
+      <div className={!dateRevealed ? "date-not-revealed" : ""}>
+      <div className={!dateRevealed ? "date-not-revealed-overlay" : ""}>
       {/* Our Story */}
       <section id="story" className="premium-section section-story py-24 sm:py-32">
         <RomanticAmbience variant="soft" />
@@ -1489,6 +1465,9 @@ export default function Home() {
       {/* Guest Notice before RSVP */}
       <GuestNoticeSection />
 
+      </div>
+      </div>
+
       {/* RSVP */}
       <section id="rsvp" className="premium-section section-rsvp bg-ivory/15 py-24 sm:py-32">
         <RomanticAmbience variant="soft" />
@@ -1551,37 +1530,37 @@ export default function Home() {
                   </p>
                 </motion.div>
               ) : status === "success" ? (
-                <div className="space-y-5 py-8 text-center">
+                <div className="space-y-4 py-6 text-center sm:space-y-5 sm:py-8">
                   <SuccessAnimation />
-                  {/* Fixed 1050×600 horizontal access card — same on all devices */}
-                  <div id="access-card" style={{width:'min(700px,100%)', maxWidth:'700px', margin:'0 auto', aspectRatio:'1050/600', display:'flex', flexDirection:'row', borderRadius:'16px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
-                    {/* LEFT: fixed 280px wine→terracotta */}
-                    <div style={{width:'280px', minWidth:'280px', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'24px', textAlign:'center'}}>
-                      <img src="/monograms.png" alt="Monogram" width="120" height="120" fetchPriority="high" style={{width:'120px', height:'120px', objectFit:'contain', marginBottom:'16px'}} />
-                      <div style={{fontFamily:'Georgia,serif', fontSize:'20px', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
-                      <div style={{marginTop:'4px', fontSize:'9px', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
+                  {/* Fixed 1050×600 horizontal access card — scales responsively */}
+                  <div id="access-card" style={{width:'min(100%,560px)', margin:'0 auto', aspectRatio:'1050/600', display:'flex', flexDirection:'row', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
+                    {/* LEFT: proportional 40% — keeps balance on all screens */}
+                    <div style={{width:'40%', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'12px', textAlign:'center'}}>
+                      <img src="/monograms.png" alt="Monogram" fetchPriority="high" style={{width:'min(100px, 60%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'8px'}} />
+                      <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(11px, 2.5vw, 18px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
+                      <div style={{marginTop:'3px', fontSize:'clamp(6px, 1.2vw, 9px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
                     </div>
-                    {/* RIGHT: flexible */}
-                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', padding:'20px'}}>
-                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'10px'}}>
-                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'10px', padding:'10px'}}>
-                          <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Guest</div>
-                          <div style={{fontFamily:'Georgia,serif', fontSize:'13px', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
+                    {/* RIGHT: 60% — plenty of room for info */}
+                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', padding:'clamp(10px, 2vw, 20px)'}}>
+                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 10px)', marginBottom:'clamp(6px, 1vw, 10px)'}}>
+                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)'}}>
+                          <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Guest</div>
+                          <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(10px, 2vw, 14px)', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
                         </div>
-                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'10px', padding:'10px', textAlign:'right'}}>
-                          <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Entry Code</div>
-                          <div style={{fontFamily:'monospace', fontSize:'15px', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
+                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)', textAlign:'right'}}>
+                          <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Entry Code</div>
+                          <div style={{fontFamily:'monospace', fontSize:'clamp(11px, 2.2vw, 15px)', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
                         </div>
                       </div>
-                      <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'10px', padding:'10px'}}>
-                        <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Event Details</div>
-                        <div style={{fontFamily:'Georgia,serif', fontSize:'13px', color:'#2f3a22'}}>Camp Young, Ede</div>
-                        <div style={{fontSize:'10px', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
+                      <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)'}}>
+                        <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Event Details</div>
+                        <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(10px, 2vw, 14px)', color:'#2f3a22'}}>Camp Young, Ede</div>
+                        <div style={{fontSize:'clamp(8px, 1.5vw, 11px)', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
                       </div>
-                      <div style={{marginTop:'8px', display:'flex', gap:'3px', borderRadius:'4px', overflow:'hidden'}}>
-                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'5px', background:c}} />))}
+                      <div style={{marginTop:'clamp(5px, 0.8vw, 8px)', display:'flex', gap:'2px', borderRadius:'3px', overflow:'hidden'}}>
+                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'clamp(3px, 0.6vw, 5px)', background:c}} />))}
                       </div>
-                      <div style={{marginTop:'6px', textAlign:'center', fontSize:'6px', fontWeight:'600', letterSpacing:'0.25em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
+                      <div style={{marginTop:'clamp(4px, 0.6vw, 6px)', textAlign:'center', fontSize:'clamp(5px, 0.9vw, 7px)', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
                     </div>
                   </div>
                   {/* Download button outside card — entry code only inside card */}

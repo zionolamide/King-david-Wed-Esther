@@ -244,6 +244,15 @@ function SuccessAnimation() {
         </p>
       </motion.div>
 
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mt-3 text-xs leading-relaxed text-ink/50 italic max-w-md mx-auto"
+      >
+        A backup access card has been sent to your email. Please check your spam folder if you don&apos;t see it in your inbox.
+      </motion.p>
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -437,8 +446,15 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
 
     let raf = 0;
     const DPR = Math.max(1, window.devicePixelRatio || 1);
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    // Make canvas fill the viewport for full-section coverage
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.zIndex = '9999';
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    canvas.style.pointerEvents = 'none';
     canvas.width = Math.floor(w * DPR);
     canvas.height = Math.floor(h * DPR);
     ctx.scale(DPR, DPR);
@@ -447,31 +463,40 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
     const particles: Particle[] = [];
     const colors = ["#7b0014", "#c97658", "#737b54", "#e9c0b6", "#eadfc9"];
 
-    // spawn burst
-    const spawn = (count = 40) => {
+    // spawn burst — spreads across the full viewport
+    const spawn = (count = 60) => {
       for (let i = 0; i < count; i += 1) {
         const angle = (Math.random() * Math.PI * 2);
-        const speed = 2 + Math.random() * 6;
+        const speed = 3 + Math.random() * 10;
         particles.push({
-          x: w / 2 + (Math.random() - 0.5) * 20,
-          y: h / 2 + (Math.random() - 0.5) * 20,
+          x: w / 2 + (Math.random() - 0.5) * 100,
+          y: h / 2 + (Math.random() - 0.5) * 60,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 1.5,
-          life: 60 + Math.random() * 40,
+          vy: Math.sin(angle) * speed - 2,
+          life: 80 + Math.random() * 60,
           color: colors[Math.floor(Math.random() * colors.length)],
-          size: 6 + Math.random() * 12,
+          size: 8 + Math.random() * 16,
           rot: Math.random() * Math.PI,
           vr: (Math.random() - 0.5) * 0.3,
         });
       }
     };
 
-    spawn(40);
+    // Initial burst + delayed waves so splash continues for several seconds
+    spawn(60);
+    const burstTimers: number[] = [];
+    // Wave at 1s
+    burstTimers.push(window.setTimeout(() => spawn(40), 1000));
+    // Wave at 2.5s
+    burstTimers.push(window.setTimeout(() => spawn(30), 2500));
+    // Wave at 4s
+    burstTimers.push(window.setTimeout(() => spawn(20), 4000));
 
-    const gravity = 0.12;
+    const gravity = 0.10;
     const drag = 0.995;
     let frame = 0;
-    const maxFrames = 220;
+    // ~10 seconds at 60fps
+    const maxFrames = 600;
 
     const loop = () => {
       raf = requestAnimationFrame(loop);
@@ -496,6 +521,15 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
       }
       if (particles.length === 0 && frame > maxFrames) {
         cancelAnimationFrame(raf);
+        // Clean up fixed canvas
+        if (canvas) {
+          canvas.style.position = '';
+          canvas.style.inset = '';
+          canvas.style.zIndex = '';
+          canvas.style.width = '';
+          canvas.style.height = '';
+          canvas.style.pointerEvents = '';
+        }
       }
     };
 
@@ -503,6 +537,7 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
 
     return () => {
       cancelAnimationFrame(raf);
+      burstTimers.forEach(t => window.clearTimeout(t));
     };
   }, [revealed]);
 

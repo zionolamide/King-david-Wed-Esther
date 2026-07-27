@@ -16,7 +16,7 @@
 - All guests' access cards share the same visual design (same monogram, layout, colors, background) — only the text information (name, role, code) differs between guests. Confidence: 0.70
 
 # email
-- Send notification email to the couple's `EMAIL_USER` when a guest RSVPs (guest name, entry code, contact details) and when a guest is checked in at the venue. Confidence: 0.85
+- Send notification email to the couple's `EMAIL_USER` only when a guest is checked in at the venue (not when a guest RSVPs); guests receive the access card email. Confidence: 0.85
 - Use the exact same access card design (same monogram, same layout, same colors) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.75
 
 # admin

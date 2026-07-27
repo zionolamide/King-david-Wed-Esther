@@ -54,6 +54,54 @@ export async function GET(request: Request) {
   return NextResponse.json({ ok: true, guests });
 }
 
+export async function POST(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${ADMIN_PASSWORD}`) return unauthorized();
+
+  let body: { resetAll?: boolean };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, message: "Invalid request" }, { status: 400 });
+  }
+
+  if (!body.resetAll) {
+    return NextResponse.json({ ok: false, message: "Missing resetAll" }, { status: 400 });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+  // Fetch all guests' notes
+  const { data: allGuests, error: fetchError } = await supabase
+    .from("rsvp_submissions")
+    .select("id, note");
+
+  if (fetchError) {
+    return NextResponse.json({ ok: false, message: fetchError.message }, { status: 500 });
+  }
+
+  // Reset checked_in and checked_in_at in each note
+  for (const guest of allGuests || []) {
+    let meta: any = {};
+    try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
+
+    if (meta.checked_in !== undefined || meta.original !== undefined) {
+      meta.checked_in = false;
+      meta.checked_in_at = null;
+      await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", guest.id);
+    }
+  }
+
+  return NextResponse.json({ ok: true, resetCount: allGuests?.length || 0 });
+}
+
 export async function PATCH(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${ADMIN_PASSWORD}`) return unauthorized();

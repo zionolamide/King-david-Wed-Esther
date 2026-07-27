@@ -98,6 +98,31 @@ export default function AdminPage() {
     setApprovingId(null);
   }
 
+  async function resetAllCheckIns() {
+    if (!confirm("Are you sure you want to reset ALL guest check-ins? This will mark everyone as Not Checked In.")) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/guests", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${ADMIN_PASSWORD}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ resetAll: true }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMessage("All check-ins have been reset.");
+        fetchGuests();
+      } else {
+        setMessage(data.message || "Reset failed");
+      }
+    } catch {
+      setMessage("Network error");
+    }
+    setLoading(false);
+  }
+
   useEffect(() => {
     if (message) {
       const t = setTimeout(() => setMessage(""), 3000);
@@ -220,10 +245,17 @@ export default function AdminPage() {
               Refresh
             </button>
             <button
+              onClick={resetAllCheckIns}
+              disabled={loading}
+              className="rounded-full border border-rose/30 bg-white/80 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-rose transition hover:bg-rose/5 disabled:opacity-40"
+            >
+              {loading ? "..." : "Reset Check-Ins"}
+            </button>
+            <button
               onClick={() => setAuthed(false)}
               className="rounded-full border border-wine/20 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-wine transition hover:bg-wine/5"
             >
-              Lock
+              Logout
             </button>
           </div>
         </div>

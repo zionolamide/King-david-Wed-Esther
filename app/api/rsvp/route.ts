@@ -274,26 +274,6 @@ export async function POST(request: Request) {
     } finally {
       try { transporter.close(); } catch (e) { /* ignore */ }
     }
-
-    // Send notification to the couple
-    try {
-      const notifyTransport = nodemailer.createTransport({
-        service: "gmail",
-        auth: { user: emailUser, pass: emailPassword },
-        pool: true,
-        maxConnections: 1,
-        socketTimeout: 5_000,
-      });
-      await notifyTransport.sendMail({
-        from: fromAddress,
-        to: emailUser,
-        subject: `New RSVP: ${displayFullName}`,
-        text: `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEntry Code: ${entryCode}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`,
-      });
-      notifyTransport.close();
-    } catch (notifyErr) {
-      console.warn("Notification email failed:", notifyErr);
-    }
   } // end if (emailUser && emailPassword)
 
   return NextResponse.json({

@@ -439,14 +439,18 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
 
   useEffect(() => {
     if (!revealed) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+
+    // Create canvas on body to avoid parent overflow: hidden clipping
+    const canvas = document.createElement('canvas');
+    canvas.id = 'scratch-burst-canvas';
+    document.body.appendChild(canvas);
+    canvasRef.current = canvas;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let raf = 0;
     const DPR = Math.max(1, window.devicePixelRatio || 1);
-    // Make canvas fill the viewport for full-section coverage
     const w = window.innerWidth;
     const h = window.innerHeight;
     canvas.style.position = 'fixed';
@@ -463,7 +467,6 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
     const particles: Particle[] = [];
     const colors = ["#7b0014", "#c97658", "#737b54", "#e9c0b6", "#eadfc9"];
 
-    // spawn burst — spreads across the full viewport
     const spawn = (count = 60) => {
       for (let i = 0; i < count; i += 1) {
         const angle = (Math.random() * Math.PI * 2);
@@ -482,20 +485,15 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
       }
     };
 
-    // Initial burst + delayed waves so splash continues for several seconds
     spawn(60);
     const burstTimers: number[] = [];
-    // Wave at 1s
     burstTimers.push(window.setTimeout(() => spawn(40), 1000));
-    // Wave at 2.5s
     burstTimers.push(window.setTimeout(() => spawn(30), 2500));
-    // Wave at 4s
     burstTimers.push(window.setTimeout(() => spawn(20), 4000));
 
     const gravity = 0.10;
     const drag = 0.995;
     let frame = 0;
-    // ~10 seconds at 60fps
     const maxFrames = 600;
 
     const loop = () => {
@@ -521,15 +519,7 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
       }
       if (particles.length === 0 && frame > maxFrames) {
         cancelAnimationFrame(raf);
-        // Clean up fixed canvas
-        if (canvas) {
-          canvas.style.position = '';
-          canvas.style.inset = '';
-          canvas.style.zIndex = '';
-          canvas.style.width = '';
-          canvas.style.height = '';
-          canvas.style.pointerEvents = '';
-        }
+        if (canvas?.parentNode) canvas.parentNode.removeChild(canvas);
       }
     };
 
@@ -538,6 +528,7 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
     return () => {
       cancelAnimationFrame(raf);
       burstTimers.forEach(t => window.clearTimeout(t));
+      if (canvas?.parentNode) canvas.parentNode.removeChild(canvas);
     };
   }, [revealed]);
 
@@ -551,7 +542,6 @@ function ScratchDateCard({ onReveal }: { onReveal?: () => void }) {
         if (event.buttons === 1) scratch();
       }}
     >
-      <canvas ref={canvasRef} className="ribbon-canvas" />
       <div className="shimmer-overlay" />
       {revealed ? (
         // keep CSS ribbon-field as graceful fallback

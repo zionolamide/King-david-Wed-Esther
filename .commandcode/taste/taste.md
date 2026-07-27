@@ -12,11 +12,11 @@
 - Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.85
 
 # access-card
-- Use fixed 600×1050 pixel dimensions with vertical (portrait) layout for the access card; enforce consistent aspect ratio that scales responsively on all devices. Confidence: 0.80
+- Use content-driven height (no fixed aspect ratio) for the access card — let the card be as tall as its content needs to be, with only a fixed width of 600px max. Confidence: 0.65
 - All guests' access cards share the same visual design (same monogram, layout, colors, background) — only the text information (name, role, code) differs between guests. Confidence: 0.70
 
 # email
-- Send notification email to the couple's `EMAIL_USER` only when a guest is checked in at the venue (not when a guest RSVPs); guests receive the access card email. Confidence: 0.85
+- Send notification email to the couple's `EMAIL_USER` when a guest RSVPs, not just when they are checked in at the venue. Confidence: 0.70
 - Use the exact same access card design (same monogram, same layout, same colors) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.75
 
 # admin

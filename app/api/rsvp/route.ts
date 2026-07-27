@@ -188,7 +188,7 @@ export async function POST(request: Request) {
 
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || "https://king-david-wed-esther.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
     const monogramUrl = `${baseUrl}/monograms.png`;
 
     // Build the email with a self-contained styled access card matching the in-page vertical design
@@ -273,6 +273,26 @@ export async function POST(request: Request) {
       console.error("Email transporter verify failed:", verifyErr);
     } finally {
       try { transporter.close(); } catch (e) { /* ignore */ }
+    }
+
+    // Send notification to the couple
+    try {
+      const notifyTransport = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: emailUser, pass: emailPassword },
+        pool: true,
+        maxConnections: 1,
+        socketTimeout: 5_000,
+      });
+      await notifyTransport.sendMail({
+        from: fromAddress,
+        to: emailUser,
+        subject: `New RSVP: ${displayFullName}`,
+        text: `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEntry Code: ${entryCode}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`,
+      });
+      notifyTransport.close();
+    } catch (notifyErr) {
+      console.warn("Notification email failed:", notifyErr);
     }
   } // end if (emailUser && emailPassword)
 

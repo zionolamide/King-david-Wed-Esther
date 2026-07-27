@@ -1561,16 +1561,16 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-4 py-6 text-center sm:space-y-5 sm:py-8">
                   <SuccessAnimation />
-                  {/* Fixed 600×1050 vertical access card — scales responsively */}
-                  <div id="access-card" style={{width:'min(100%,600px)', margin:'0 auto', aspectRatio:'600/1050', display:'flex', flexDirection:'column', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
-                    {/* TOP: gradient band with monogram + couple name ~30% */}
-                    <div style={{height:'35%', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'clamp(12px, 3vw, 28px)', textAlign:'center'}}>
+                  {/* Fixed 600 wide vertical access card — height fits content */}
+                  <div id="access-card" style={{width:'min(100%,600px)', margin:'0 auto', display:'flex', flexDirection:'column', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
+                    {/* TOP: gradient band with monogram + couple name */}
+                    <div style={{background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'clamp(16px, 4vw, 36px)', textAlign:'center'}}>
                       <img src="/monograms.png" alt="Monogram" fetchPriority="high" style={{width:'min(80px, 30%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'clamp(4px, 1vw, 10px)'}} />
                       <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(14px, 3.5vw, 22px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
                       <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
                     </div>
                     {/* BOTTOM: guest info area ~65% — full width for name */}
-                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', gap:'clamp(8px, 1.5vw, 16px)', padding:'clamp(12px, 2.5vw, 24px)'}}>
+                    <div style={{background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', gap:'clamp(8px, 1.5vw, 16px)', padding:'clamp(12px, 2.5vw, 24px)'}}>
                       <div>
                         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 12px)', marginBottom:'clamp(8px, 1.5vw, 14px)'}}>
                           <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>

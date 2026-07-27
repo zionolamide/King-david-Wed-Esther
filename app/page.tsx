@@ -567,7 +567,7 @@ function CurtainHero({
 
   return (
     <section id="home" className={`relative ${opened ? "min-h-screen" : "min-h-[100svh]"}`}>
-      <div className={`curtain-stage relative flex ${opened ? "min-h-screen is-open" : "min-h-[100svh]"} items-center pt-16 sm:pt-20 page-backdrop ${opened ? "" : "overflow-hidden"}`}>
+      <div className={`curtain-stage relative flex ${opened ? "min-h-screen is-open" : "min-h-[100svh]"} items-center pt-16 sm:pt-20 page-backdrop`}>
         <div className="absolute inset-0 -z-20" style={{background: "linear-gradient(rgba(251,246,237,0.58),rgba(251,246,237,0.86)),linear-gradient(135deg,#e9c0b6 0%,#eadfc9 50%,#d4c9a8 100%)"}} />
         {!opened ? <RomanticAmbience variant="curtain" /> : null}
         <FloatingPetals />
@@ -941,8 +941,7 @@ export default function Home() {
   const [isRetrying, setIsRetrying] = useState(false);
   const [lastPayload, setLastPayload] = useState<any | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
-  const [accessCardUrl, setAccessCardUrl] = useState<string | null>(null);
-  const [entryCode, setEntryCode] = useState<string | null>(null);
+  const [submittedGuest, setSubmittedGuest] = useState<{ title: string; fullName: string; entryCode: string } | null>(null);
   const [accessCardName, setAccessCardName] = useState<string>("access-card.png");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [soundOn, setSoundOn] = useState(false);
@@ -1022,45 +1021,11 @@ export default function Home() {
   }
 
   useEffect(() => {
-    return () => {
-      if (accessCardUrl) {
-        URL.revokeObjectURL(accessCardUrl);
-      }
-    };
-  }, [accessCardUrl]);
+    return () => {};
+  }, []);
 
   async function fetchAccessCardPreview(payload: any, code: string) {
-    try {
-      const displayFullName = payload.title && payload.title !== "(No Prefix)"
-        ? `${payload.title} ${payload.fullName}`
-        : payload.fullName;
-      const response = await fetch('/api/access-card', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: displayFullName,
-          entryCode: code,
-          attendees: 1,
-          phone: payload.phone,
-          whatsappContacts: rsvpContacts,
-        }),
-      });
-
-      if (!response.ok) {
-        return;
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setAccessCardUrl((current) => {
-        if (current) URL.revokeObjectURL(current);
-        return url;
-      });
-      setAccessCardName(`KDE2026-${code}.png`);
-      setEntryCode(code);
-    } catch (err) {
-      console.warn('Access card preview generation failed', err);
-    }
+    // No longer used — card renders inline from submittedGuest state
   }
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
@@ -1070,9 +1035,8 @@ export default function Home() {
     setFormErrors({});
     setRetryAttempts(0);
     setIsRetrying(false);
-    setAccessCardUrl(null);
-    setEntryCode(null);
-    setAccessCardName("access-card.png");
+    setSubmittedEmail(null);
+    setSubmittedGuest(null);
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
@@ -1159,8 +1123,7 @@ export default function Home() {
           setSubmittedEmail(payload.email);
           const code = result.entryCode || result.entry_code;
           if (code) {
-            setEntryCode(code);
-            setAccessCardName(`KDE2026-${code}.png`);
+            setSubmittedGuest({ title: payload.title, fullName: payload.fullName, entryCode: code });
           }
           return true;
         } catch (err) {
@@ -1590,42 +1553,36 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-5 py-8 text-center">
                   <SuccessAnimation />
-                  {/* Digital access card — clean design, buttons outside */}
-                  <div id="access-card" className="mx-auto w-full overflow-hidden rounded-2xl border-2 border-champagne bg-white shadow-soft" style={{maxWidth:'700px', aspectRatio:'1050/600', display:'flex', flexDirection:'row'}}>
-                      {/* LEFT: Monogram + Couple Name — warm wine→terracotta gradient */}
-                      <div className="bg-gradient-to-br from-wine to-terracotta flex flex-col items-center justify-center p-3 text-center w-[140px] min-[400px]:w-[180px] sm:w-[280px] sm:p-8">
-                        <img src="/monograms.png" alt="Monogram" width="144" height="144" fetchPriority="high" className="mb-3 h-16 w-16 object-contain sm:mb-5 sm:h-36 sm:w-36" />
-                        <h3 className="font-serif text-xs text-ivory sm:text-2xl leading-tight">King-David &amp; Esther</h3>
-                        <p className="mt-1 text-[0.4rem] font-semibold uppercase tracking-[0.22em] text-champagne/70 sm:text-[0.55rem]">
-                          Wedding Access Pass
-                        </p>
+                  {/* Fixed 1050×600 horizontal access card — same on all devices */}
+                  <div id="access-card" style={{width:'min(700px,100%)', maxWidth:'700px', margin:'0 auto', aspectRatio:'1050/600', display:'flex', flexDirection:'row', borderRadius:'16px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
+                    {/* LEFT: fixed 280px wine→terracotta */}
+                    <div style={{width:'280px', minWidth:'280px', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'24px', textAlign:'center'}}>
+                      <img src="/monograms.png" alt="Monogram" width="120" height="120" fetchPriority="high" style={{width:'120px', height:'120px', objectFit:'contain', marginBottom:'16px'}} />
+                      <div style={{fontFamily:'Georgia,serif', fontSize:'20px', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
+                      <div style={{marginTop:'4px', fontSize:'9px', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
+                    </div>
+                    {/* RIGHT: flexible */}
+                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', padding:'20px'}}>
+                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'10px'}}>
+                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'10px', padding:'10px'}}>
+                          <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Guest</div>
+                          <div style={{fontFamily:'Georgia,serif', fontSize:'13px', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
+                        </div>
+                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'10px', padding:'10px', textAlign:'right'}}>
+                          <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Entry Code</div>
+                          <div style={{fontFamily:'monospace', fontSize:'15px', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
+                        </div>
                       </div>
-                      {/* RIGHT: Guest Info — warm champagne/ivory tones */}
-                      <div className="flex flex-1 flex-col justify-center bg-ivory p-3 sm:p-6">
-                        <div className="mb-3 grid grid-cols-2 gap-3">
-                          <div className="rounded-xl bg-champagne/40 p-3">
-                            <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Guest</p>
-                            <p className="mt-0.5 break-words font-serif text-sm text-moss sm:text-base">{lastPayload?.fullName || "Guest"}</p>
-                          </div>
-                          <div className="rounded-xl bg-champagne/40 p-3 text-right">
-                            <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Entry Code</p>
-                            <p className="mt-0.5 font-mono text-sm font-bold text-moss sm:text-lg">{entryCode}</p>
-                          </div>
-                        </div>
-                        <div className="rounded-xl bg-blush/20 border border-blush/30 p-3">
-                          <p className="text-[0.45rem] font-semibold uppercase tracking-[0.2em] text-wine">Event Details</p>
-                          <p className="font-serif text-sm text-moss sm:text-base">Camp Young, Ede</p>
-                          <p className="text-[0.6rem] text-ink/60 sm:text-xs">Saturday, 22 August 2026 · 10:00 AM</p>
-                        </div>
-                        <div className="mt-3 flex gap-1 overflow-hidden rounded-lg">
-                          {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (
-                            <div key={i} className="h-2.5 flex-1" style={{backgroundColor:c}} />
-                          ))}
-                        </div>
-                        <p className="mt-2 text-center text-[0.4rem] font-semibold uppercase tracking-[0.25em] text-ink/40 sm:text-[0.45rem]">
-                          1 Adult · Non-transferable
-                        </p>
+                      <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'10px', padding:'10px'}}>
+                        <div style={{fontSize:'7px', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Event Details</div>
+                        <div style={{fontFamily:'Georgia,serif', fontSize:'13px', color:'#2f3a22'}}>Camp Young, Ede</div>
+                        <div style={{fontSize:'10px', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
                       </div>
+                      <div style={{marginTop:'8px', display:'flex', gap:'3px', borderRadius:'4px', overflow:'hidden'}}>
+                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'5px', background:c}} />))}
+                      </div>
+                      <div style={{marginTop:'6px', textAlign:'center', fontSize:'6px', fontWeight:'600', letterSpacing:'0.25em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
+                    </div>
                   </div>
                   {/* Download button outside card — entry code only inside card */}
                   <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'700px'}}>
@@ -1735,8 +1692,7 @@ export default function Home() {
                                   setSubmittedEmail(lastPayload?.email ?? null);
                                   const code = j.entryCode || j.entry_code;
                                   if (code) {
-                                    setEntryCode(code);
-                                    setAccessCardName(`KDE2026-${code}.png`);
+                                    setSubmittedGuest({ title: lastPayload?.title || "(No Prefix)", fullName: lastPayload?.fullName || "", entryCode: code });
                                   }
                                   setIsRetrying(false);
                                   break;

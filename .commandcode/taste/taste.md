@@ -12,7 +12,7 @@
 - Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.80
 
 # access-card
-- Use fixed 1050×600 pixel dimensions with horizontal layout for the access card; enforce consistent aspect ratio that scales responsively on all devices. Confidence: 0.70
+- Use fixed 1050×600 pixel dimensions with horizontal layout for the access card; enforce consistent aspect ratio that scales responsively on all devices. Confidence: 0.75
 
 # email
 - Send notification email to the couple's `EMAIL_USER` when a guest RSVPs (guest name, entry code, contact details) and when a guest is checked in at the venue. Confidence: 0.85

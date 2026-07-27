@@ -191,44 +191,40 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || "https://king-david-wed-esther.vercel.app";
     const monogramUrl = `${baseUrl}/monograms.png`;
 
-    // Build the email with a self-contained styled access card matching the in-page design exactly
+    // Build the email with a self-contained styled access card matching the in-page vertical design
     const emailCardHtml = `
     <div style="max-width:420px;margin:0 auto;font-family:'Montserrat',Arial,sans-serif;border:2px solid #eadfc9;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);background:#ffffff;">
-      <table style="width:100%;border-collapse:collapse;">
-        <tr>
-          <!-- LEFT: Monogram + Couple Name (wine→terracotta gradient) -->
-          <td style="width:280px;background:linear-gradient(135deg,#6e0d1b,#c9785e);padding:32px 24px;text-align:center;vertical-align:middle;">
-            <img src="${monogramUrl}" alt="Monogram" style="width:100px;height:100px;margin:0 auto 16px;display:block;object-fit:contain;" />
-            <div style="font-family:Georgia,serif;font-size:18px;color:#FFF8EF;">King-David &amp; Esther</div>
-            <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Wedding Access Pass</div>
-          </td>
-          <!-- RIGHT: Guest Info -->
-          <td style="background:#fbf6ed;padding:20px;vertical-align:middle;">
-            <table style="width:100%;border-collapse:collapse;">
-              <tr>
-                <td style="width:50%;background:rgba(234,223,201,0.4);border-radius:10px;padding:12px;vertical-align:top;">
-                  <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Guest</p>
-                  <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:13px;color:#2f3a22;">${displayFullName}</p>
-                </td>
-                <td style="width:10px;"></td>
-                <td style="width:50%;background:rgba(234,223,201,0.4);border-radius:10px;padding:12px;vertical-align:top;text-align:right;">
-                  <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Entry Code</p>
-                  <p style="margin:4px 0 0;font-family:monospace;font-size:15px;font-weight:bold;color:#2f3a22;">${entryCode}</p>
-                </td>
-              </tr>
-            </table>
-            <div style="margin-top:10px;background:rgba(235,194,187,0.2);border:1px solid rgba(235,194,187,0.3);border-radius:10px;padding:10px;">
-              <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Event Details</p>
-              <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:13px;color:#2f3a22;">Camp Young, Ede</p>
-              <p style="margin:2px 0 0;font-size:10px;color:rgba(45,36,31,0.6);">Saturday, 22 August 2026 · 10:00 AM</p>
-            </div>
-            <div style="margin-top:8px;display:flex;gap:3px;border-radius:4px;overflow:hidden;">
-              ${["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map(c => `<div style="flex:1;height:5px;background:${c};"></div>`).join('')}
-            </div>
-            <p style="margin:8px 0 0;text-align:center;font-size:6px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:rgba(45,36,31,0.4);">1 Adult · Non-transferable</p>
-          </td>
-        </tr>
-      </table>
+      <!-- TOP: Monogram + Couple Name (wine→terracotta gradient) -->
+      <div style="background:linear-gradient(135deg,#6e0d1b,#c9785e);padding:28px 20px;text-align:center;">
+        <img src="${monogramUrl}" alt="Monogram" style="width:80px;height:80px;margin:0 auto 10px;display:block;object-fit:contain;" />
+        <div style="font-family:Georgia,serif;font-size:18px;color:#FFF8EF;">King-David &amp; Esther</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Wedding Access Pass</div>
+      </div>
+      <!-- BOTTOM: Guest Info (vertical stack) -->
+      <div style="background:#fbf6ed;padding:20px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="width:50%;background:rgba(234,223,201,0.4);border-radius:10px;padding:12px;vertical-align:top;">
+              <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Guest</p>
+              <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:13px;color:#2f3a22;word-break:break-word;">${displayFullName}</p>
+            </td>
+            <td style="width:10px;"></td>
+            <td style="width:50%;background:rgba(234,223,201,0.4);border-radius:10px;padding:12px;vertical-align:top;text-align:right;">
+              <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Entry Code</p>
+              <p style="margin:4px 0 0;font-family:monospace;font-size:15px;font-weight:bold;color:#2f3a22;">${entryCode}</p>
+            </td>
+          </tr>
+        </table>
+        <div style="margin-top:10px;background:rgba(235,194,187,0.2);border:1px solid rgba(235,194,187,0.3);border-radius:10px;padding:10px;">
+          <p style="margin:0;font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6e0d1b;">Event Details</p>
+          <p style="margin:4px 0 0;font-family:Georgia,serif;font-size:13px;color:#2f3a22;">Camp Young, Ede</p>
+          <p style="margin:2px 0 0;font-size:10px;color:rgba(45,36,31,0.6);">Saturday, 22 August 2026 · 10:00 AM</p>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:3px;border-radius:4px;overflow:hidden;">
+          ${["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map(c => `<div style="flex:1;height:5px;background:${c};"></div>`).join('')}
+        </div>
+        <p style="margin:10px 0 0;text-align:center;font-size:6px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:rgba(45,36,31,0.4);">1 Adult · Non-transferable</p>
+      </div>
     </div>`;
 
     const htmlBody = `<div style="font-family: 'Montserrat', Arial, sans-serif; background-color: #fbf6ed; padding: 30px 15px; text-align: center;">

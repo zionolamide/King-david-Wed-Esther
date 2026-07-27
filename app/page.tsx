@@ -979,11 +979,7 @@ export default function Home() {
     const card = document.getElementById("access-card");
     if (!card) return;
     try {
-      // Set white background before capture to avoid gray
-      const origBg = card.style.background;
-      card.style.background = "white";
-      const dataUrl = await toPng(card, { quality: 1, pixelRatio: 2, backgroundColor: "white" });
-      card.style.background = origBg;
+      const dataUrl = await toPng(card, { quality: 1, pixelRatio: 2, backgroundColor: "#fbf6ed" });
       const link = document.createElement("a");
       link.download = accessCardName || "KDE2026-access-card.png";
       link.href = dataUrl;
@@ -1510,7 +1506,7 @@ export default function Home() {
           </FadeIn>
 
           <FadeIn variant="stagger" delay={0.12}>
-            <form onSubmit={submitRsvp} className="premium-card p-6 shadow-soft sm:p-9">
+            <form onSubmit={submitRsvp} className="premium-card p-6 shadow-soft sm:p-9" style={status === "success" ? { overflow: "visible" } : undefined}>
               {status === "closed" ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -1532,39 +1528,43 @@ export default function Home() {
               ) : status === "success" ? (
                 <div className="space-y-4 py-6 text-center sm:space-y-5 sm:py-8">
                   <SuccessAnimation />
-                  {/* Fixed 1050×600 horizontal access card — scales responsively */}
-                  <div id="access-card" style={{width:'min(100%,560px)', margin:'0 auto', aspectRatio:'1050/600', display:'flex', flexDirection:'row', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
-                    {/* LEFT: proportional 40% — keeps balance on all screens */}
-                    <div style={{width:'40%', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'12px', textAlign:'center'}}>
-                      <img src="/monograms.png" alt="Monogram" fetchPriority="high" style={{width:'min(100px, 60%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'8px'}} />
-                      <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(11px, 2.5vw, 18px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
-                      <div style={{marginTop:'3px', fontSize:'clamp(6px, 1.2vw, 9px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
+                  {/* Fixed 600×1050 vertical access card — scales responsively */}
+                  <div id="access-card" style={{width:'min(100%,600px)', margin:'0 auto', aspectRatio:'600/1050', display:'flex', flexDirection:'column', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
+                    {/* TOP: gradient band with monogram + couple name ~30% */}
+                    <div style={{height:'35%', background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'clamp(12px, 3vw, 28px)', textAlign:'center'}}>
+                      <img src="/monograms.png" alt="Monogram" fetchPriority="high" style={{width:'min(80px, 30%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'clamp(4px, 1vw, 10px)'}} />
+                      <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(14px, 3.5vw, 22px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
+                      <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
                     </div>
-                    {/* RIGHT: 60% — plenty of room for info */}
-                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', padding:'clamp(10px, 2vw, 20px)'}}>
-                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 10px)', marginBottom:'clamp(6px, 1vw, 10px)'}}>
-                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)'}}>
-                          <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Guest</div>
-                          <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(10px, 2vw, 14px)', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
+                    {/* BOTTOM: guest info area ~65% — full width for name */}
+                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'clamp(12px, 2.5vw, 24px)'}}>
+                      <div>
+                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 12px)', marginBottom:'clamp(8px, 1.5vw, 14px)'}}>
+                          <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>
+                            <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Guest</div>
+                            <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(13px, 2.5vw, 18px)', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
+                          </div>
+                          <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)', textAlign:'right'}}>
+                            <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Entry Code</div>
+                            <div style={{fontFamily:'monospace', fontSize:'clamp(14px, 2.8vw, 20px)', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
+                          </div>
                         </div>
-                        <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)', textAlign:'right'}}>
-                          <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Entry Code</div>
-                          <div style={{fontFamily:'monospace', fontSize:'clamp(11px, 2.2vw, 15px)', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
+                        <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>
+                          <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Event Details</div>
+                          <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(13px, 2.5vw, 18px)', color:'#2f3a22'}}>Camp Young, Ede</div>
+                          <div style={{fontSize:'clamp(9px, 1.8vw, 12px)', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
                         </div>
                       </div>
-                      <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'8px', padding:'clamp(6px, 1.2vw, 10px)'}}>
-                        <div style={{fontSize:'clamp(6px, 1.1vw, 8px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'1px'}}>Event Details</div>
-                        <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(10px, 2vw, 14px)', color:'#2f3a22'}}>Camp Young, Ede</div>
-                        <div style={{fontSize:'clamp(8px, 1.5vw, 11px)', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
+                      <div>
+                        <div style={{marginTop:'clamp(6px, 1vw, 10px)', display:'flex', gap:'2px', borderRadius:'3px', overflow:'hidden'}}>
+                          {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'clamp(4px, 0.8vw, 6px)', background:c}} />))}
+                        </div>
+                        <div style={{marginTop:'clamp(5px, 0.8vw, 8px)', textAlign:'center', fontSize:'clamp(6px, 1vw, 8px)', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
                       </div>
-                      <div style={{marginTop:'clamp(5px, 0.8vw, 8px)', display:'flex', gap:'2px', borderRadius:'3px', overflow:'hidden'}}>
-                        {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'clamp(3px, 0.6vw, 5px)', background:c}} />))}
-                      </div>
-                      <div style={{marginTop:'clamp(4px, 0.6vw, 6px)', textAlign:'center', fontSize:'clamp(5px, 0.9vw, 7px)', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
                     </div>
                   </div>
-                  {/* Download button outside card — entry code only inside card */}
-                  <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'700px'}}>
+                  {/* Download button outside card */}
+                  <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'600px'}}>
                     <button
                       type="button"
                       onClick={() => downloadCard()}
@@ -1589,7 +1589,7 @@ export default function Home() {
                     </label>
                     <label>
                       <span className="label">Full name *</span>
-                        <input className="field" name="fullName" required />
+                        <input className="field" name="fullName" maxLength={50} required />
                         {formErrors.fullName ? (
                         <p className="mt-1 text-xs text-wine">{formErrors.fullName}</p>
                         ) : null}

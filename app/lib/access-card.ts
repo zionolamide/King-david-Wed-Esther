@@ -180,7 +180,7 @@ function drawPaletteStrip(ctx: any, fontFamily: string) {
   const gap = 8;
   const total = swatchWidth * palette.length + gap * (palette.length - 1);
   let x = (CANVAS_WIDTH - total) / 2;
-  const y = 740;
+  const y = 625;
 
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
@@ -240,25 +240,25 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   strokeRound(ctx, 50, 50, CANVAS_WIDTH - 100, 930, 30);
 
   // === MONOGRAM SEAL — interlocking wedding logo ===
-  const sealGradient = ctx.createLinearGradient(220, 110, 380, 270);
+  const sealGradient = ctx.createLinearGradient(215, 95, 385, 250);
   sealGradient.addColorStop(0, "#6E0D1B");
   sealGradient.addColorStop(0.5, "#8B5A46");
   sealGradient.addColorStop(1, "#2F3A22");
   ctx.fillStyle = sealGradient;
-  fillRound(ctx, 220, 110, 160, 160, 80);
+  fillRound(ctx, 215, 95, 170, 170, 85);
   ctx.strokeStyle = "rgba(255,248,239,0.75)";
   ctx.lineWidth = 5;
-  strokeRound(ctx, 236, 126, 128, 128, 64);
+  strokeRound(ctx, 232, 112, 136, 136, 68);
 
   // Decorative ring border inside seal
   ctx.strokeStyle = "rgba(255,248,239,0.35)";
   ctx.lineWidth = 1.5;
-  strokeRound(ctx, 248, 138, 104, 104, 52);
+  strokeRound(ctx, 245, 125, 110, 110, 55);
 
   // Ornamental dots around the ring
   const dotPositions = [
-    [300, 140], [300, 240], [250, 190], [350, 190],
-    [260, 150], [340, 150], [260, 230], [340, 230]
+    [300, 127], [300, 225], [247, 178], [353, 178],
+    [256, 138], [344, 138], [256, 218], [344, 218]
   ];
   ctx.fillStyle = "#FFF8EF";
   for (const [dx, dy] of dotPositions) {
@@ -273,52 +273,52 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
 
   // Left letter: "K"
   ctx.fillStyle = "#FFF8EF";
-  ctx.font = `700 46px "${fontFamily}"`;
-  ctx.fillText("K", 268, 182);
+  ctx.font = `700 48px "${fontFamily}"`;
+  ctx.fillText("K", 266, 175);
 
   // Center decorative heart/diamond
   ctx.save();
-  ctx.translate(300, 182);
+  ctx.translate(300, 175);
   ctx.rotate(Math.PI / 4);
   ctx.fillStyle = "#EBC2BB";
   ctx.beginPath();
-  ctx.rect(-7, -7, 14, 14);
+  ctx.rect(-8, -8, 16, 16);
   ctx.fill();
   ctx.restore();
 
   // Right letter: "E"
   ctx.fillStyle = "#FFF8EF";
-  ctx.font = `700 46px "${fontFamily}"`;
-  ctx.fillText("E", 332, 182);
+  ctx.font = `700 48px "${fontFamily}"`;
+  ctx.fillText("E", 334, 175);
 
   // Small "D" above the heart
   ctx.font = `600 18px "${fontFamily}"`;
   ctx.fillStyle = "#EBC2BB";
-  ctx.fillText("D", 300, 152);
+  ctx.fillText("D", 300, 142);
 
   // Small decorative leaves/vines
   ctx.strokeStyle = "rgba(235,194,187,0.5)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(236, 140);
-  ctx.quadraticCurveTo(218, 130, 214, 148);
+  ctx.moveTo(232, 130);
+  ctx.quadraticCurveTo(218, 120, 214, 138);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(236, 136);
-  ctx.quadraticCurveTo(222, 116, 210, 128);
+  ctx.moveTo(232, 126);
+  ctx.quadraticCurveTo(220, 108, 210, 120);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(364, 140);
-  ctx.quadraticCurveTo(382, 130, 386, 148);
+  ctx.moveTo(368, 130);
+  ctx.quadraticCurveTo(382, 120, 386, 138);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(364, 136);
-  ctx.quadraticCurveTo(378, 116, 390, 128);
+  ctx.moveTo(368, 126);
+  ctx.quadraticCurveTo(380, 108, 390, 120);
   ctx.stroke();
 
   // Small leaf dots at vine ends
   ctx.fillStyle = "rgba(235,194,187,0.6)";
-  for (const [lx, ly] of [[214, 148], [210, 128], [386, 148], [390, 128]]) {
+  for (const [lx, ly] of [[214, 138], [210, 120], [386, 138], [390, 120]]) {
     ctx.beginPath();
     ctx.arc(lx, ly, 3, 0, Math.PI * 2);
     ctx.fill();
@@ -327,61 +327,61 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
   // === COUPLE NAMES ===
   ctx.fillStyle = "#6E0D1B";
   ctx.font = `700 28px "${fontFamily}"`;
-  ctx.fillText("King-David & Esther", CANVAS_WIDTH / 2, 330);
+  ctx.fillText("King-David & Esther", CANVAS_WIDTH / 2, 310);
 
   ctx.fillStyle = "#2F3A22";
   ctx.font = `600 11px "${fontFamily}"`;
-  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 365);
+  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 345);
 
   // === DETAILS ROW ===
   ctx.fillStyle = "#2D241F";
   ctx.font = `500 13px "${fontFamily}"`;
   ctx.textAlign = "center";
-  ctx.fillText("Saturday • 22 August 2026 • 10:00 AM", CANVAS_WIDTH / 2, 410);
+  ctx.fillText("Saturday • 22 August 2026 • 10:00 AM", CANVAS_WIDTH / 2, 385);
   ctx.fillStyle = "#6E0D1B";
   ctx.font = `600 14px "${fontFamily}"`;
-  ctx.fillText("Camp Young, Ede, Osun State, Nigeria", CANVAS_WIDTH / 2, 435);
+  ctx.fillText("Camp Young, Ede, Osun State, Nigeria", CANVAS_WIDTH / 2, 410);
 
   // Divider
   ctx.strokeStyle = "rgba(110,13,27,0.15)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(100, 460);
-  ctx.lineTo(500, 460);
+  ctx.moveTo(100, 435);
+  ctx.lineTo(500, 435);
   ctx.stroke();
 
   // === GUEST INFO PASS STRIP ===
-  const passGradient = ctx.createLinearGradient(75, 490, 525, 570);
+  const passGradient = ctx.createLinearGradient(75, 460, 525, 540);
   passGradient.addColorStop(0, "#2F3A22");
   passGradient.addColorStop(0.42, "#6E0D1B");
   passGradient.addColorStop(1, "#8B5A46");
   ctx.fillStyle = passGradient;
-  fillRound(ctx, 75, 485, 450, 85, 20);
+  fillRound(ctx, 75, 458, 450, 85, 20);
 
   // Guest name (left side)
   ctx.fillStyle = "#FFF8EF";
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
   ctx.font = `600 11px "${fontFamily}"`;
-  ctx.fillText("GUEST", 105, 506);
+  ctx.fillText("GUEST", 105, 479);
   fitText(ctx, options.fullName, 200, 22, 12, fontFamily);
-  ctx.fillText(options.fullName, 105, 536);
+  ctx.fillText(options.fullName, 105, 509);
 
   // Entry code (right side)
   ctx.textAlign = "center";
   ctx.font = `600 11px "${fontFamily}"`;
-  ctx.fillText("ENTRY CODE", 375, 506);
+  ctx.fillText("ENTRY CODE", 375, 479);
   ctx.font = `700 26px "${fontFamily}"`;
-  ctx.fillText(options.entryCode, 375, 540);
+  ctx.fillText(options.entryCode, 375, 513);
 
   // === DETAILS BELOW PASS ===
   ctx.fillStyle = "#2D241F";
   ctx.textAlign = "left";
   ctx.font = `500 12px "${fontFamily}"`;
-  ctx.fillText("📋 Wedding ceremony · Reception immediately after", 75, 605);
+  ctx.fillText("📋 Wedding ceremony · Reception immediately after", 75, 578);
 
   ctx.textAlign = "right";
-  ctx.fillText(`${options.attendees} Adult${options.attendees !== 1 ? "s" : ""} · Non-transferable`, 525, 605);
+  ctx.fillText(`${options.attendees} Adult${options.attendees !== 1 ? "s" : ""} · Non-transferable`, 525, 578);
 
   // === PALETTE STRIP ===
   drawPaletteStrip(ctx, fontFamily);

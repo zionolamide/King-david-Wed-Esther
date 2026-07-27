@@ -1183,7 +1183,6 @@ export default function Home() {
         <DateRevealSection onReveal={() => setDateRevealed(true)} />
 
       <div className={!dateRevealed ? "date-not-revealed" : ""}>
-      <div className={!dateRevealed ? "date-not-revealed-overlay" : ""}>
       {/* Our Story */}
       <section id="story" className="premium-section section-story py-24 sm:py-32">
         <RomanticAmbience variant="soft" />
@@ -1462,7 +1461,6 @@ export default function Home() {
       <GuestNoticeSection />
 
       </div>
-      </div>
 
       {/* RSVP */}
       <section id="rsvp" className="premium-section section-rsvp bg-ivory/15 py-24 sm:py-32">
@@ -1537,7 +1535,7 @@ export default function Home() {
                       <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
                     </div>
                     {/* BOTTOM: guest info area ~65% — full width for name */}
-                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'space-between', padding:'clamp(12px, 2.5vw, 24px)'}}>
+                    <div style={{flex:1, background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', gap:'clamp(8px, 1.5vw, 16px)', padding:'clamp(12px, 2.5vw, 24px)'}}>
                       <div>
                         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 12px)', marginBottom:'clamp(8px, 1.5vw, 14px)'}}>
                           <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>

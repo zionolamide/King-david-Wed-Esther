@@ -1094,11 +1094,11 @@ body {
 /* ─── Scratch reveal blur overlay ──────────────────────────────── */
 
 .date-not-revealed {
-  filter: blur(6px) saturate(0.6);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
   pointer-events: none;
-  user-select: none;
-  transition: filter 0.6s ease, opacity 0.6s ease;
-  opacity: 0.5;
+  transition: max-height 0.8s ease, opacity 0.6s ease;
 }
 
 .date-not-revealed-overlay {
@@ -1119,7 +1119,7 @@ body {
   color: #6e0d1b;
   background: rgba(251,246,237,0.6);
   backdrop-filter: blur(2px);
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* ─── Print styles for access card ──────────────────────────────── */

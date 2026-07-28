@@ -4,18 +4,13 @@ import { approveGuest } from "../../lib/telegram";
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-export async function POST(request: Request) {
+// GET handles webhook setup and testing via browser
+export async function GET(request: Request) {
   const url = new URL(request.url);
-
-  // Support manual trigger via ?approve=GUESTID for testing
-  const manualId = url.searchParams.get("approve");
-  if (manualId) {
-    const result = await approveGuest(manualId);
-    return NextResponse.json(result);
-  }
-
-  // Support ?set=TOKEN for setting up webhook
   const setToken = url.searchParams.get("set");
+  const getChatId = url.searchParams.get("chatid");
+  const manualId = url.searchParams.get("approve");
+
   if (setToken && setToken.length > 10) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
     const webhookUrl = `${siteUrl}/api/telegram`;
@@ -24,14 +19,21 @@ export async function POST(request: Request) {
     return NextResponse.json(data);
   }
 
-  // Support ?chatid for getting chat ID
-  const getChatId = url.searchParams.get("chatid");
   if (getChatId === "1" && BOT_TOKEN) {
     const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
     const data = await res.json();
     return NextResponse.json(data);
   }
 
+  if (manualId) {
+    const result = await approveGuest(manualId);
+    return NextResponse.json(result);
+  }
+
+  return NextResponse.json({ ok: false, message: "Use ?set=TOKEN, ?chatid=1, or ?approve=ID" });
+}
+
+export async function POST(request: Request) {
   // Normal Telegram webhook callback
   try {
     const update = await request.json();

@@ -16,6 +16,7 @@ type Guest = {
   created_at: string;
   attending?: string;
   note?: string | null;
+  approved?: boolean | null;
 };
 
 export default function AdminPage() {
@@ -25,10 +26,11 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"all" | "checkin" | "wishes">("all");
+  const [tab, setTab] = useState<"all" | "pending" | "checkin" | "wishes">("all");
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
   const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string }[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [approvingIds, setApprovingIds] = useState<Set<string>>(new Set());
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -72,6 +74,39 @@ export default function AdminPage() {
         setPendingWishes(pending);
       }
     } catch {}
+  }
+
+  async function approveGuest(id: string) {
+    setApprovingIds((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch("/api/admin/guests", {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${ADMIN_PASSWORD}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, approve_guest: true }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMessage("Guest approved. Access card email sent.");
+        fetchGuests();
+      } else {
+        setMessage(data.message || "Failed to approve");
+      }
+    } catch {
+      setMessage("Network error");
+    }
+    setApprovingIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
+  }
+
+  async function approveAllPending() {
+    const pending = guests.filter((g) => !(g as any).approved);
+    if (!confirm(`Approve all ${pending.length} pending guests? Access card emails will be sent to each.`)) return;
+    for (const guest of pending) {
+      await approveGuest(guest.id);
+    }
+    setMessage(`All ${pending.length} guests approved.`);
   }
 
   async function approveWish(id: string) {
@@ -179,6 +214,7 @@ export default function AdminPage() {
 
   const checkedIn = guests.filter((g) => g.checked_in);
   const pending = guests.filter((g) => !g.checked_in);
+  const pendingApproval = guests.filter((g) => !g.approved);
 
   const filtered = guests.filter(
     (g) =>
@@ -269,6 +305,14 @@ export default function AdminPage() {
             }`}
           >
             All Guests ({guests.length})
+          </button>
+          <button
+            onClick={() => setTab("pending")}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+              tab === "pending" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
+            }`}
+          >
+            Approve ({pendingApproval.length})
           </button>
           <button
             onClick={() => setTab("checkin")}
@@ -379,8 +423,52 @@ export default function AdminPage() {
                   </div>
                 )}
               </>
+            ) : tab === "pending" ? (
+              /* Tab 2 — Pending Approval */
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                    {pendingApproval.length} awaiting approval
+                  </p>
+                  {pendingApproval.length > 0 ? (
+                    <button
+                      onClick={approveAllPending}
+                      className="rounded-full bg-moss px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory transition hover:bg-moss/90"
+                    >
+                      Approve All
+                    </button>
+                  ) : null}
+                </div>
+                {pendingApproval.length === 0 ? (
+                  <div className="mt-8 text-center text-sm text-ink/60">All guests have been approved.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {pendingApproval.map((guest) => (
+                      <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-rose" />
+                            <p className="truncate font-medium text-ink">{guest.full_name}</p>
+                          </div>
+                          <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                            <span className="font-mono font-semibold text-wine">{guest.entry_code}</span>
+                            <span>{guest.email}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => approveGuest(guest.id)}
+                          disabled={approvingIds.has(guest.id)}
+                          className="flex-shrink-0 rounded-full bg-wine px-5 py-2 text-xs font-bold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
+                        >
+                          {approvingIds.has(guest.id) ? "..." : "Approve"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             ) : (
-              /* Tab 2 — Check In action list (pending only) */
+              /* Tab 3 — Check In action list (pending check-in only) */
               displayGuests.length > 0 ? (
                 <div className="space-y-2">
                   {displayGuests.map((guest) => (

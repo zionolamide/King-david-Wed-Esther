@@ -1560,52 +1560,52 @@ export default function Home() {
                 </motion.div>
               ) : status === "success" ? (
                 <div className="space-y-4 py-6 text-center sm:space-y-5 sm:py-8">
-                  <SuccessAnimation />
-                  {/* Fixed 600 wide vertical access card — height fits content */}
-                  <div id="access-card" style={{width:'min(100%,600px)', margin:'0 auto', display:'flex', flexDirection:'column', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>
-                    {/* TOP: gradient band with monogram + couple name */}
-                    <div style={{background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'clamp(16px, 4vw, 36px)', textAlign:'center'}}>
-                      <img src="/monograms.png" alt="Monogram" fetchPriority="high" style={{width:'min(80px, 30%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'clamp(4px, 1vw, 10px)'}} />
-                      <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(14px, 3.5vw, 22px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
-                      <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Pass</div>
-                    </div>
-                    {/* BOTTOM: guest info area ~65% — full width for name */}
-                    <div style={{background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', gap:'clamp(8px, 1.5vw, 16px)', padding:'clamp(12px, 2.5vw, 24px)'}}>
-                      <div>
-                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'clamp(6px, 1vw, 12px)', marginBottom:'clamp(8px, 1.5vw, 14px)'}}>
-                          <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>
-                            <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Guest</div>
-                            <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(13px, 2.5vw, 18px)', color:'#2f3a22', wordBreak:'break-word'}}>{submittedGuest ? (submittedGuest.title !== "(No Prefix)" ? submittedGuest.title + " " : "") + submittedGuest.fullName : "Guest"}</div>
-                          </div>
-                          <div style={{background:'rgba(234,223,201,0.4)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)', textAlign:'right'}}>
-                            <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Entry Code</div>
-                            <div style={{fontFamily:'monospace', fontSize:'clamp(14px, 2.8vw, 20px)', fontWeight:'bold', color:'#2f3a22'}}>{submittedGuest?.entryCode || "---"}</div>
-                          </div>
-                        </div>
-                        <div style={{background:'rgba(235,194,187,0.2)', border:'1px solid rgba(235,194,187,0.3)', borderRadius:'8px', padding:'clamp(8px, 1.5vw, 14px)'}}>
-                          <div style={{fontSize:'clamp(7px, 1.3vw, 9px)', fontWeight:'600', letterSpacing:'0.18em', textTransform:'uppercase', color:'#6e0d1b', marginBottom:'2px'}}>Event Details</div>
-                          <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(13px, 2.5vw, 18px)', color:'#2f3a22'}}>Camp Young, Ede</div>
-                          <div style={{fontSize:'clamp(9px, 1.8vw, 12px)', color:'rgba(45,36,31,0.6)'}}>Saturday, 22 August 2026 · 10:00 AM</div>
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{marginTop:'clamp(6px, 1vw, 10px)', display:'flex', gap:'2px', borderRadius:'3px', overflow:'hidden'}}>
-                          {["#6f7a57","#6e0d1b","#8b5a46","#c9785e","#d7a79c","#ebc2bb"].map((c,i) => (<div key={i} style={{flex:1, height:'clamp(4px, 0.8vw, 6px)', background:c}} />))}
-                        </div>
-                        <div style={{marginTop:'clamp(5px, 0.8vw, 8px)', textAlign:'center', fontSize:'clamp(6px, 1vw, 8px)', fontWeight:'600', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(45,36,31,0.4)'}}>1 Adult · Non-transferable</div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Download button outside card */}
-                  <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{maxWidth:'600px'}}>
-                    <button
-                      type="button"
-                      onClick={() => downloadCard()}
-                      className="rounded-full bg-wine px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90"
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    className="inline-block mb-4"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+                      transition={{
+                        rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                        scale: { duration: 2, repeat: Infinity }
+                      }}
+                      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-moss/10 text-moss sm:h-16 sm:w-16"
                     >
-                      Download PNG
-                    </button>
-                  </div>
+                      <CheckCircle2 className="h-7 w-7 sm:h-8 sm:w-8" />
+                    </motion.div>
+                  </motion.div>
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    className="font-serif text-3xl sm:text-4xl text-moss"
+                  >
+                    RSVP Submitted!
+                  </motion.h2>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    className="mx-auto max-w-md space-y-3"
+                  >
+                    <p className="text-base leading-7 text-ink/75 font-medium">
+                      ✓ Your RSVP has been received
+                    </p>
+                    <p className="text-sm leading-7 text-ink/70">
+                      It is now <strong>pending approval</strong> from the couple. You will receive your access card via email once it has been approved.
+                    </p>
+                  </motion.div>
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    className="text-xs leading-relaxed text-ink/50 italic mx-auto max-w-sm"
+                  >
+                    If you have any questions, please contact Sister Rhoda (08106993435), Brother Joe (08102765976), or Bro Zion (09135037695).
+                  </motion.p>
                 </div>
               ) : (
                 <>

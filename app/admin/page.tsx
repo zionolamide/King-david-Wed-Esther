@@ -215,6 +215,8 @@ export default function AdminPage() {
   const checkedIn = guests.filter((g) => g.checked_in);
   const pending = guests.filter((g) => !g.checked_in);
   const pendingApproval = guests.filter((g) => !g.approved);
+  const approvedCount = guests.length - pendingApproval.length;
+  const remainingApprovals = Math.max(0, 80 - approvedCount);
 
   const filtered = guests.filter(
     (g) =>
@@ -268,8 +270,8 @@ export default function AdminPage() {
           <div>
             <h1 className="font-serif text-4xl text-moss sm:text-5xl">Guest List</h1>
             <p className="mt-1 text-sm text-ink/60">
-              <strong className="text-moss">{checkedIn.length}</strong> checked in ·{" "}
-              <strong className="text-wine">{pending.length}</strong> pending ·{" "}
+              <strong className="text-moss">{approvedCount}</strong> approved ·{" "}
+              <strong className="text-wine">{remainingApprovals}</strong> remaining ·{" "}
               <strong className="text-ink">{guests.length}</strong> total
             </p>
           </div>
@@ -343,8 +345,8 @@ export default function AdminPage() {
 
         {/* Stats bar */}
         <div className="mt-4 flex gap-3 rounded-2xl border border-wine/10 bg-white/70 p-3 text-xs text-ink/60">
-          <span>🟢 <strong className="text-moss">{checkedIn.length}</strong> Checked In</span>
-          <span>⚪ <strong className="text-wine">{pending.length}</strong> Pending</span>
+          <span>✅ <strong className="text-moss">{approvedCount}</strong> Approved</span>
+          <span>⏳ <strong className="text-wine">{remainingApprovals}</strong> Remaining</span>
           {tab === "checkin" && (
             <span className="ml-auto text-moss font-semibold">
               {displayGuests.length} awaiting check-in

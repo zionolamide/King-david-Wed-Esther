@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
+import fs from "fs";
+import path from "path";
 
 const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
 
@@ -134,14 +136,23 @@ export async function approveGuest(guestId: string) {
     const fullName = guest.full_name;
     const title = guest.title;
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
-    const monogramUrl = `${baseUrl}/monograms.png`;
     const fromAddress = emailUser;
+
+    // Read monogram as base64 for email embedding
+    let monogramBase64 = "";
+    try {
+      const monogramPath = path.join(process.cwd(), "public", "monograms.png");
+      if (fs.existsSync(monogramPath)) {
+        monogramBase64 = fs.readFileSync(monogramPath).toString("base64");
+      }
+    } catch (e) {
+      console.warn("Could not read monogram for email:", e);
+    }
 
     const emailCardHtml = `
     <div style="max-width:420px;margin:0 auto;font-family:'Montserrat',Arial,sans-serif;border:2px solid #eadfc9;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);background:#ffffff;">
       <div style="background:linear-gradient(135deg,#6e0d1b,#c9785e);padding:28px 20px;text-align:center;">
-        <img src="${monogramUrl}" alt="Monogram" style="width:80px;height:80px;margin:0 auto 10px;display:block;object-fit:contain;" />
+        ${monogramBase64 ? `<img src="data:image/png;base64,${monogramBase64}" alt="Monogram" style="width:80px;height:80px;margin:0 auto 10px;display:block;object-fit:contain;" />` : ""}
         <div style="font-family:Georgia,serif;font-size:18px;color:#FFF8EF;">King-David &amp; Esther</div>
         <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Wedding Access Pass</div>
       </div>

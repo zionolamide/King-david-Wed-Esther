@@ -13,11 +13,11 @@
 
 # access-card
 - Use content-driven height (no fixed aspect ratio) for the access card — let the card be as tall as its content needs to be, with only a fixed width of 600px max. Confidence: 0.65
-- All guests' access cards share the same visual design (same monogram, layout, colors, background) — only the text information (name, role, code) differs between guests. Confidence: 0.70
+- All guests' access cards share the same visual design (same monogram, layout, colors, background, decorative elements like color lines) — only the text information (name, role, code) differs between guests. Confidence: 0.78
 
 # email
 - Send notification email to the couple's `EMAIL_USER` when a guest RSVPs, not just when they are checked in at the venue. Confidence: 0.70
-- Use the exact same access card design (same monogram, same layout, same colors) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.75
+- Use the exact same access card design (same monogram, same layout, same colors, all decorative elements) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.80
 
 # admin
 - Hardcode admin password as a constant string (e.g., `ADMIN_PASSWORD = "KDE-admin2026"`) in the admin page and API routes; do not use process.env fallbacks to avoid environment variable confusion across deployments. Confidence: 0.80

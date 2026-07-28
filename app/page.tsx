@@ -1604,7 +1604,7 @@ export default function Home() {
                     transition={{ delay: 0.6, duration: 0.5 }}
                     className="text-xs leading-relaxed text-ink/50 italic mx-auto max-w-sm"
                   >
-                    If you have any questions, please contact Sister Rhoda (08106993435), Brother Joe (08102765976), or Bro Zion (09135037695).
+                    Once approved, your access card will be sent to your email and WhatsApp. Check your spam folder. If you have questions, call Sister Rhoda (08106993435).
                   </motion.p>
                 </div>
               ) : (

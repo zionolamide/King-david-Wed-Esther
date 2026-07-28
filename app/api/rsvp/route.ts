@@ -108,13 +108,28 @@ export async function POST(request: Request) {
     auth: { persistSession: false }
   });
 
-  // Check existing submission limit — no RSVP limit, but admin will only approve up to 80
-  const { count, error: countError } = await supabase
+  // Check approved guest count — max 80 approved
+  const { data: allData, error: fetchError } = await supabase
     .from("rsvp_submissions")
-    .select("id", { count: "exact", head: true });
+    .select("note");
 
-  if (countError) {
-    return NextResponse.json({ ok: false, message: countError.message }, { status: 500 });
+  if (fetchError) {
+    return NextResponse.json({ ok: false, message: fetchError.message }, { status: 500 });
+  }
+
+  let approvedCount = 0;
+  for (const row of allData || []) {
+    try {
+      const meta = JSON.parse(row.note || "{}");
+      if (meta.approved) approvedCount++;
+    } catch {}
+  }
+
+  if (approvedCount >= RSVP_LIMIT) {
+    return NextResponse.json(
+      { ok: false, message: `We've reached the guest capacity of ${RSVP_LIMIT}. RSVP is now closed.` },
+      { status: 403 }
+    );
   }
 
   const { data: existing, error: existsError } = await supabase

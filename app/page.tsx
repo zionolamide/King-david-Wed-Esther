@@ -1595,10 +1595,7 @@ export default function Home() {
                       ✓ Your RSVP has been received
                     </p>
                     <p className="text-sm leading-7 text-ink/70">
-                      Your entry code: <strong>{submittedGuest?.entryCode || "---"}</strong>
-                    </p>
-                    <p className="text-sm leading-7 text-ink/70">
-                      It is now <strong>pending approval</strong> from the couple. You will receive your access card via email once it has been approved.
+                      Your RSVP is now <strong>pending approval</strong> from the couple. You will receive your access card via email once it has been approved.
                     </p>
                   </motion.div>
                   <motion.p

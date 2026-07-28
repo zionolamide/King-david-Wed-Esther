@@ -30,3 +30,6 @@
 
 # rsvp
 - For long full names on the access card, do not use ellipsis/truncation ("..."); instead, use the vertical portrait layout (which gives more width for text) plus a maxLength of 50 characters on the input field to keep the design clean. Confidence: 0.70
+
+# telegram
+- Use Telegram bot with inline keyboards (callback_data) for admin approval workflows — when a guest RSVPs, send a message to the admin's Telegram with an inline "Approve" button, and handle the callback via webhook to approve the guest and send the access card email. Confidence: 0.75

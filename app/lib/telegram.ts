@@ -1,10 +1,49 @@
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
+import { randomBytes } from "crypto";
+
+const RSVP_LIMIT = Number(process.env.NEXT_PUBLIC_RSVP_LIMIT ?? 80);
+
+function generateRandomLetters(count: number) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const bytes = randomBytes(count);
+  let result = "";
+  for (let i = 0; i < count; i += 1) {
+    result += alphabet[bytes[i] % alphabet.length];
+  }
+  return result;
+}
+
+async function generateEntryCode(supabase: any) {
+  const maxAttempts = 20;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const letters = generateRandomLetters(2);
+    const digits = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, "0");
+    const entryCode = `KDE-2026-${letters}${digits}`;
+
+    const { data, error } = await supabase
+      .from("rsvp_submissions")
+      .select("id")
+      .eq("entry_code", entryCode)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message ?? "Failed to verify entry code uniqueness.");
+    }
+
+    if (!data) {
+      return entryCode;
+    }
+  }
+
+  throw new Error("Unable to generate a unique entry code after multiple attempts.");
+}
 
 export async function sendApprovalRequest(
   guestId: string,
   fullName: string,
-  entryCode: string,
   email: string,
 ) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -15,7 +54,7 @@ export async function sendApprovalRequest(
     return;
   }
 
-  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${fullName}\n📧 ${email}\n🔑 ${entryCode}\n━━━━━━━━━━━━━━━\nTap Approve to send their access card.`;
+  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${fullName}\n📧 ${email}\n━━━━━━━━━━━━━━━\nTap Approve to generate entry code and send their access card.`;
 
   const inlineKeyboard = {
     inline_keyboard: [[
@@ -48,6 +87,23 @@ export async function approveGuest(guestId: string) {
 
   const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
+  // Check capacity — count already approved guests
+  const { data: allGuests } = await supabase
+    .from("rsvp_submissions")
+    .select("id, note");
+
+  let approvedCount = 0;
+  for (const g of allGuests || []) {
+    try {
+      const meta = JSON.parse(g.note || "{}");
+      if (meta.approved) approvedCount++;
+    } catch {}
+  }
+
+  if (approvedCount >= RSVP_LIMIT) {
+    return { ok: false, message: "Guest capacity reached (80)" };
+  }
+
   const { data: guest } = await supabase
     .from("rsvp_submissions")
     .select("*")
@@ -56,13 +112,16 @@ export async function approveGuest(guestId: string) {
 
   if (!guest) return { ok: false, message: "Guest not found" };
 
-  // Mark as approved in the note field
+  // Generate entry code on approval
+  const entryCode = await generateEntryCode(supabase);
+
+  // Mark as approved and set entry code
   let meta: any = {};
   try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
   meta.approved = true;
   const { error: updateError } = await supabase
     .from("rsvp_submissions")
-    .update({ note: JSON.stringify(meta) })
+    .update({ note: JSON.stringify(meta), entry_code: entryCode })
     .eq("id", guestId);
 
   if (updateError) return { ok: false, message: updateError.message };
@@ -73,7 +132,6 @@ export async function approveGuest(guestId: string) {
 
   if (emailUser && emailPassword) {
     const fullName = guest.full_name;
-    const entryCode = guest.entry_code;
     const title = guest.title;
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");

@@ -69,16 +69,12 @@ async function generateEntryCode(supabase: any) {
 export async function POST(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  let isSimulated = false;
-  let entryCode = "";
 
   if (!supabaseUrl || !serviceRoleKey) {
-    isSimulated = true;
-    const letters = generateRandomLetters(2);
-    const digits = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, "0");
-    entryCode = `KDE-2026-${letters}${digits}`;
+    return NextResponse.json(
+      { ok: false, message: "Server configuration error." },
+      { status: 503 }
+    );
   }
 
   let body: RsvpPayload;
@@ -108,83 +104,72 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isSimulated) {
-    const supabase = createClient(supabaseUrl!, serviceRoleKey!, {
-      auth: { persistSession: false }
-    });
+  const supabase = createClient(supabaseUrl!, serviceRoleKey!, {
+    auth: { persistSession: false }
+  });
 
-    // Check capacity — count existing submissions
-    const { count, error: countError } = await supabase
-      .from("rsvp_submissions")
-      .select("id", { count: "exact", head: true });
+  // Check existing submission limit — no RSVP limit, but admin will only approve up to 80
+  const { count, error: countError } = await supabase
+    .from("rsvp_submissions")
+    .select("id", { count: "exact", head: true });
 
-    if (countError) {
-      return NextResponse.json({ ok: false, message: countError.message }, { status: 500 });
-    }
-
-    if (count !== null && count >= RSVP_LIMIT) {
-      return NextResponse.json(
-        { ok: false, message: `We're sorry, the guest capacity of ${RSVP_LIMIT} has been reached. RSVP is now closed.` },
-        { status: 403 }
-      );
-    }
-
-    entryCode = await generateEntryCode(supabase);
-
-    const { data: existing, error: existsError } = await supabase
-      .from("rsvp_submissions")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (existsError) {
-      return NextResponse.json(
-        { ok: false, message: existsError.message ?? "RSVP validation failed." },
-        { status: 500 }
-      );
-    }
-
-    if (existing) {
-      return NextResponse.json(
-        {
-          ok: false,
-          message: "This email has already been registered."
-        },
-        { status: 409 }
-      );
-    }
-
-    const notePayload: any = { approved: false };
-    if (note) notePayload.wish = note;
-
-    const { data: inserted, error } = await supabase.from("rsvp_submissions").insert({
-      title: title === "(No Prefix)" ? null : title,
-      full_name: fullName,
-      email,
-      phone: phone || null,
-      note: JSON.stringify(notePayload),
-      adult_agreement: adultAgreement,
-      entry_code: entryCode,
-    }).select("id");
-
-    if (error) {
-      return NextResponse.json(
-        { ok: false, message: error.message ?? "RSVP failed." },
-        { status: 500 }
-      );
-    }
-
-    // Send Telegram approval request to the couple
-    if (inserted && inserted[0]) {
-      await sendApprovalRequest(inserted[0].id, fullName, entryCode, email);
-    }
+  if (countError) {
+    return NextResponse.json({ ok: false, message: countError.message }, { status: 500 });
   }
 
+  const { data: existing, error: existsError } = await supabase
+    .from("rsvp_submissions")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existsError) {
+    return NextResponse.json(
+      { ok: false, message: existsError.message ?? "RSVP validation failed." },
+      { status: 500 }
+    );
+  }
+
+  if (existing) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "This email has already been registered."
+      },
+      { status: 409 }
+    );
+  }
+
+  const notePayload: any = { approved: false };
+  if (note) notePayload.wish = note;
+
+  const { data: inserted, error } = await supabase.from("rsvp_submissions").insert({
+    title: title === "(No Prefix)" ? null : title,
+    full_name: fullName,
+    email,
+    phone: phone || null,
+    note: JSON.stringify(notePayload),
+    adult_agreement: adultAgreement,
+    entry_code: null, // entry code generated on approval
+  }).select("id");
+
+  if (error) {
+    return NextResponse.json(
+      { ok: false, message: error.message ?? "RSVP failed." },
+      { status: 500 }
+    );
+  }
+
+  // Send Telegram approval request to the couple (no entry code shown)
+  if (inserted && inserted[0]) {
+    await sendApprovalRequest(inserted[0].id, fullName, email);
+  }
+
+  // Notify the couple by email as well (backup)
   const emailUser = process.env.EMAIL_USER;
   const emailPassword = process.env.EMAIL_APP_PASSWORD;
 
   if (emailUser && emailPassword) {
-    // Notify the couple by email as well (backup)
     const displayFullName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -198,7 +183,7 @@ export async function POST(request: Request) {
         from: emailUser,
         to: emailUser,
         subject: `New RSVP: ${displayFullName}`,
-        text: `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEntry Code: ${entryCode}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`,
+        text: `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`,
       });
     } catch (err) {
       console.warn("Notification email failed:", err);
@@ -206,9 +191,5 @@ export async function POST(request: Request) {
     transporter.close();
   }
 
-  return NextResponse.json({
-    ok: true,
-    pending: true,
-    entryCode
-  });
+  return NextResponse.json({ ok: true, pending: true });
 }

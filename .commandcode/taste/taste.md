@@ -33,3 +33,6 @@
 
 # telegram
 - Use Telegram bot with inline keyboards (callback_data) for admin approval workflows — when a guest RSVPs, send a message to the admin's Telegram with an inline "Approve" button, and handle the callback via webhook to approve the guest and send the access card email. Confidence: 0.75
+
+# whatsapp
+- Use WhatsApp click-to-chat links (`wa.me`) instead of the WhatsApp Cloud API or unofficial automation — no setup, no bans, no monthly fees. Confidence: 0.75

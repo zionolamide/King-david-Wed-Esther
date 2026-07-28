@@ -205,5 +205,5 @@ export async function approveGuest(guestId: string) {
     }
   }
 
-  return { ok: true, fullName: guest.full_name };
+  return { ok: true, fullName: guest.full_name, phone: guest.phone || "", entryCode };
 }

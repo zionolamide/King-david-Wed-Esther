@@ -78,12 +78,28 @@ export async function POST(request: Request) {
           });
 
           if (result.ok) {
+            // Build WhatsApp click-to-chat link
+            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
+            const cardUrl = `${baseUrl}/card?code=${result.entryCode}`;
+            const phone = result.phone ? result.phone.replace(/[^0-9]/g, "") : "";
+            // Ensure Nigerian format: 234XXXXXXXXX
+            const waNumber = phone.startsWith("0") ? "234" + phone.slice(1) : phone.startsWith("234") ? phone : "234" + phone;
+            const waText = encodeURIComponent(
+              `Hello ${result.fullName}, your access card for King-David & Esther's wedding is ready. Open the link below to download it:\n${cardUrl}`
+            );
+            const waLink = `https://wa.me/${waNumber}?text=${waText}`;
+
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 chat_id: from.id,
-                text: `✅ ${result.fullName} approved and access card sent.`,
+                text: `✅ ${result.fullName} — APPROVED\n━━━━━━━━━━━━━━━\n📧 Access card sent via email\n📱 Tap below to send via WhatsApp`,
+                reply_markup: {
+                  inline_keyboard: [[
+                    { text: "📱 Send via WhatsApp", url: waLink },
+                  ]],
+                },
               }),
             });
           }

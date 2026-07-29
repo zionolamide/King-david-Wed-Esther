@@ -81,26 +81,39 @@ export async function POST(request: Request) {
             // Build WhatsApp click-to-chat link
             const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
             const cardUrl = `${baseUrl}/card?code=${result.entryCode}`;
-            const phone = result.phone ? result.phone.replace(/[^0-9]/g, "") : "";
-            // Ensure Nigerian format: 234XXXXXXXXX
-            const waNumber = phone.startsWith("0") ? "234" + phone.slice(1) : phone.startsWith("234") ? phone : "234" + phone;
+            const phone = (result.phone || "").replace(/[^0-9]/g, "");
+            // Convert any Nigerian format to 234XXXXXXXXXX
+            let waNumber = "";
+            if (phone.startsWith("234") && phone.length === 13) waNumber = phone;
+            else if (phone.startsWith("0") && phone.length === 11) waNumber = "234" + phone.slice(1);
+            else if (phone.startsWith("+234")) waNumber = phone.slice(1);
+            else if (phone.length === 13) waNumber = phone; // assume 234 already
+            else if (phone.length >= 10) waNumber = "234" + phone.slice(-10);
+            // Short message avoids WhatsApp truncation
             const waText = encodeURIComponent(
-              `Hello ${result.fullName}, your access card for King-David & Esther's wedding is ready. Open the link below to download it:\n${cardUrl}`
+              `Your access card is ready:\n${cardUrl}\n\n- King-David & Esther`
             );
-            const waLink = `https://wa.me/${waNumber}?text=${waText}`;
+            const waLink = waNumber ? `https://wa.me/${waNumber}?text=${waText}` : null;
+
+            const replyMsg = waLink
+              ? {
+                  chat_id: from.id,
+                  text: `✅ ${result.fullName} — APPROVED\n📧 Access card sent via email`,
+                  reply_markup: {
+                    inline_keyboard: [[
+                      { text: "📱 Send via WhatsApp", url: waLink },
+                    ]],
+                  },
+                }
+              : {
+                  chat_id: from.id,
+                  text: `✅ ${result.fullName} — APPROVED\n📧 Access card sent via email\n⚠️ No phone number saved — check form`,
+                };
 
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                chat_id: from.id,
-                text: `✅ ${result.fullName} — APPROVED\n━━━━━━━━━━━━━━━\n📧 Access card sent via email\n📱 Tap below to send via WhatsApp`,
-                reply_markup: {
-                  inline_keyboard: [[
-                    { text: "📱 Send via WhatsApp", url: waLink },
-                  ]],
-                },
-              }),
+              body: JSON.stringify(replyMsg),
             });
           }
         }

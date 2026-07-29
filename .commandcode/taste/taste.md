@@ -36,3 +36,4 @@
 
 # whatsapp
 - Use WhatsApp click-to-chat links (`wa.me`) instead of the WhatsApp Cloud API or unofficial automation — no setup, no bans, no monthly fees. Confidence: 0.75
+- Keep `wa.me` message text short — the URL includes the entire message text in the URL itself, and WhatsApp silently truncates messages that exceed its character limit when the user taps the link. Confidence: 0.70

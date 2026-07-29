@@ -91,7 +91,7 @@ export async function POST(request: Request) {
             else if (phone.length >= 10) waNumber = "234" + phone.slice(-10);
             // Short message avoids WhatsApp truncation
             const waText = encodeURIComponent(
-              `Your access card is ready:\n${cardUrl}\n\n- King-David & Esther`
+              `Hello ${result.fullName},\n\nThis is your access card for King-David & Esther's wedding. Open the link to view and download it:\n${cardUrl}\n\nPresent this at the entrance on August 22, 2026.`
             );
             const waLink = waNumber ? `https://wa.me/${waNumber}?text=${waText}` : null;
 

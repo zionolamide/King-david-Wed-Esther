@@ -81,15 +81,15 @@ export async function POST(request: Request) {
             // Build WhatsApp click-to-chat link
             const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
             const cardUrl = `${baseUrl}/card?code=${result.entryCode}`;
-            const phone = (result.phone || "").replace(/[^0-9]/g, "");
-            // Convert any Nigerian format to 234XXXXXXXXXX
-            let waNumber = "";
-            if (phone.startsWith("234") && phone.length === 13) waNumber = phone;
-            else if (phone.startsWith("0") && phone.length === 11) waNumber = "234" + phone.slice(1);
-            else if (phone.startsWith("+234")) waNumber = phone.slice(1);
-            else if (phone.length === 13) waNumber = phone; // assume 234 already
-            else if (phone.length >= 10) waNumber = "234" + phone.slice(-10);
-            // Short message avoids WhatsApp truncation
+            // Handle phone — strip special chars, keep digits
+            let phone = (result.phone || "").trim();
+            // If starts with 0 (local format), assume Nigeria → replace 0 with 234
+            if (phone.startsWith("0")) phone = "234" + phone.slice(1);
+            // Strip + if present
+            else if (phone.startsWith("+")) phone = phone.slice(1);
+            // Remove any remaining non-digits
+            phone = phone.replace(/[^0-9]/g, "");
+            const waNumber = phone || "";
             const waText = encodeURIComponent(
               `Hello ${result.fullName},\n\nThis is your access card for King-David & Esther's wedding. Open the link to view and download it:\n${cardUrl}\n\nPresent this at the entrance on August 22, 2026.`
             );

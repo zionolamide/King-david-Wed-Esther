@@ -90,16 +90,25 @@ export async function POST(request: Request) {
   const title = cleanText(body.title);
   const fullName = cleanText(body.fullName);
   const email = cleanText(body.email).toLowerCase();
-  const phone = cleanText(body.phone);
+  const countryCode = cleanText((body as any).countryCode || "+234");
+  const phoneRaw = cleanText(body.phone).replace(/[^0-9]/g, "");
+  const phone = countryCode + phoneRaw;
   const note = cleanText(body.note);
   const adultAgreement = body.adultAgreement === true || body.adultAgreement === "true";
 
-  if (!fullName || !isEmail(email) || !phone || !adultAgreement) {
+  if (!fullName || !phoneRaw || !adultAgreement) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Please enter your full name, WhatsApp number, valid email address and confirm the adult-only agreement."
+        message: "Please enter your full name, WhatsApp number and confirm the adult-only agreement."
       },
+      { status: 400 }
+    );
+  }
+
+  if (email && !isEmail(email)) {
+    return NextResponse.json(
+      { ok: false, message: "Please enter a valid email address or leave it blank." },
       { status: 400 }
     );
   }
@@ -132,27 +141,29 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: existing, error: existsError } = await supabase
-    .from("rsvp_submissions")
-    .select("id")
-    .eq("email", email)
-    .maybeSingle();
+  if (email) {
+    const { data: existing, error: existsError } = await supabase
+      .from("rsvp_submissions")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
 
-  if (existsError) {
-    return NextResponse.json(
-      { ok: false, message: existsError.message ?? "RSVP validation failed." },
-      { status: 500 }
-    );
-  }
+    if (existsError) {
+      return NextResponse.json(
+        { ok: false, message: existsError.message ?? "RSVP validation failed." },
+        { status: 500 }
+      );
+    }
 
-  if (existing) {
-    return NextResponse.json(
-      {
-        ok: false,
-        message: "This email has already been registered."
-      },
-      { status: 409 }
-    );
+    if (existing) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "This email has already been registered."
+        },
+        { status: 409 }
+      );
+    }
   }
 
   const notePayload: any = { approved: false };

@@ -61,6 +61,24 @@ const rsvpContacts = [
   { name: "Bro Zion", phone: "09135037695" }
 ];
 
+const countryCodes = [
+  { code: "+234", country: "NG" },
+  { code: "+1", country: "US" },
+  { code: "+44", country: "UK" },
+  { code: "+233", country: "GH" },
+  { code: "+27", country: "ZA" },
+  { code: "+254", country: "KE" },
+  { code: "+256", country: "UG" },
+  { code: "+255", country: "TZ" },
+  { code: "+233", country: "GH" },
+  { code: "+91", country: "IN" },
+  { code: "+971", country: "AE" },
+  { code: "+33", country: "FR" },
+  { code: "+49", country: "DE" },
+  { code: "+61", country: "AU" },
+  { code: "+55", country: "BR" },
+];
+
 function useCountdown() {
   const [now, setNow] = useState(() => new Date());
 
@@ -1043,6 +1061,7 @@ export default function Home() {
       title: String(form.get("title") ?? "(No Prefix)"),
       fullName: String(form.get("fullName") ?? "").trim(),
       email,
+      countryCode: String(form.get("countryCode") ?? "+234"),
       phone: String(form.get("phone") ?? "").trim(),
       note: String(form.get("note") ?? ""),
       adultAgreement
@@ -1050,8 +1069,8 @@ export default function Home() {
 
     const errors: Record<string, string> = {};
     if (!payload.fullName) errors.fullName = "Please enter your full name.";
-    if (!isValidEmail(payload.email)) errors.email = "Please enter a valid email address.";
-    if (!/^[+0-9\s-]{7,20}$/.test(payload.phone)) errors.phone = "Please enter a valid WhatsApp number.";
+    if (email && !isValidEmail(payload.email)) errors.email = "Please enter a valid email or leave it blank.";
+    if (!payload.phone || !/^[0-9\s-]{5,15}$/.test(payload.phone)) errors.phone = "Please enter a valid WhatsApp number.";
     if (!payload.adultAgreement) errors.adultAgreement = "You must confirm the adult-only agreement.";
 
     if (Object.keys(errors).length > 0) {
@@ -1628,13 +1647,20 @@ export default function Home() {
                         ) : null}
                     </label>
                     <label>
-                      <span className="label">Email *</span>
-                        <input className="field" type="email" name="email" required />
+                      <span className="label">Email (optional)</span>
+                        <input className="field" type="email" name="email" />
                         {formErrors.email ? <p className="mt-1 text-xs text-wine">{formErrors.email}</p> : null}
                     </label>
                     <label>
                       <span className="label">WhatsApp number *</span>
-                        <input className="field" name="phone" inputMode="tel" required />
+                      <div className="flex gap-2">
+                        <select name="countryCode" className="field w-[7rem] flex-shrink-0">
+                          {countryCodes.map((c) => (
+                            <option key={c.code} value={c.code}>{c.code} ({c.country})</option>
+                          ))}
+                        </select>
+                        <input className="field flex-1" name="phone" inputMode="tel" required />
+                      </div>
                         {formErrors.phone ? <p className="mt-1 text-xs text-wine">{formErrors.phone}</p> : null}
                     </label>
                   </div>

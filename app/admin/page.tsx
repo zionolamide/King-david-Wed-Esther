@@ -28,7 +28,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [tab, setTab] = useState<"all" | "pending" | "checkin" | "wishes">("all");
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
-  const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string }[]>([]);
+  const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string; wish_approved: boolean }[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [approvingIds, setApprovingIds] = useState<Set<string>>(new Set());
 
@@ -62,18 +62,42 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.ok) {
-        const pending = (data.guests || []).filter((g: any) => {
+        const all = (data.guests || []).filter((g: any) => {
           try {
             const meta = JSON.parse(g.note || "{}");
-            return meta.wish && !meta.approved;
+            return meta.wish;
           } catch { return false; }
         }).map((g: any) => {
           const meta = JSON.parse(g.note);
-          return { id: g.id, name: g.full_name, wish: meta.wish };
+          return { id: g.id, name: g.full_name, wish: meta.wish, wish_approved: meta.wish_approved || false };
         });
-        setPendingWishes(pending);
+        setPendingWishes(all);
       }
     } catch {}
+  }
+
+  async function toggleWishApproval(wishId: string, currentlyApproved: boolean) {
+    setApprovingId(wishId);
+    try {
+      const res = await fetch("/api/admin/guests", {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${ADMIN_PASSWORD}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: wishId, wish_approved: !currentlyApproved }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMessage(currentlyApproved ? "Wish disapproved" : "Wish approved");
+        fetchPendingWishes();
+      } else {
+        setMessage(data.message || "Failed");
+      }
+    } catch {
+      setMessage("Network error");
+    }
+    setApprovingId(null);
   }
 
   async function approveGuest(id: string) {
@@ -109,28 +133,27 @@ export default function AdminPage() {
     setMessage(`All ${pending.length} guests approved.`);
   }
 
-  async function approveWish(id: string) {
-    setApprovingId(id);
+  async function deleteGuest(id: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     try {
       const res = await fetch("/api/admin/guests", {
-        method: "PATCH",
+        method: "DELETE",
         headers: {
           authorization: `Bearer ${ADMIN_PASSWORD}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, approve_wish: true }),
+        body: JSON.stringify({ id }),
       });
       const data = await res.json();
       if (data.ok) {
-        setPendingWishes((prev) => prev.filter((w) => w.id !== id));
-        setMessage("Wish approved");
+        setMessage(`"${name}" deleted.`);
+        fetchGuests();
       } else {
-        setMessage(data.message || "Failed to approve");
+        setMessage(data.message || "Failed to delete");
       }
     } catch {
       setMessage("Network error");
     }
-    setApprovingId(null);
   }
 
   async function resetAllCheckIns() {
@@ -482,13 +505,21 @@ export default function AdminPage() {
                           <span>{guest.email}</span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => toggleCheckIn(guest)}
-                        disabled={checkedInIds.has(guest.id)}
-                        className="flex-shrink-0 rounded-full bg-wine px-7 py-3 text-xs font-bold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
-                      >
-                        {checkedInIds.has(guest.id) ? "..." : "CHECK IN"}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleCheckIn(guest)}
+                          disabled={checkedInIds.has(guest.id)}
+                          className="rounded-full bg-wine px-5 py-2 text-xs font-bold uppercase tracking-[0.14em] text-ivory shadow-soft transition hover:bg-wine/90 disabled:opacity-50"
+                        >
+                          {checkedInIds.has(guest.id) ? "..." : "CHECK IN"}
+                        </button>
+                        <button
+                          onClick={() => deleteGuest(guest.id, guest.full_name)}
+                          className="rounded-full border border-rose/30 px-3 py-2 text-xs text-rose transition hover:bg-rose/5"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -501,20 +532,23 @@ export default function AdminPage() {
         {tab === "wishes" && (
           <div className="mt-4 space-y-2">
             {pendingWishes.length === 0 ? (
-              <div className="mt-8 text-center text-sm text-ink/60">No pending wishes to approve.</div>
+              <div className="mt-8 text-center text-sm text-ink/60">No wishes found.</div>
             ) : (
               pendingWishes.map((w) => (
                 <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
                     <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
+                    <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
                   </div>
                   <button
-                    onClick={() => approveWish(w.id)}
+                    onClick={() => toggleWishApproval(w.id, w.wish_approved)}
                     disabled={approvingId === w.id}
-                    className="flex-shrink-0 rounded-full bg-moss px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:bg-moss/90 disabled:opacity-50"
+                    className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
+                      w.wish_approved ? "bg-rose" : "bg-moss"
+                    }`}
                   >
-                    {approvingId === w.id ? "..." : "Approve"}
+                    {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
                   </button>
                 </div>
               ))

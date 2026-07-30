@@ -20,12 +20,12 @@ export async function GET() {
     return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   }
 
-  // Extract approved wishes from note field
+  // Extract approved wishes from note field (wish_approved = true, not just approved)
   const wishes = (data ?? [])
     .map((g: any) => {
       try {
         const meta = JSON.parse(g.note || "{}");
-        if (meta.wish && meta.approved) return { name: g.full_name, wish: meta.wish };
+        if (meta.wish && meta.wish_approved) return { name: g.full_name, wish: meta.wish };
       } catch {}
       return null;
     })

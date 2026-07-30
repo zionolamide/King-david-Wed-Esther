@@ -104,6 +104,42 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, resetCount: allGuests?.length || 0 });
 }
 
+export async function DELETE(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${ADMIN_PASSWORD}`) return unauthorized();
+
+  let body: { id?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, message: "Invalid request" }, { status: 400 });
+  }
+
+  if (!body.id) {
+    return NextResponse.json({ ok: false, message: "Missing id" }, { status: 400 });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+  const { error } = await supabase
+    .from("rsvp_submissions")
+    .delete()
+    .eq("id", body.id);
+
+  if (error) {
+    return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
 export async function PATCH(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${ADMIN_PASSWORD}`) return unauthorized();
@@ -126,7 +162,29 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: false, message: result.message }, { status: 400 });
   }
 
-  // Wish approval — doesn't need checked_in
+  // Wish approval toggle — uses wish_approved (separate from guest approved)
+  if ((body as any).wish_approved !== undefined) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+    const { data: existing } = await supabase.from("rsvp_submissions").select("note").eq("id", body.id).maybeSingle();
+    if (!existing?.note) return NextResponse.json({ ok: false, message: "No note found" }, { status: 400 });
+
+    try {
+      const meta = JSON.parse(existing.note);
+      meta.wish_approved = (body as any).wish_approved;
+      await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", body.id);
+      return NextResponse.json({ ok: true });
+    } catch {
+      return NextResponse.json({ ok: false, message: "Invalid note format" }, { status: 400 });
+    }
+  }
+
+  // Old approve_wish kept for backward compatibility
   if (body.approve_wish) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

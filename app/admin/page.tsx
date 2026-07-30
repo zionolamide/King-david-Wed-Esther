@@ -62,7 +62,9 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.ok) {
+        // Only show wishes from approved guests (entry_code is not null)
         const all = (data.guests || []).filter((g: any) => {
+          if (!g.entry_code) return false;
           try {
             const meta = JSON.parse(g.note || "{}");
             return meta.wish;

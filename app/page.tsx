@@ -1653,7 +1653,7 @@ export default function Home() {
                     </label>
                     <label>
                       <span className="label">WhatsApp number *</span>
-                      <div className="grid grid-cols-[7rem_1fr] gap-2 sm:grid-cols-[8rem_1fr]">
+                      <div className="grid grid-cols-[6rem_1fr] gap-2 sm:grid-cols-[6.5rem_1fr]">
                         <select name="countryCode" className="field">
                           {countryCodes.map((c) => (
                             <option key={c.code} value={c.code}>{c.code}</option>

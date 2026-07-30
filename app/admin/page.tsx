@@ -417,7 +417,7 @@ export default function AdminPage() {
                           </div>
                           {guest.entry_code && (
                             <a
-                              href={`/card?code=${guest.entry_code}`}
+                              href={`/card/${guest.entry_code}`}
                               target="_blank"
                               className="rounded-full bg-sage/20 px-3 py-1.5 text-xs font-semibold text-sage transition hover:bg-sage/30"
                             >

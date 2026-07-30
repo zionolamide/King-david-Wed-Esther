@@ -80,7 +80,7 @@ export async function POST(request: Request) {
           if (result.ok) {
             // Build WhatsApp click-to-chat link
             const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
-            const cardUrl = `${baseUrl}/card?code=${result.entryCode}`;
+            const cardUrl = `${baseUrl}/card/${result.entryCode}`;
             // Handle phone — strip special chars, keep digits
             let phone = (result.phone || "").trim();
             // If starts with 0 (local format), assume Nigeria → replace 0 with 234

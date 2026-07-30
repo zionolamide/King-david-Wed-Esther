@@ -1614,7 +1614,7 @@ export default function Home() {
                       ✓ Your RSVP has been received
                     </p>
                     <p className="text-sm leading-7 text-ink/70">
-                      Your RSVP is now <strong>pending approval</strong> from the couple. You will receive your access card via email once it has been approved.
+                      Your RSVP is now <strong>pending approval</strong>. Your access card will be sent via WhatsApp once approved.
                     </p>
                   </motion.div>
                   <motion.p
@@ -1623,7 +1623,7 @@ export default function Home() {
                     transition={{ delay: 0.6, duration: 0.5 }}
                     className="text-xs leading-relaxed text-ink/50 italic mx-auto max-w-sm"
                   >
-                    Once approved, your access card will be sent to your email and WhatsApp. Check your spam folder. If you have questions, call Sister Rhoda (08106993435).
+                    If you provided an email, a copy will also be sent there. Please check your spam folder. Questions? Call Sister Rhoda (08106993435).
                   </motion.p>
                 </div>
               ) : (

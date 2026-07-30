@@ -90,9 +90,7 @@ export async function POST(request: Request) {
             // Remove any remaining non-digits
             phone = phone.replace(/[^0-9]/g, "");
             const waNumber = phone || "";
-            const waText = encodeURIComponent(
-              `Access card for King-David & Esther wedding: ${cardUrl}`
-            );
+            const waText = encodeURIComponent(cardUrl);
             const waLink = waNumber ? `https://wa.me/${waNumber}?text=${waText}` : null;
 
             const replyMsg = waLink

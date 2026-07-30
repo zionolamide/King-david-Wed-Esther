@@ -1653,13 +1653,13 @@ export default function Home() {
                     </label>
                     <label>
                       <span className="label">WhatsApp number *</span>
-                      <div className="flex gap-2">
-                        <select name="countryCode" className="field w-[7rem] flex-shrink-0">
+                      <div className="grid grid-cols-[7rem_1fr] gap-2 sm:grid-cols-[8rem_1fr]">
+                        <select name="countryCode" className="field">
                           {countryCodes.map((c) => (
-                            <option key={c.code} value={c.code}>{c.code} ({c.country})</option>
+                            <option key={c.code} value={c.code}>{c.code}</option>
                           ))}
                         </select>
-                        <input className="field flex-1" name="phone" inputMode="tel" required />
+                        <input className="field" name="phone" inputMode="tel" placeholder="Phone number" required />
                       </div>
                         {formErrors.phone ? <p className="mt-1 text-xs text-wine">{formErrors.phone}</p> : null}
                     </label>

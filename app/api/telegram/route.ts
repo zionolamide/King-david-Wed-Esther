@@ -3,6 +3,11 @@ import { approveGuest } from "../../lib/telegram";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const LIVE_URL = "https://king-david-wed-esther.vercel.app";
+
+function getBaseUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL || LIVE_URL;
+}
 
 // GET handles webhook setup and testing via browser
 export async function GET(request: Request) {
@@ -12,8 +17,7 @@ export async function GET(request: Request) {
   const manualId = url.searchParams.get("approve");
 
   if (setToken && setToken.length > 10) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
-    const webhookUrl = `${siteUrl}/api/telegram`;
+    const webhookUrl = `${getBaseUrl()}/api/telegram`;
     const res = await fetch(`https://api.telegram.org/bot${setToken}/setWebhook?url=${webhookUrl}`);
     const data = await res.json();
     return NextResponse.json(data);
@@ -79,8 +83,7 @@ export async function POST(request: Request) {
 
           if (result.ok) {
             // Build WhatsApp click-to-chat link
-            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://king-david-wed-esther.vercel.app");
-            const cardUrl = `${baseUrl}/card/${result.entryCode}`;
+            const cardUrl = `${getBaseUrl()}/card/${result.entryCode}`;
             // Handle phone — strip special chars, keep digits
             let phone = (result.phone || "").trim();
             // If starts with 0 (local format), assume Nigeria → replace 0 with 234

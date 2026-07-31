@@ -60,8 +60,9 @@ export default function CardPage({ params }: { params: Promise<{ code: string }>
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-ivory p-4 sm:p-6">
       <div className="mb-6 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wine">King-David &amp; Esther</p>
-        <h1 className="mt-1 font-serif text-2xl text-moss">Your Access Card</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wine">King-David &amp; Esther&rsquo;s Wedding</p>
+        <h1 className="mt-1 font-serif text-2xl text-moss">{displayName}</h1>
+        <p className="mt-1 text-sm text-ink/50">Your Wedding Access Card</p>
       </div>
 
       <div ref={cardRef} id="access-card" style={{width:'min(100%,600px)', margin:'0 auto', display:'flex', flexDirection:'column', borderRadius:'12px', border:'2px solid #eadfc9', background:'#fff', overflow:'hidden', boxShadow:'0 8px 30px rgba(0,0,0,0.1)'}}>

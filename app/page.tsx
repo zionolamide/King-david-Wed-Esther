@@ -1623,7 +1623,7 @@ export default function Home() {
                     transition={{ delay: 0.6, duration: 0.5 }}
                     className="text-xs leading-relaxed text-ink/50 italic mx-auto max-w-sm"
                   >
-                    If you provided an email, a copy will also be sent there. Please check your spam folder. Questions? Call Sister Rhoda (08106993435).
+                    If you provided an email, a copy will also be sent there. Please check your spam folder. Questions? Call Sister Rhoda (08106993435), Brother Joe (08102765976), or Bro Zion (09135037695).
                   </motion.p>
                 </div>
               ) : (

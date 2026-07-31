@@ -369,14 +369,19 @@ export default function AdminPage() {
         />
 
         {/* Stats bar */}
-        <div className="mt-4 flex gap-3 rounded-2xl border border-wine/10 bg-white/70 p-3 text-xs text-ink/60">
-          <span>✅ <strong className="text-moss">{approvedCount}</strong> Approved</span>
-          <span>⏳ <strong className="text-wine">{remainingApprovals}</strong> Remaining</span>
-          {tab === "checkin" && (
-            <span className="ml-auto text-moss font-semibold">
-              {displayGuests.length} awaiting check-in
-            </span>
-          )}
+        {(tab === "all" || tab === "checkin" || tab === "pending") && (
+          <div className="mt-4 flex gap-3 rounded-2xl border border-wine/10 bg-white/70 p-3 text-xs text-ink/60">
+            <span>✅ <strong className="text-moss">{approvedCount}</strong> Approved</span>
+            <span>⏳ <strong className="text-wine">{remainingApprovals}</strong> Remaining (of 80)</span>
+          </div>
+        )}
+
+        {/* Tab description */}
+        <div className="mt-3 rounded-xl bg-white/50 px-4 py-2.5 text-xs leading-relaxed text-ink/60 border border-wine/5">
+          {tab === "all" && "📋 All guests who have RSVP'd. Grouped by Checked In (venue) and Pending."}
+          {tab === "pending" && "✅ Guests waiting for your approval. Tap Approve to generate their entry code and send their access card via email. The 80 capacity counts only approved guests."}
+          {tab === "checkin" && "🎟️ Guests who are approved but haven't arrived at the venue yet. Tap CHECK IN when they present their card at the entrance."}
+          {tab === "wishes" && "💬 Wishes from approved guests. Toggle Approve/Disapprove to control which wishes appear on the wedding website."}
         </div>
 
         {/* Guest List */}

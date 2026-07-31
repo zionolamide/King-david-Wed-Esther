@@ -28,7 +28,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [tab, setTab] = useState<"all" | "pending" | "checkin" | "wishes">("all");
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
-  const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string; wish_approved: boolean }[]>([]);
+  const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string; wish_approved: boolean; attending: boolean }[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const fetchGuests = useCallback(async () => {
@@ -61,16 +61,22 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.ok) {
-        // Only show wishes from approved guests (entry_code is not null)
+        // Show wishes from approved guests (entry_code) AND non-attending guests
         const all = (data.guests || []).filter((g: any) => {
-          if (!g.entry_code) return false;
+          if (!g.attending && !g.entry_code && !g.note) return false;
           try {
             const meta = JSON.parse(g.note || "{}");
             return meta.wish;
           } catch { return false; }
         }).map((g: any) => {
           const meta = JSON.parse(g.note);
-          return { id: g.id, name: g.full_name, wish: meta.wish, wish_approved: meta.wish_approved || false };
+          return {
+            id: g.id,
+            name: g.full_name,
+            wish: meta.wish,
+            wish_approved: meta.wish_approved || false,
+            attending: g.attending !== "no" && !!g.entry_code,
+          };
         });
         setPendingWishes(all);
       }
@@ -504,28 +510,75 @@ export default function AdminPage() {
 
         {/* Wishes Tab */}
         {tab === "wishes" && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-4">
             {pendingWishes.length === 0 ? (
               <div className="mt-8 text-center text-sm text-ink/60">No wishes found.</div>
             ) : (
-              pendingWishes.map((w) => (
-                <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
-                    <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
+              <>
+                {/* Attending guests' wishes */}
+                {pendingWishes.filter((w) => w.attending).length > 0 && (
+                  <div>
+                    <div className="mb-2 flex items-center gap-2 px-1">
+                      <span className="h-3 w-3 rounded-full bg-moss" />
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-moss">
+                        Wishes from attending guests ({pendingWishes.filter((w) => w.attending).length})
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {pendingWishes.filter((w) => w.attending).map((w) => (
+                        <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
+                            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
+                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
+                          </div>
+                          <button
+                            onClick={() => toggleWishApproval(w.id, w.wish_approved)}
+                            disabled={approvingId === w.id}
+                            className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
+                              w.wish_approved ? "bg-rose" : "bg-moss"
+                            }`}
+                          >
+                            {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => toggleWishApproval(w.id, w.wish_approved)}
-                    disabled={approvingId === w.id}
-                    className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
-                      w.wish_approved ? "bg-rose" : "bg-moss"
-                    }`}
-                  >
-                    {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
-                  </button>
-                </div>
-              ))
+                )}
+
+                {/* Non-attending guests' wishes */}
+                {pendingWishes.filter((w) => !w.attending).length > 0 && (
+                  <div>
+                    <div className="mb-2 flex items-center gap-2 px-1">
+                      <span className="h-3 w-3 rounded-full bg-wine" />
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                        Wishes from non-attending guests ({pendingWishes.filter((w) => !w.attending).length})
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {pendingWishes.filter((w) => !w.attending).map((w) => (
+                        <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
+                            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name} 💌</p>
+                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
+                          </div>
+                          <button
+                            onClick={() => toggleWishApproval(w.id, w.wish_approved)}
+                            disabled={approvingId === w.id}
+                            className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
+                              w.wish_approved ? "bg-rose" : "bg-moss"
+                            }`}
+                          >
+                            {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

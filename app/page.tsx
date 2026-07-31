@@ -950,6 +950,7 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "closed" | "error">(
     "idle"
   );
+  const [attending, setAttending] = useState<"yes" | "no">("yes");
   const [message, setMessage] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -1064,14 +1065,19 @@ export default function Home() {
       countryCode: String(form.get("countryCode") ?? "+234"),
       phone: String(form.get("phone") ?? "").trim(),
       note: String(form.get("note") ?? ""),
-      adultAgreement
+      adultAgreement,
+      attending
     };
 
     const errors: Record<string, string> = {};
     if (!payload.fullName) errors.fullName = "Please enter your full name.";
-    if (email && !isValidEmail(payload.email)) errors.email = "Please enter a valid email or leave it blank.";
-    if (!payload.phone || !/^[0-9\s-]{5,15}$/.test(payload.phone)) errors.phone = "Please enter a valid WhatsApp number.";
-    if (!payload.adultAgreement) errors.adultAgreement = "You must confirm the adult-only agreement.";
+    if (attending === "yes") {
+      if (email && !isValidEmail(payload.email)) errors.email = "Please enter a valid email or leave it blank.";
+      if (!payload.phone || !/^[0-9\s-]{5,15}$/.test(payload.phone)) errors.phone = "Please enter a valid WhatsApp number.";
+      if (!payload.adultAgreement) errors.adultAgreement = "You must confirm the adult-only agreement.";
+    } else if (!payload.note) {
+      errors.note = "Please write your wish for the couple.";
+    }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -1628,6 +1634,23 @@ export default function Home() {
                 </div>
               ) : (
                 <>
+                  {/* Attending toggle */}
+                  <div className="mb-5">
+                    <span className="label">Will you be attending? *</span>
+                    <div className="mt-2 grid grid-cols-2 gap-3">
+                      <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition ${attending === "yes" ? "border-moss bg-moss/10 text-moss" : "border-ink/10 bg-white/60 text-ink/60 hover:border-moss/40"}`}>
+                        <input type="radio" name="attending" value="yes" checked={attending === "yes"} onChange={() => setAttending("yes")} className="sr-only" />
+                        🎉 Yes, I&apos;ll attend
+                      </label>
+                      <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition ${attending === "no" ? "border-wine bg-wine/10 text-wine" : "border-ink/10 bg-white/60 text-ink/60 hover:border-wine/40"}`}>
+                        <input type="radio" name="attending" value="no" checked={attending === "no"} onChange={() => setAttending("no")} className="sr-only" />
+                        💌 Just sending a wish
+                      </label>
+                    </div>
+                  </div>
+
+                  {attending === "yes" ? (
+                    <>
                   <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
                     <label>
                       <span className="label">Title *</span>
@@ -1682,6 +1705,21 @@ export default function Home() {
                   {formErrors.adultAgreement ? (
                     <p className="mt-2 text-xs text-wine">{formErrors.adultAgreement}</p>
                   ) : null}
+                  </>
+                  ) : (
+                    /* Non-attending: just name + wish */
+                    <div className="space-y-4">
+                      <label className="block">
+                        <span className="label">Your name *</span>
+                        <input className="field" name="fullName" maxLength={50} required />
+                        {formErrors.fullName ? <p className="mt-1 text-xs text-wine">{formErrors.fullName}</p> : null}
+                      </label>
+                      <label className="block">
+                        <span className="label">Your wish for the couple *</span>
+                        <textarea className="field min-h-32 resize-y" name="note" maxLength={280} required />
+                      </label>
+                    </div>
+                  )}
                   {status === "error" && lastPayload ? (
                     <div className="mt-4 rounded-md border border-wine/10 bg-rose/5 p-3">
                       <p className="text-sm text-ink/70">{message || "Submission failed. You can retry sending your RSVP."}</p>

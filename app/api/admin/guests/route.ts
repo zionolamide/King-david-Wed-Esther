@@ -188,6 +188,36 @@ export async function PATCH(request: Request) {
     }
   }
 
+  // Update attending status + clear entry code (used to convert a guest to wish-only)
+  if ((body as any).attending !== undefined || (body as any).clear_entry_code) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+    const updates: any = {};
+    if ((body as any).attending !== undefined) updates.attending = (body as any).attending;
+    if ((body as any).clear_entry_code) updates.entry_code = null;
+
+    const { data: existing } = await supabase.from("rsvp_submissions").select("note").eq("id", body.id).maybeSingle();
+    let meta: any = {};
+    if (existing?.note) {
+      try { meta = JSON.parse(existing.note); } catch { meta = {}; }
+    }
+    if ((body as any).attending === "no") {
+      meta.approved = false;
+    }
+    if (meta.original === undefined && !meta.wish && (body as any).attending === "no") {
+      // keep wish if present
+    }
+
+    const { error } = await supabase.from("rsvp_submissions").update({ ...updates, note: JSON.stringify(meta) }).eq("id", body.id);
+    if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
   // Old approve_wish kept for backward compatibility
   if (body.approve_wish) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;

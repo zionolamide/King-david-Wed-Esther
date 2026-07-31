@@ -6,3 +6,6 @@
 - Add a view-only "pending" tab in the admin panel listing unapproved RSVPs — but WITHOUT approve buttons there (approval still happens only via Telegram). Confidence: 0.70
 - Only approved guests should count as guests: unapproved RSVPs must not appear in the "all guests" list or count toward arrival/guest status. Confidence: 0.70
 - Truncate/length-limit wishes to ~150 words maximum when displaying them in the admin wishes tab. Confidence: 0.70
+- Send different Telegram messages for attending vs non-attending (wish-only) guests: attending get the normal New RSVP message with Approve button, while non-attending get a distinct "💌 New Wish Received" message with NO Approve button (since they don't need an access card or approval). Confidence: 0.80
+- In the admin Wishes tab, group wishes separately into "attending guests' wishes" and "wishes from non-attending guests", both controlled by the same Approve/Disapprove publication toggle. Confidence: 0.75
+- In the RSVP form, add a "Will you be attending?" toggle: "Yes" shows the full form (title, name, email optional, WhatsApp, wish optional, adult agreement) while "No" shows only name + wish fields. Confidence: 0.70

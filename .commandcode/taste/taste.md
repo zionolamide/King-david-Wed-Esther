@@ -27,6 +27,7 @@
 
 # access-card
 - When downloading the access card as PNG via html-to-image, set background to white before capture (then restore) to prevent transparent/white-wash background artifacts. Confidence: 0.70
+- Use the terminology "Access Card" (not "Access Pass" or "Wedding Access Pass") throughout the project for the card guests receive — the bride wants it called "Access Card". Confidence: 0.70
 
 # rsvp
 - For long full names on the access card, do not use ellipsis/truncation ("..."); instead, use the vertical portrait layout (which gives more width for text) plus a maxLength of 50 characters on the input field to keep the design clean. Confidence: 0.70
@@ -50,6 +51,9 @@
 
 # card-page
 - For the public access card page (`/card/[code]`), use a client component that fetches guest data via `/api/access-card?code=...` and renders the card with a Download PNG button using `html-to-image`. The card page should check approval status and show "pending" if unapproved. Confidence: 0.75
+
+# nextjs
+- Use HTML entities (`&rsquo;`, `&apos;`, etc.) instead of raw apostrophes/quotes/quotation marks in JSX text content — `next build` enforces `react/no-unescaped-entities` as an error and fails the build otherwise. Confidence: 0.70
 
 # admin
 See [admin/taste.md](admin/taste.md)

@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
-import { sendApprovalRequest } from "../../lib/telegram";
+import { sendApprovalRequest, sendWishNotification } from "../../lib/telegram";
 
 type RsvpPayload = {
   title?: unknown;
@@ -94,14 +94,29 @@ export async function POST(request: Request) {
   const phoneRaw = cleanText(body.phone).replace(/[^0-9]/g, "");
   const phone = countryCode + phoneRaw;
   const note = cleanText(body.note);
+  const attending = (body as any).attending === "no" ? "no" : "yes";
   const adultAgreement = body.adultAgreement === true || body.adultAgreement === "true";
 
-  if (!fullName || !phoneRaw || !adultAgreement) {
+  if (!fullName) {
+    return NextResponse.json(
+      { ok: false, message: "Please enter your full name." },
+      { status: 400 }
+    );
+  }
+
+  if (attending === "yes" && (!phoneRaw || !adultAgreement)) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Please enter your full name, WhatsApp number and confirm the adult-only agreement."
+        message: "Please enter your WhatsApp number and confirm the adult-only agreement."
       },
+      { status: 400 }
+    );
+  }
+
+  if (attending === "no" && !note) {
+    return NextResponse.json(
+      { ok: false, message: "Please write your wish for the couple." },
       { status: 400 }
     );
   }
@@ -117,28 +132,30 @@ export async function POST(request: Request) {
     auth: { persistSession: false }
   });
 
-  // Check approved guest count — max 80 approved
-  const { data: allData, error: fetchError } = await supabase
-    .from("rsvp_submissions")
-    .select("note");
+  // Only attending guests need approval and count toward capacity
+  if (attending === "yes") {
+    const { data: allData, error: fetchError } = await supabase
+      .from("rsvp_submissions")
+      .select("note");
 
-  if (fetchError) {
-    return NextResponse.json({ ok: false, message: fetchError.message }, { status: 500 });
-  }
+    if (fetchError) {
+      return NextResponse.json({ ok: false, message: fetchError.message }, { status: 500 });
+    }
 
-  let approvedCount = 0;
-  for (const row of allData || []) {
-    try {
-      const meta = JSON.parse(row.note || "{}");
-      if (meta.approved) approvedCount++;
-    } catch {}
-  }
+    let approvedCount = 0;
+    for (const row of allData || []) {
+      try {
+        const meta = JSON.parse(row.note || "{}");
+        if (meta.approved) approvedCount++;
+      } catch {}
+    }
 
-  if (approvedCount >= RSVP_LIMIT) {
-    return NextResponse.json(
-      { ok: false, message: `We've reached the guest capacity of ${RSVP_LIMIT}. RSVP is now closed.` },
-      { status: 403 }
-    );
+    if (approvedCount >= RSVP_LIMIT) {
+      return NextResponse.json(
+        { ok: false, message: `We've reached the guest capacity of ${RSVP_LIMIT}. RSVP is now closed.` },
+        { status: 403 }
+      );
+    }
   }
 
   if (email) {
@@ -176,6 +193,7 @@ export async function POST(request: Request) {
     phone: phone || null,
     note: JSON.stringify(notePayload),
     adult_agreement: adultAgreement,
+    attending,
     entry_code: null, // entry code generated on approval
   }).select("id");
 
@@ -186,10 +204,13 @@ export async function POST(request: Request) {
     );
   }
 
-  // Send Telegram approval request to the couple (no entry code shown)
-  if (inserted && inserted[0]) {
+  // Send Telegram approval request to the couple for attending guests only
+  if (inserted && inserted[0] && attending === "yes") {
     const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
     await sendApprovalRequest(inserted[0].id, displayName, email, phone, note);
+  } else if (inserted && inserted[0] && attending === "no") {
+    const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
+    await sendWishNotification(displayName, note);
   }
 
   // Notify the couple by email as well (backup)
@@ -209,8 +230,10 @@ export async function POST(request: Request) {
       await transporter.sendMail({
         from: emailUser,
         to: emailUser,
-        subject: `New RSVP: ${displayFullName}`,
-        text: `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`,
+        subject: attending === "yes" ? `New RSVP: ${displayFullName}` : `New Wish: ${displayFullName}`,
+        text: attending === "yes"
+          ? `${displayFullName} just RSVP'd for King-David & Esther's wedding.\n\nEmail: ${email}\nPhone: ${phone}\nMessage: ${note || "None"}`
+          : `${displayFullName} sent a wish for King-David & Esther's wedding (not attending).\n\nWish: ${note || "None"}`,
       });
     } catch (err) {
       console.warn("Notification email failed:", err);
@@ -218,5 +241,5 @@ export async function POST(request: Request) {
     transporter.close();
   }
 
-  return NextResponse.json({ ok: true, pending: true });
+  return NextResponse.json({ ok: true, pending: attending === "yes" });
 }

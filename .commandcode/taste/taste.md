@@ -53,3 +53,5 @@
 
 # admin
 - Before making UI/labeling changes, first explain your understanding of what the current confusing elements do, then propose a plan for how to rename/restructure them, and wait for user approval before implementing. Confidence: 0.75
+- The "Reset Check-Ins" button must only reset check-in status (checked_in/checked_in_at); it must never touch approval status or entry codes. Confidence: 0.75
+- Guest approval and access card generation should happen only via Telegram, not through the admin panel — remove/disable the Approve/Approve All functionality from the admin UI. Confidence: 0.75

@@ -48,7 +48,8 @@ export async function GET(request: Request) {
       ...g,
       checked_in: meta.checked_in ?? false,
       checked_in_at: meta.checked_in_at ?? null,
-      approved: meta.approved ?? (meta.checked_in === undefined && meta.original === undefined ? null : meta.approved ?? false),
+      // Approved if note says approved OR has an entry code (entry codes only generated on approval)
+      approved: meta.approved === true || !!g.entry_code,
       note: meta.original ?? null,
     };
   });

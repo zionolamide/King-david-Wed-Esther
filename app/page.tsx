@@ -1653,8 +1653,8 @@ export default function Home() {
                     <>
                   <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
                     <label>
-                      <span className="label">Title *</span>
-                      <select className="field" name="title" defaultValue="(No Prefix)" required>
+                      <span className="label">Title (optional)</span>
+                      <select className="field" name="title" defaultValue="(No Prefix)">
                         {titleOptions.map((option) => (
                           <option key={option} value={option}>
                             {option}
@@ -1851,6 +1851,17 @@ export default function Home() {
           </p>
           <p className="mt-5 text-xs text-ivory/40">
             Made with love
+          </p>
+          <p className="mt-3 text-xs text-ivory/40">
+            Built by <span className="text-champagne/70 font-semibold">Zion</span> ·{" "}
+            <a
+              href="https://wa.me/2349135037695?text=Hi%20Zion%2C%20I%27m%20viewing%20the%20King-David%20%26%20Esther%20wedding%20website."
+              target="_blank"
+              rel="noreferrer"
+              className="text-champagne/70 underline underline-offset-2 transition hover:text-champagne"
+            >
+              WhatsApp
+            </a>
           </p>
         </div>
       </footer>

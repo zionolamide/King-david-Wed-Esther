@@ -32,6 +32,7 @@
 # rsvp
 - For long full names on the access card, do not use ellipsis/truncation ("..."); instead, use the vertical portrait layout (which gives more width for text) plus a maxLength of 50 characters on the input field to keep the design clean. Confidence: 0.70
 - Make the email field optional (not required) in the RSVP form for guests who don't have email addresses; send their access card via WhatsApp instead. Confidence: 0.75
+- The live Supabase `rsvp_submissions` table cannot easily have new columns applied (schema.sql is not auto-applied) — store extended/mutable guest-state fields (attending, approved, wish, wish_approved, checked_in) inside the existing `note` JSON column rather than adding DB columns. Confidence: 0.65
 
 # phone-input
 - Use a country code dropdown (default +234 for Nigeria) combined with a phone number input using CSS grid (`grid-cols-[6rem_1fr]`) for responsive layout; store the full international number in the database. Confidence: 0.80

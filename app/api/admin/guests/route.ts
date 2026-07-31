@@ -8,7 +8,7 @@ function unauthorized() {
   return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
 }
 
-function parseNote(note: string | null): { checked_in?: boolean; checked_in_at?: string; original?: string; approved?: boolean } {
+function parseNote(note: string | null): { checked_in?: boolean; checked_in_at?: string; original?: string; approved?: boolean; attending?: string } {
   if (!note) return {};
   try {
     const parsed = JSON.parse(note);
@@ -50,6 +50,7 @@ export async function GET(request: Request) {
       checked_in_at: meta.checked_in_at ?? null,
       // Approved if note says approved OR has an entry code (entry codes only generated on approval)
       approved: meta.approved === true || !!g.entry_code,
+      attending: meta.attending ?? (!!g.entry_code ? "yes" : "pending"),
       note: meta.original ?? null,
     };
   });
@@ -198,7 +199,6 @@ export async function PATCH(request: Request) {
     const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
     const updates: any = {};
-    if ((body as any).attending !== undefined) updates.attending = (body as any).attending;
     if ((body as any).clear_entry_code) updates.entry_code = null;
 
     const { data: existing } = await supabase.from("rsvp_submissions").select("note").eq("id", body.id).maybeSingle();
@@ -206,11 +206,11 @@ export async function PATCH(request: Request) {
     if (existing?.note) {
       try { meta = JSON.parse(existing.note); } catch { meta = {}; }
     }
+    if ((body as any).attending !== undefined) {
+      meta.attending = (body as any).attending;
+    }
     if ((body as any).attending === "no") {
       meta.approved = false;
-    }
-    if (meta.original === undefined && !meta.wish && (body as any).attending === "no") {
-      // keep wish if present
     }
 
     const { error } = await supabase.from("rsvp_submissions").update({ ...updates, note: JSON.stringify(meta) }).eq("id", body.id);

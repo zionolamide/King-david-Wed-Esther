@@ -148,9 +148,11 @@ export async function approveGuest(guestId: string) {
   // Generate entry code on approval
   const entryCode = await generateEntryCode(supabase);
 
-  // Mark as approved and set entry code
+  // Mark as approved, attending, and set entry code
   let meta: any = {};
   try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
+  meta.approved = true;
+  meta.attending = "yes";
   meta.approved = true;
   const { error: updateError } = await supabase
     .from("rsvp_submissions")

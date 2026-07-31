@@ -183,7 +183,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const notePayload: any = { approved: false };
+  const notePayload: any = { approved: false, attending };
   if (note) notePayload.wish = note;
 
   const { data: inserted, error } = await supabase.from("rsvp_submissions").insert({
@@ -193,7 +193,6 @@ export async function POST(request: Request) {
     phone: phone || null,
     note: JSON.stringify(notePayload),
     adult_agreement: adultAgreement,
-    attending,
     entry_code: null, // entry code generated on approval
   }).select("id");
 

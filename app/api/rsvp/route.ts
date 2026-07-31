@@ -188,7 +188,8 @@ export async function POST(request: Request) {
 
   // Send Telegram approval request to the couple (no entry code shown)
   if (inserted && inserted[0]) {
-    await sendApprovalRequest(inserted[0].id, fullName, email);
+    const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
+    await sendApprovalRequest(inserted[0].id, displayName, email, phone, note);
   }
 
   // Notify the couple by email as well (backup)

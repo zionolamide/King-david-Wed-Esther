@@ -45,8 +45,10 @@ async function generateEntryCode(supabase: any) {
 
 export async function sendApprovalRequest(
   guestId: string,
-  fullName: string,
+  displayName: string,
   email: string,
+  phone: string,
+  wish?: string,
 ) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -56,7 +58,8 @@ export async function sendApprovalRequest(
     return;
   }
 
-  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${fullName}\n📧 ${email}\n━━━━━━━━━━━━━━━\nTap Approve to generate entry code and send their access card.`;
+  const wishLine = wish ? `\n💬 Wish: ${wish.slice(0, 100)}` : "";
+  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${displayName}\n📧 ${email || "No email"}\n📱 ${phone}${wishLine}\n━━━━━━━━━━━━━━━\nTap Approve to generate entry code and send their access card.`;
 
   const inlineKeyboard = {
     inline_keyboard: [[

@@ -312,7 +312,7 @@ export default function AdminPage() {
               disabled={loading}
               className="rounded-full border border-rose/30 bg-white/80 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-rose transition hover:bg-rose/5 disabled:opacity-40"
             >
-              {loading ? "..." : "Reset Check-Ins"}
+              {loading ? "..." : "Reset Venue Check-Ins"}
             </button>
             <button
               onClick={() => setAuthed(false)}
@@ -436,13 +436,13 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
-                {/* Pending section */}
+                {/* Not Arrived section */}
                 {filtered.filter((g) => !g.checked_in).length > 0 && (
                   <div>
                     <div className="mb-2 flex items-center gap-2 px-1">
                       <span className="h-3 w-3 rounded-full bg-rose" />
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
-                        Pending ({filtered.filter((g) => !g.checked_in).length})
+                        Not Arrived ({filtered.filter((g) => !g.checked_in).length})
                       </p>
                     </div>
                     <div className="space-y-1.5">
@@ -458,6 +458,12 @@ export default function AdminPage() {
                               <span>{guest.email}</span>
                             </div>
                           </div>
+                          <button
+                            onClick={() => deleteGuest(guest.id, guest.full_name)}
+                            className="rounded-full border border-rose/30 px-3 py-2 text-xs text-rose transition hover:bg-rose/5"
+                          >
+                            ✕
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -508,8 +514,8 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
-            ) : (
-              /* Tab 3 — Check In action list (pending check-in only) */
+            ) : tab === "checkin" ? (
+              /* Tab 3 — Check In action list (approved but not arrived) */
               displayGuests.length > 0 ? (
                 <div className="space-y-2">
                   {displayGuests.map((guest) => (
@@ -540,7 +546,7 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : null
-            )}
+            ) : null}
           </div>
         )}
 

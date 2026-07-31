@@ -92,13 +92,17 @@ export async function POST(request: Request) {
   // Reset checked_in and checked_in_at in each note
   for (const guest of allGuests || []) {
     let meta: any = {};
-    try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
+    try { meta = JSON.parse(guest.note || "{}"); } catch { meta = {}; }
 
-    if (meta.checked_in !== undefined || meta.original !== undefined) {
-      meta.checked_in = false;
-      meta.checked_in_at = null;
-      await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", guest.id);
+    // If note is plain text (not JSON), convert to JSON format
+    if (typeof meta !== "object" || meta.checked_in === undefined && meta.original === undefined && !meta.wish) {
+      if (guest.note) meta = { original: guest.note };
+      else meta = {};
     }
+
+    meta.checked_in = false;
+    meta.checked_in_at = null;
+    await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", guest.id);
   }
 
   return NextResponse.json({ ok: true, resetCount: allGuests?.length || 0 });

@@ -50,3 +50,6 @@
 
 # card-page
 - For the public access card page (`/card/[code]`), use a client component that fetches guest data via `/api/access-card?code=...` and renders the card with a Download PNG button using `html-to-image`. The card page should check approval status and show "pending" if unapproved. Confidence: 0.75
+
+# admin
+- Before making UI/labeling changes, first explain your understanding of what the current confusing elements do, then propose a plan for how to rename/restructure them, and wait for user approval before implementing. Confidence: 0.75

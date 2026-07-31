@@ -1666,7 +1666,7 @@ export default function Home() {
                   </div>
                   <label className="mt-4 block sm:mt-5">
                     <span className="label">Leave a wish (optional)</span>
-                    <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" />
+                    <textarea className="field min-h-28 resize-y sm:min-h-32" name="note" maxLength={280} />
                   </label>
                   <label className="mt-5 flex items-start gap-3">
                     <input

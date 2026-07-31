@@ -26,7 +26,7 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"all" | "checkin" | "wishes">("all");
+  const [tab, setTab] = useState<"all" | "pending" | "checkin" | "wishes">("all");
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
   const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string; wish_approved: boolean }[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -205,7 +205,9 @@ export default function AdminPage() {
 
   const checkedIn = guests.filter((g) => g.checked_in);
   const pending = guests.filter((g) => !g.checked_in);
-  const approvedCount = guests.filter((g) => g.approved).length;
+  const approvedGuests = guests.filter((g) => g.approved);
+  const unapprovedGuests = guests.filter((g) => !g.approved);
+  const approvedCount = approvedGuests.length;
   const remainingApprovals = Math.max(0, 80 - approvedCount);
 
   const filtered = guests.filter(
@@ -215,7 +217,9 @@ export default function AdminPage() {
       g.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const displayGuests = tab === "checkin" ? filtered.filter((g) => !g.checked_in) : filtered;
+  // All/Check In tabs only show approved guests; unapproved go to Awaiting tab
+  const approvedFiltered = filtered.filter((g) => g.approved);
+  const displayGuests = tab === "checkin" ? approvedFiltered.filter((g) => !g.checked_in) : approvedFiltered;
 
   if (!authed) {
     return (
@@ -299,6 +303,14 @@ export default function AdminPage() {
             All Guests ({guests.length})
           </button>
           <button
+            onClick={() => setTab("pending")}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+              tab === "pending" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
+            }`}
+          >
+            Awaiting ({unapprovedGuests.length})
+          </button>
+          <button
             onClick={() => setTab("checkin")}
             className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
               tab === "checkin" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
@@ -335,7 +347,8 @@ export default function AdminPage() {
 
         {/* Tab description */}
         <div className="mt-3 rounded-xl bg-white/50 px-4 py-2.5 text-xs leading-relaxed text-ink/60 border border-wine/5">
-          {tab === "all" && "📋 All guests who have RSVP'd. Grouped by Checked In (arrived at venue) and Not Arrived."}
+          {tab === "all" && "📋 Approved guests only. Grouped by Checked In (arrived at venue) and Not Arrived."}
+          {tab === "pending" && "⏳ People who filled the form but aren't approved yet. Approve via Telegram."}
           {tab === "checkin" && "🎟️ Approved guests who haven't arrived at the venue yet. Tap CHECK IN when they present their card at the entrance."}
           {tab === "wishes" && "💬 Wishes from approved guests. Toggle Approve/Disapprove to control which wishes appear on the wedding website."}
         </div>
@@ -426,6 +439,33 @@ export default function AdminPage() {
                   </div>
                 )}
               </>
+            ) : tab === "pending" ? (
+              /* Tab 2 — Awaiting Approval (read-only) */
+              <div className="mt-4">
+                <div className="mb-3 rounded-xl bg-white/50 px-4 py-2.5 text-xs leading-relaxed text-ink/60 border border-wine/5">
+                  ⏳ Guests who filled the form but haven&rsquo;t been approved yet. Approve them via the Telegram bot when their RSVP notification arrives. They don&rsquo;t count toward the 80 until approved.
+                </div>
+                {unapprovedGuests.length === 0 ? (
+                  <div className="mt-8 text-center text-sm text-ink/60">No guests awaiting approval.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {unapprovedGuests.map((guest) => (
+                      <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-ink">
+                            {guest.title && guest.title !== "(No Prefix)" ? `${guest.title} ` : ""}{guest.full_name}
+                          </p>
+                          <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                            <span>{guest.email || "No email"}</span>
+                            <span>{guest.phone}</span>
+                            <span>Filled: {new Date(guest.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             ) : tab === "checkin" ? (
               /* Tab 2 — Check In action list (approved but not arrived) */
               displayGuests.length > 0 ? (

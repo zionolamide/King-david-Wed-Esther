@@ -90,15 +90,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: fetchError.message }, { status: 500 });
   }
 
-  // Reset checked_in and checked_in_at in each note
+  // Reset checked_in and checked_in_at in each note — NEVER touches approved, entry codes, or wishes
   for (const guest of allGuests || []) {
-    let meta: any = {};
-    try { meta = JSON.parse(guest.note || "{}"); } catch { meta = {}; }
+    let meta: any = null;
+    try { meta = JSON.parse(guest.note || ""); } catch { meta = null; }
 
-    // If note is plain text (not JSON), convert to JSON format
-    if (typeof meta !== "object" || meta.checked_in === undefined && meta.original === undefined && !meta.wish) {
-      if (guest.note) meta = { original: guest.note };
-      else meta = {};
+    // Only convert if note is not valid JSON object
+    if (!meta || typeof meta !== "object" || Array.isArray(meta)) {
+      meta = guest.note ? { original: guest.note } : {};
     }
 
     meta.checked_in = false;

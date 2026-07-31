@@ -69,7 +69,7 @@ export default function CardPage({ params }: { params: Promise<{ code: string }>
         <div style={{background:'linear-gradient(135deg,#6e0d1b,#c9785e)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'clamp(16px, 4vw, 36px)', textAlign:'center'}}>
           <img src="/monograms.png" alt="Monogram" style={{width:'min(80px, 30%)', aspectRatio:'1/1', objectFit:'contain', marginBottom:'clamp(4px, 1vw, 10px)'}} />
           <div style={{fontFamily:'Georgia,serif', fontSize:'clamp(14px, 3.5vw, 22px)', color:'#FFF8EF', lineHeight:'1.2'}}>King-David &amp; Esther</div>
-          <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Access Card</div>
+          <div style={{marginTop:'clamp(2px, 0.5vw, 5px)', fontSize:'clamp(7px, 1.5vw, 10px)', fontWeight:'600', letterSpacing:'0.2em', textTransform:'uppercase', color:'rgba(234,223,201,0.7)'}}>Wedding Access Card</div>
         </div>
         <div style={{background:'#fbf6ed', display:'flex', flexDirection:'column', justifyContent:'center', gap:'clamp(8px, 1.5vw, 16px)', padding:'clamp(12px, 2.5vw, 24px)'}}>
           <div>

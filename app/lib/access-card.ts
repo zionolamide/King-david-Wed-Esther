@@ -331,7 +331,7 @@ export async function generateAccessCardImage(options: AccessCardOptions) {
 
   ctx.fillStyle = "#2F3A22";
   ctx.font = `600 11px "${fontFamily}"`;
-  ctx.fillText("WEDDING ACCESS PASS", CANVAS_WIDTH / 2, 345);
+  ctx.fillText("WEDDING ACCESS CARD", CANVAS_WIDTH / 2, 345);
 
   // === DETAILS ROW ===
   ctx.fillStyle = "#2D241F";

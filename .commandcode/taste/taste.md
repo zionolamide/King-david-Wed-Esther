@@ -27,7 +27,7 @@
 
 # access-card
 - When downloading the access card as PNG via html-to-image, set background to white before capture (then restore) to prevent transparent/white-wash background artifacts. Confidence: 0.70
-- Use the terminology "Access Card" (not "Access Pass" or "Wedding Access Pass") throughout the project for the card guests receive — the bride wants it called "Access Card". Confidence: 0.70
+- Within the access card's visual design itself, the card title text should read "Wedding Access Card" (not just "Access Card") — the user specifically wants "Wedding" included in the card's in-design text. Confidence: 0.65
 
 # rsvp
 - For long full names on the access card, do not use ellipsis/truncation ("..."); instead, use the vertical portrait layout (which gives more width for text) plus a maxLength of 50 characters on the input field to keep the design clean. Confidence: 0.70

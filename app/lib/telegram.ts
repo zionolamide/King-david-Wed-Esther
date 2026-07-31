@@ -187,7 +187,7 @@ export async function approveGuest(guestId: string) {
       <div style="background:linear-gradient(135deg,#6e0d1b,#c9785e);padding:28px 20px;text-align:center;">
         ${monogramBase64 ? `<img src="data:image/png;base64,${monogramBase64}" alt="Monogram" style="width:80px;height:80px;margin:0 auto 10px;display:block;object-fit:contain;" />` : ""}
         <div style="font-family:Georgia,serif;font-size:18px;color:#FFF8EF;">King-David &amp; Esther</div>
-        <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Access Card</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(234,223,201,0.7);margin-top:4px;">Wedding Access Card</div>
       </div>
       <div style="background:#fbf6ed;padding:20px;">
         <table style="width:100%;border-collapse:collapse;">

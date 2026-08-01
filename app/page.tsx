@@ -1441,14 +1441,14 @@ export default function Home() {
                   A garden-inspired collection of hues
                 </h3>
               </div>
-              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+              <div className="mt-8 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
                 {palette.map(([name, color]) => (
                   <div key={name} className="flex items-center gap-3 rounded-2xl border border-moss/10 bg-white/70 p-3 text-left shadow-soft transition hover:bg-white/90">
                     <span
                       className="h-10 w-10 flex-shrink-0 rounded-full border-2 border-white shadow"
                       style={{ backgroundColor: color }}
                     />
-                    <p className="text-sm font-semibold text-moss">{name}</p>
+                    <p className="text-sm font-semibold text-moss leading-tight">{name}</p>
                   </div>
                 ))}
               </div>

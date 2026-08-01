@@ -176,7 +176,33 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           ok: false,
-          message: "This email has already been registered."
+          message: "This email has already been registered. If you already submitted, please don't fill the form twice."
+        },
+        { status: 409 }
+      );
+    }
+  }
+
+  // Also check for duplicate WhatsApp number (applies to attending guests)
+  if (phone && attending === "yes") {
+    const { data: phoneExists, error: phoneError } = await supabase
+      .from("rsvp_submissions")
+      .select("id")
+      .eq("phone", phone)
+      .maybeSingle();
+
+    if (phoneError) {
+      return NextResponse.json(
+        { ok: false, message: phoneError.message ?? "RSVP validation failed." },
+        { status: 500 }
+      );
+    }
+
+    if (phoneExists) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "This WhatsApp number has already been registered. If you already submitted, please don't fill the form twice."
         },
         { status: 409 }
       );
@@ -189,7 +215,7 @@ export async function POST(request: Request) {
   const { data: inserted, error } = await supabase.from("rsvp_submissions").insert({
     title: title === "(No Prefix)" ? null : title,
     full_name: fullName,
-    email,
+    email: email || null,
     phone: phone || null,
     note: JSON.stringify(notePayload),
     adult_agreement: adultAgreement,

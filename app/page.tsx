@@ -959,6 +959,7 @@ export default function Home() {
   const [lastPayload, setLastPayload] = useState<any | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [submittedGuest, setSubmittedGuest] = useState<{ title: string; fullName: string; entryCode: string } | null>(null);
+  const [submittedWishOnly, setSubmittedWishOnly] = useState(false);
   const [accessCardName, setAccessCardName] = useState<string>("access-card.png");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [soundOn, setSoundOn] = useState(false);
@@ -1140,6 +1141,7 @@ export default function Home() {
           // success
           setStatus("success");
           setMessage("Thank you! Your RSVP has been received and a confirmation email is on its way.");
+          setSubmittedWishOnly(result.pending === false);
           setSubmittedEmail(payload.email);
           const code = result.entryCode || result.entry_code;
           if (code) {
@@ -1608,7 +1610,7 @@ export default function Home() {
                     transition={{ delay: 0.2, duration: 0.6 }}
                     className="font-serif text-3xl sm:text-4xl text-moss"
                   >
-                    RSVP Submitted!
+                    {submittedWishOnly ? "Wish Sent!" : "RSVP Submitted!"}
                   </motion.h2>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -1616,12 +1618,25 @@ export default function Home() {
                     transition={{ delay: 0.4, duration: 0.6 }}
                     className="mx-auto max-w-md space-y-3"
                   >
-                    <p className="text-base leading-7 text-ink/75 font-medium">
-                      ✓ Your RSVP has been received
-                    </p>
-                    <p className="text-sm leading-7 text-ink/70">
-                      Your RSVP is now <strong>pending approval</strong>. Your access card will be sent via WhatsApp once approved.
-                    </p>
+                    {submittedWishOnly ? (
+                      <>
+                        <p className="text-base leading-7 text-ink/75 font-medium">
+                          💌 Thank you for your lovely wish!
+                        </p>
+                        <p className="text-sm leading-7 text-ink/70">
+                          Your message has been sent to the couple. We appreciate your kindness and good wishes. You&apos;ll be in our hearts on August 22.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-base leading-7 text-ink/75 font-medium">
+                          ✓ Your RSVP has been received
+                        </p>
+                        <p className="text-sm leading-7 text-ink/70">
+                          Your RSVP is now <strong>pending approval</strong>. Your access card will be sent via WhatsApp once approved.
+                        </p>
+                      </>
+                    )}
                   </motion.div>
                   <motion.p
                     initial={{ opacity: 0, y: 10 }}
@@ -1629,7 +1644,9 @@ export default function Home() {
                     transition={{ delay: 0.6, duration: 0.5 }}
                     className="text-xs leading-relaxed text-ink/50 italic mx-auto max-w-sm"
                   >
-                    If you provided an email, a copy will also be sent there. Please check your spam folder. Questions? Call Sister Rhoda (08106993435), Brother Joe (08102765976), or Bro Zion (09135037695).
+                    {submittedWishOnly
+                      ? "Your wish will appear on the website once approved by the couple."
+                      : "If you provided an email, a copy will also be sent there. Please check your spam folder. Questions? Call Sister Rhoda (08106993435), Brother Joe (08102765976), or Bro Zion (09135037695)."}
                   </motion.p>
                 </div>
               ) : (

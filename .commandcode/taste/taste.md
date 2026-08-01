@@ -34,6 +34,9 @@
 - Make the email field optional (not required) in the RSVP form for guests who don't have email addresses; send their access card via WhatsApp instead. Confidence: 0.75
 - The live Supabase `rsvp_submissions` table cannot easily have new columns applied (schema.sql is not auto-applied) — store extended/mutable guest-state fields (attending, approved, wish, wish_approved, checked_in) inside the existing `note` JSON column rather than adding DB columns. Confidence: 0.65
 
+# rsvp
+- Show a different user-facing success message for attending guests vs. non-attending (wish-only) guests: wish-only submitters should NOT see a "pending approval" message, but instead a distinct message appropriate to a guest who just sent a wish. Confidence: 0.65
+
 # phone-input
 - Use a country code dropdown (default +234 for Nigeria) combined with a phone number input using CSS grid (`grid-cols-[6rem_1fr]`) for responsive layout; store the full international number in the database. Confidence: 0.80
 - For `wa.me` click-to-chat links, strip all non-digit characters, replace leading `0` with `234` (Nigerian default), else strip leading `+`, and use the digits as-is for the WhatsApp URL. Confidence: 0.80

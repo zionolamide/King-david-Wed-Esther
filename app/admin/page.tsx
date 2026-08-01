@@ -530,7 +530,7 @@ export default function AdminPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
                             <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
-                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
+                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
                           </div>
                           <button
                             onClick={() => toggleWishApproval(w.id, w.wish_approved)}
@@ -562,7 +562,7 @@ export default function AdminPage() {
                           <div className="min-w-0 flex-1">
                             <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
                             <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name} 💌</p>
-                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published" : "⏳ Hidden"}</p>
+                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
                           </div>
                           <button
                             onClick={() => toggleWishApproval(w.id, w.wish_approved)}

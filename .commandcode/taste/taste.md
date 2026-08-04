@@ -17,6 +17,7 @@
 
 # email
 - Send notification email to the couple's `EMAIL_USER` when a guest RSVPs, not just when they are checked in at the venue. Confidence: 0.70
+- When email is optional in the RSVP form, store empty email as `null` (not `""`), because the DB `email` column has UNIQUE constraint — two guests leaving email blank would otherwise collide and throw a "duplicate" error. Also add a WhatsApp-number duplicate check as a more practical duplicate-guard than email. Confidence: 0.80
 - Use the exact same access card design (same monogram, same layout, same colors, all decorative elements) in the email HTML body as the one shown on the website for download; do not generate a different design. Confidence: 0.80
 
 # admin
@@ -58,6 +59,9 @@
 
 # nextjs
 - Use HTML entities (`&rsquo;`, `&apos;`, etc.) instead of raw apostrophes/quotes/quotation marks in JSX text content — `next build` enforces `react/no-unescaped-entities` as an error and fails the build otherwise. Confidence: 0.70
+
+# git
+- Run `npm run build` to verify a successful production build before committing and pushing changes to git. Confidence: 0.55
 
 # admin
 See [admin/taste.md](admin/taste.md)

@@ -145,6 +145,13 @@ export async function approveGuest(guestId: string) {
 
   if (!guest) return { ok: false, message: "Guest not found" };
 
+  // Check if already approved — prevent duplicate emails/codes on repeat taps
+  let existingMeta: any = {};
+  try { existingMeta = JSON.parse(guest.note || ""); } catch { existingMeta = {}; }
+  if (existingMeta.approved === true || guest.entry_code) {
+    return { ok: true, alreadyApproved: true, fullName: guest.full_name, entryCode: guest.entry_code, phone: guest.phone || "" };
+  }
+
   // Generate entry code on approval
   const entryCode = await generateEntryCode(supabase);
 
@@ -153,7 +160,6 @@ export async function approveGuest(guestId: string) {
   try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
   meta.approved = true;
   meta.attending = "yes";
-  meta.approved = true;
   const { error: updateError } = await supabase
     .from("rsvp_submissions")
     .update({ note: JSON.stringify(meta), entry_code: entryCode })

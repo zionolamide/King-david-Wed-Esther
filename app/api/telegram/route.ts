@@ -67,9 +67,30 @@ export async function POST(request: Request) {
         const result = await approveGuest(guestId);
 
         if (BOT_TOKEN) {
-          const msg = result.ok
-            ? `✅ Approved! Access card email sent.`
-            : `❌ Failed: ${result.message}`;
+          const alreadyApproved = result.alreadyApproved === true;
+
+          // Replace the Approve button with an Approved button on the original message
+          if (update.callback_query.message?.message_id && update.callback_query.message?.chat?.id) {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageReplyMarkup`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: update.callback_query.message.chat.id,
+                message_id: update.callback_query.message.message_id,
+                reply_markup: {
+                  inline_keyboard: [[
+                    { text: "✅ Approved", callback_data: `done:${guestId}` },
+                  ]],
+                },
+              }),
+            });
+          }
+
+          const msg = alreadyApproved
+            ? `Already approved — no duplicate email sent.`
+            : result.ok
+              ? `✅ Approved! Access card email sent.`
+              : `❌ Failed: ${result.message}`;
 
           await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
             method: "POST",
@@ -81,7 +102,7 @@ export async function POST(request: Request) {
             }),
           });
 
-          if (result.ok) {
+          if (result.ok && !alreadyApproved) {
             // Build WhatsApp click-to-chat link
             const cardUrl = `${getBaseUrl()}/card/${result.entryCode}`;
             // Handle phone — strip special chars, keep digits

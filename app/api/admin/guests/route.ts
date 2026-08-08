@@ -8,7 +8,7 @@ function unauthorized() {
   return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
 }
 
-function parseNote(note: string | null): { checked_in?: boolean; checked_in_at?: string; original?: string; approved?: boolean; attending?: string } {
+function parseNote(note: string | null): { checked_in?: boolean; checked_in_at?: string; original?: string; approved?: boolean; attending?: string; wish?: string; wish_approved?: boolean } {
   if (!note) return {};
   try {
     const parsed = JSON.parse(note);
@@ -51,7 +51,10 @@ export async function GET(request: Request) {
       // Approved if note says approved OR has an entry code (entry codes only generated on approval)
       approved: meta.approved === true || !!g.entry_code,
       attending: meta.attending ?? (!!g.entry_code ? "yes" : "pending"),
+      // Return the full note object so the admin can read wishes
       note: meta.original ?? null,
+      wish: meta.wish ?? null,
+      wish_approved: meta.wish_approved ?? false,
     };
   });
 

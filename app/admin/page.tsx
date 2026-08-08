@@ -61,20 +61,13 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.ok) {
-        // Show wishes from approved guests (entry_code) AND non-attending guests
-        const all = (data.guests || []).filter((g: any) => {
-          if (!g.attending && !g.entry_code && !g.note) return false;
-          try {
-            const meta = JSON.parse(g.note || "{}");
-            return meta.wish;
-          } catch { return false; }
-        }).map((g: any) => {
-          const meta = JSON.parse(g.note);
+        // Show wishes from approved guests AND non-attending guests (wish-only)
+        const all = (data.guests || []).filter((g: any) => !!g.wish).map((g: any) => {
           return {
             id: g.id,
             name: g.full_name,
-            wish: meta.wish,
-            wish_approved: meta.wish_approved || false,
+            wish: g.wish,
+            wish_approved: g.wish_approved || false,
             attending: g.attending !== "no" && !!g.entry_code,
           };
         });

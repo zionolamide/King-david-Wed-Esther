@@ -1,11 +1,15 @@
 # admin
-- Before making UI/labeling changes, first explain your understanding of what the current confusing elements do, then propose a plan for how to rename/restructure them, and wait for user approval before implementing. Confidence: 0.80
+- Before implementing any significant feature or change, first present the complete plan/recommendations and wait for explicit user approval before proceeding. Confidence: 0.85
 - The "Reset Check-Ins" button must only reset check-in status (checked_in/checked_in_at); it must never touch approval status or entry codes. Confidence: 0.75
 - Guest approval and access card generation should happen only via Telegram, not through the admin panel — remove/disable the Approve/Approve All functionality from the admin UI (remove the pending/approve tab, approveGuest/approveAllPending functions, and related state). Confidence: 0.80
 - A guest with an entry_code is considered approved (entry codes are only generated on approval); derive the approved status from `approved` note flag OR presence of entry_code. Confidence: 0.75
 - Add a view-only "pending" tab in the admin panel listing unapproved RSVPs — but WITHOUT approve buttons there (approval still happens only via Telegram). Confidence: 0.70
-- Only approved guests should count as guests: unapproved RSVPs must not appear in the "all guests" list or count toward arrival/guest status. Confidence: 0.70
+- Only approved guests (those with an entry code) should count as guests: the admin counter should show "X / 80" counting only approved guests toward the max; unapproved RSVPs must not appear in the "all guests" list or count toward guest status. Show awaiting and wish-only as separate counts. Confidence: 0.75
+- For the Telegram approval flow, present different button sets based on submission type: RSVP with wish gets two buttons (`✅ Approve` + `📝 Approve & Publish Wish`), RSVP without wish gets one (`✅ Approve`), and wish-only guests get just `✅ Approve Wish` (publishes wish only, no access card/entry code). Confidence: 0.65
 - Truncate/length-limit wishes to ~150 words maximum when displaying them in the admin wishes tab. Confidence: 0.70
 - Send different Telegram messages for attending vs non-attending (wish-only) guests: attending get the normal New RSVP message with Approve button, while non-attending get a distinct "💌 New Wish Received" message with NO Approve button (since they don't need an access card or approval). Confidence: 0.80
 - In the admin Wishes tab, group wishes separately into "attending guests' wishes" and "wishes from non-attending guests", both controlled by the same Approve/Disapprove publication toggle. Confidence: 0.75
 - In the RSVP form, add a "Will you be attending?" toggle: "Yes" shows the full form (title, name, email optional, WhatsApp, wish optional, adult agreement) while "No" shows only name + wish fields. Confidence: 0.70
+- Add an Edit (✏️) capability on each wish in the admin Wishes tab so the admin can fix a guest's grammar/spelling before approving & publishing the wish. Confidence: 0.70
+- Filter out any wishes containing hate speech or profane/bad words before approving them. Confidence: 0.65
+- Keep new features professional yet simple — avoid unnecessary complexity; user repeatedly emphasizes "professional and simple, not too complex" solutions. Confidence: 0.72

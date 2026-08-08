@@ -59,13 +59,20 @@ export async function sendApprovalRequest(
   }
 
   const wishLine = wish ? `\n💬 Wish: ${wish.slice(0, 100)}` : "";
-  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${displayName}\n📧 ${email || "No email"}\n📱 ${phone}${wishLine}\n━━━━━━━━━━━━━━━\nTap Approve to generate entry code and send their access card.`;
+  const text = `🆕 New RSVP\n━━━━━━━━━━━━━━━\n👤 ${displayName}\n📧 ${email || "No email"}\n📱 ${phone}${wishLine}\n━━━━━━━━━━━━━━━\nApprove to generate entry code and send their access card.`;
 
-  const inlineKeyboard = {
-    inline_keyboard: [[
-      { text: "✅ Approve", callback_data: `approve:${guestId}` },
-    ]],
-  };
+  // If guest has a wish: two buttons (Approve only / Approve + publish wish)
+  // If no wish: single Approve button
+  const inlineKeyboard = wish
+    ? {
+        inline_keyboard: [
+          [{ text: "✅ Approve", callback_data: `approve:${guestId}` }],
+          [{ text: "📝 Approve & Publish Wish", callback_data: `approve_wish:${guestId}` }],
+        ],
+      }
+    : {
+        inline_keyboard: [[{ text: "✅ Approve", callback_data: `approve:${guestId}` }]],
+      };
 
   try {
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -83,6 +90,7 @@ export async function sendApprovalRequest(
 }
 
 export async function sendWishNotification(
+  guestId: string,
   displayName: string,
   wish: string,
 ) {
@@ -94,7 +102,13 @@ export async function sendWishNotification(
     return;
   }
 
-  const text = `💌 New Wish Received\n━━━━━━━━━━━━━━━\n👤 ${displayName}\n💬 Wish: ${wish.slice(0, 150)}\n━━━━━━━━━━━━━━━\nWish-only guest (not attending). No access card needed.`;
+  const text = `💌 New Wish Received\n━━━━━━━━━━━━━━━\n👤 ${displayName}\n💬 Wish: ${wish.slice(0, 150)}\n━━━━━━━━━━━━━━━\nWish-only guest (not attending). No access card needed.\nApprove to publish their wish on the website.`;
+
+  const inlineKeyboard = {
+    inline_keyboard: [[
+      { text: "✅ Approve Wish", callback_data: `wishonly:${guestId}` },
+    ]],
+  };
 
   try {
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -103,11 +117,50 @@ export async function sendWishNotification(
       body: JSON.stringify({
         chat_id: chatId,
         text,
+        reply_markup: inlineKeyboard,
       }),
     });
   } catch (err) {
     console.error("Telegram wish notification failed:", err);
   }
+}
+
+export async function approveGuestWish(guestId: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return { ok: false, message: "Supabase not configured" };
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+  const { data: guest } = await supabase
+    .from("rsvp_submissions")
+    .select("*")
+    .eq("id", guestId)
+    .maybeSingle();
+
+  if (!guest) return { ok: false, message: "Guest not found" };
+
+  let meta: any = {};
+  try { meta = JSON.parse(guest.note || ""); } catch { meta = {}; }
+
+  // If already published, just return success (no duplicate)
+  if (meta.wish_approved === true) {
+    return { ok: true, alreadyApproved: true, fullName: guest.full_name, wish: meta.wish };
+  }
+
+  meta.wish_approved = true;
+
+  const { error } = await supabase
+    .from("rsvp_submissions")
+    .update({ note: JSON.stringify(meta) })
+    .eq("id", guestId);
+
+  if (error) return { ok: false, message: error.message };
+
+  return { ok: true, alreadyApproved: false, fullName: guest.full_name, wish: meta.wish };
 }
 
 export async function approveGuest(guestId: string) {

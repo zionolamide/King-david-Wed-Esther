@@ -235,7 +235,7 @@ export async function POST(request: Request) {
     await sendApprovalRequest(inserted[0].id, displayName, email, phone, note);
   } else if (inserted && inserted[0] && attending === "no") {
     const displayName = title && title !== "(No Prefix)" ? `${title} ${fullName}` : fullName;
-    await sendWishNotification(displayName, note);
+    await sendWishNotification(inserted[0].id, displayName, note);
   }
 
   // Notify the couple by email as well (backup)

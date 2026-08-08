@@ -17,6 +17,8 @@ type Guest = {
   attending?: string;
   note?: string | null;
   approved?: boolean | null;
+  wish?: string | null;
+  wish_approved?: boolean | null;
 };
 
 export default function AdminPage() {
@@ -30,6 +32,32 @@ export default function AdminPage() {
   const [checkedInIds, setCheckedInIds] = useState<Set<string>>(new Set());
   const [pendingWishes, setPendingWishes] = useState<{ id: string; name: string; wish: string; wish_approved: boolean; attending: boolean }[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [editingWishId, setEditingWishId] = useState<string | null>(null);
+  const [editingWishText, setEditingWishText] = useState("");
+
+  async function saveWishEdit(id: string) {
+    if (!editingWishText.trim()) return;
+    try {
+      const res = await fetch("/api/admin/guests", {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${ADMIN_PASSWORD}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, edit_wish: editingWishText.trim() }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMessage("Wish updated");
+        setEditingWishId(null);
+        fetchPendingWishes();
+      } else {
+        setMessage(data.message || "Failed to update");
+      }
+    } catch {
+      setMessage("Network error");
+    }
+  }
 
   const fetchGuests = useCallback(async () => {
     setLoading(true);
@@ -205,9 +233,11 @@ export default function AdminPage() {
   const checkedIn = guests.filter((g) => g.checked_in);
   const pending = guests.filter((g) => !g.checked_in);
   const approvedGuests = guests.filter((g) => g.approved);
-  const unapprovedGuests = guests.filter((g) => !g.approved);
+  const unapprovedGuests = guests.filter((g) => !g.approved && g.attending !== "no");
+  const wishOnlyGuests = guests.filter((g) => g.attending === "no");
   const approvedCount = approvedGuests.length;
   const remainingApprovals = Math.max(0, 80 - approvedCount);
+  const wishCount = guests.filter((g) => g.wish).length;
 
   const filtered = guests.filter(
     (g) =>
@@ -263,8 +293,10 @@ export default function AdminPage() {
           <div>
             <h1 className="font-serif text-4xl text-moss sm:text-5xl">Guest List</h1>
             <p className="mt-1 text-sm text-ink/60">
-              <strong className="text-moss">{approvedCount}</strong> approved ·{" "}
-              <strong className="text-wine">{remainingApprovals}</strong> remaining ·{" "}
+              <strong className="text-moss">{approvedCount}</strong> approved (of 80) ·{" "}
+              <strong className="text-wine">{remainingApprovals}</strong> slots left ·{" "}
+              <strong className="text-amber-600">{unapprovedGuests.length}</strong> awaiting RSVP ·{" "}
+              <strong className="text-ink">{wishOnlyGuests.length}</strong> wish-only ·{" "}
               <strong className="text-ink">{guests.length}</strong> total
             </p>
           </div>
@@ -347,7 +379,7 @@ export default function AdminPage() {
         {/* Tab description */}
         <div className="mt-3 rounded-xl bg-white/50 px-4 py-2.5 text-xs leading-relaxed text-ink/60 border border-wine/5">
           {tab === "all" && "📋 Approved guests only. Grouped by Checked In (arrived at venue) and Not Arrived."}
-          {tab === "pending" && "⏳ People who filled the form but aren't approved yet. Approve via Telegram."}
+          {tab === "pending" && "⏳ People waiting for action: RSVP approval (via Telegram) and wish-only guests awaiting wish approval."}
           {tab === "checkin" && "🎟️ Approved guests who haven't arrived at the venue yet. Tap CHECK IN when they present their card at the entrance."}
           {tab === "wishes" && "💬 Wishes from approved guests. Toggle Approve/Disapprove to control which wishes appear on the wedding website."}
         </div>
@@ -440,30 +472,63 @@ export default function AdminPage() {
               </>
             ) : tab === "pending" ? (
               /* Tab 2 — Awaiting Approval (read-only) */
-              <div className="mt-4">
-                <div className="mb-3 rounded-xl bg-white/50 px-4 py-2.5 text-xs leading-relaxed text-ink/60 border border-wine/5">
-                  ⏳ Guests who filled the form but haven&rsquo;t been approved yet. Approve them via the Telegram bot when their RSVP notification arrives. They don&rsquo;t count toward the 80 until approved.
-                </div>
-                {unapprovedGuests.length === 0 ? (
-                  <div className="mt-8 text-center text-sm text-ink/60">No guests awaiting approval.</div>
-                ) : (
-                  <div className="space-y-2">
-                    {unapprovedGuests.map((guest) => (
-                      <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-ink">
-                            {guest.title && guest.title !== "(No Prefix)" ? `${guest.title} ` : ""}{guest.full_name}
-                          </p>
-                          <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
-                            <span>{guest.email || "No email"}</span>
-                            <span>{guest.phone}</span>
-                            <span>Filled: {new Date(guest.created_at).toLocaleDateString()}</span>
+              <div className="mt-4 space-y-5">
+                {/* Awaiting RSVP approval */}
+                <div>
+                  <div className="mb-2 flex items-center gap-2 px-1">
+                    <span className="h-3 w-3 rounded-full bg-amber-500" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-600">
+                      Awaiting RSVP approval ({unapprovedGuests.length})
+                    </p>
+                  </div>
+                  {unapprovedGuests.length === 0 ? (
+                    <div className="rounded-xl bg-white/40 px-4 py-3 text-sm text-ink/50">No guests awaiting RSVP approval.</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {unapprovedGuests.map((guest) => (
+                        <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium text-ink">
+                              {guest.title && guest.title !== "(No Prefix)" ? `${guest.title} ` : ""}{guest.full_name}
+                            </p>
+                            <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
+                              <span>{guest.email || "No email"}</span>
+                              <span>{guest.phone}</span>
+                              <span>Filled: {new Date(guest.created_at).toLocaleDateString()}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Awaiting wish approval — wish-only guests */}
+                <div>
+                  <div className="mb-2 flex items-center gap-2 px-1">
+                    <span className="h-3 w-3 rounded-full bg-wine" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                      Awaiting wish approval — wish-only ({wishOnlyGuests.length})
+                    </p>
                   </div>
-                )}
+                  {wishOnlyGuests.length === 0 ? (
+                    <div className="rounded-xl bg-white/40 px-4 py-3 text-sm text-ink/50">No wish-only guests yet.</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {wishOnlyGuests.map((guest) => (
+                        <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white px-4 py-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium text-ink">{guest.full_name} 💌</p>
+                            {guest.wish && <p className="mt-1 text-sm italic text-ink/60">&ldquo;{guest.wish.slice(0, 120)}{guest.wish.length > 120 ? "…" : ""}&rdquo;</p>}
+                            <div className="mt-0.5 text-xs text-ink/40">
+                              {guest.wish_approved ? "✅ Published" : "⏳ Not published — approve in Wishes tab or via Telegram"}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             ) : tab === "checkin" ? (
               /* Tab 2 — Check In action list (approved but not arrived) */
@@ -521,19 +586,46 @@ export default function AdminPage() {
                       {pendingWishes.filter((w) => w.attending).map((w) => (
                         <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
-                            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
-                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
+                            {editingWishId === w.id ? (
+                              <div>
+                                <textarea
+                                  value={editingWishText}
+                                  onChange={(e) => setEditingWishText(e.target.value)}
+                                  maxLength={280}
+                                  className="field min-h-24 resize-y text-sm"
+                                />
+                                <div className="mt-2 flex gap-2">
+                                  <button onClick={() => saveWishEdit(w.id)} className="rounded-full bg-moss px-4 py-1.5 text-xs font-semibold text-ivory">Save</button>
+                                  <button onClick={() => setEditingWishId(null)} className="rounded-full border border-ink/20 px-4 py-1.5 text-xs text-ink/60">Cancel</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
+                                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name}</p>
+                                <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
+                              </>
+                            )}
                           </div>
-                          <button
-                            onClick={() => toggleWishApproval(w.id, w.wish_approved)}
-                            disabled={approvingId === w.id}
-                            className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
-                              w.wish_approved ? "bg-rose" : "bg-moss"
-                            }`}
-                          >
-                            {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
-                          </button>
+                          <div className="flex flex-shrink-0 flex-col items-end gap-2">
+                            {editingWishId !== w.id && (
+                              <button
+                                onClick={() => { setEditingWishId(w.id); setEditingWishText(w.wish); }}
+                                className="rounded-full border border-ink/20 px-4 py-1.5 text-xs text-ink/70 transition hover:bg-ink/5"
+                              >
+                                ✏️ Edit
+                              </button>
+                            )}
+                            <button
+                              onClick={() => toggleWishApproval(w.id, w.wish_approved)}
+                              disabled={approvingId === w.id}
+                              className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
+                                w.wish_approved ? "bg-rose" : "bg-moss"
+                              }`}
+                            >
+                              {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -553,19 +645,46 @@ export default function AdminPage() {
                       {pendingWishes.filter((w) => !w.attending).map((w) => (
                         <div key={w.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white/80 px-4 py-3">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
-                            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name} 💌</p>
-                            <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
+                            {editingWishId === w.id ? (
+                              <div>
+                                <textarea
+                                  value={editingWishText}
+                                  onChange={(e) => setEditingWishText(e.target.value)}
+                                  maxLength={280}
+                                  className="field min-h-24 resize-y text-sm"
+                                />
+                                <div className="mt-2 flex gap-2">
+                                  <button onClick={() => saveWishEdit(w.id)} className="rounded-full bg-moss px-4 py-1.5 text-xs font-semibold text-ivory">Save</button>
+                                  <button onClick={() => setEditingWishId(null)} className="rounded-full border border-ink/20 px-4 py-1.5 text-xs text-ink/60">Cancel</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="text-sm italic text-ink/75">&ldquo;{w.wish}&rdquo;</p>
+                                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-wine">— {w.name} 💌</p>
+                                <p className="mt-0.5 text-xs text-ink/40">{w.wish_approved ? "✅ Published to website" : "⏳ Hidden — approve to publish on website"}</p>
+                              </>
+                            )}
                           </div>
-                          <button
-                            onClick={() => toggleWishApproval(w.id, w.wish_approved)}
-                            disabled={approvingId === w.id}
-                            className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
-                              w.wish_approved ? "bg-rose" : "bg-moss"
-                            }`}
-                          >
-                            {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
-                          </button>
+                          <div className="flex flex-shrink-0 flex-col items-end gap-2">
+                            {editingWishId !== w.id && (
+                              <button
+                                onClick={() => { setEditingWishId(w.id); setEditingWishText(w.wish); }}
+                                className="rounded-full border border-ink/20 px-4 py-1.5 text-xs text-ink/70 transition hover:bg-ink/5"
+                              >
+                                ✏️ Edit
+                              </button>
+                            )}
+                            <button
+                              onClick={() => toggleWishApproval(w.id, w.wish_approved)}
+                              disabled={approvingId === w.id}
+                              className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ivory shadow-soft transition hover:opacity-90 disabled:opacity-50 ${
+                                w.wish_approved ? "bg-rose" : "bg-moss"
+                              }`}
+                            >
+                              {approvingId === w.id ? "..." : w.wish_approved ? "Disapprove" : "Approve"}
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

@@ -170,6 +170,26 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: false, message: result.message }, { status: 400 });
   }
 
+  // Edit wish text (grammar correction)
+  if ((body as any).edit_wish !== undefined) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ ok: false, message: "Supabase not configured" }, { status: 503 });
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+    const { data: existing } = await supabase.from("rsvp_submissions").select("note").eq("id", body.id).maybeSingle();
+    let meta: any = {};
+    if (existing?.note) {
+      try { meta = JSON.parse(existing.note); } catch { meta = {}; }
+    }
+    meta.wish = (body as any).edit_wish;
+    const { error } = await supabase.from("rsvp_submissions").update({ note: JSON.stringify(meta) }).eq("id", body.id);
+    if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
   // Wish approval toggle — uses wish_approved (separate from guest approved)
   if ((body as any).wish_approved !== undefined) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;

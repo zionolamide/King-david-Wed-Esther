@@ -347,7 +347,7 @@ export default function AdminPage() {
               tab === "checkin" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
-            Check In ({pending.length})
+            Check In ({approvedGuests.length})
           </button>
           <button
             onClick={() => setTab("wishes")}
@@ -389,8 +389,8 @@ export default function AdminPage() {
           <div className="mt-8 text-center text-sm text-ink/60">Loading guests...</div>
         ) : displayGuests.length === 0 ? (
           <div className="mt-8 text-center text-sm text-ink/60">
-            {guests.length === 0
-              ? "No RSVPs received yet."
+            {approvedGuests.length === 0
+              ? "No approved guests yet."
               : tab === "checkin"
               ? "All guests have been checked in!"
               : "No guests match your search."}
@@ -400,16 +400,16 @@ export default function AdminPage() {
             {tab === "all" ? (
               <>
                 {/* Checked In section */}
-                {filtered.filter((g) => g.checked_in).length > 0 && (
+                {approvedFiltered.filter((g) => g.checked_in).length > 0 && (
                   <div className="mb-4">
                     <div className="mb-2 flex items-center gap-2 px-1">
                       <span className="h-3 w-3 rounded-full bg-sage" />
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
-                        Checked In ({filtered.filter((g) => g.checked_in).length})
+                        Checked In ({approvedFiltered.filter((g) => g.checked_in).length})
                       </p>
                     </div>
                     <div className="space-y-1.5">
-                      {filtered.filter((g) => g.checked_in).map((guest) => (
+                      {approvedFiltered.filter((g) => g.checked_in).map((guest) => (
                         <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-sage/20 bg-sage/5 px-4 py-2.5">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
@@ -437,16 +437,16 @@ export default function AdminPage() {
                   </div>
                 )}
                 {/* Not Arrived section */}
-                {filtered.filter((g) => !g.checked_in).length > 0 && (
+                {approvedFiltered.filter((g) => !g.checked_in).length > 0 && (
                   <div>
                     <div className="mb-2 flex items-center gap-2 px-1">
                       <span className="h-3 w-3 rounded-full bg-rose" />
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
-                        Not Arrived ({filtered.filter((g) => !g.checked_in).length})
+                        Not Arrived ({approvedFiltered.filter((g) => !g.checked_in).length})
                       </p>
                     </div>
                     <div className="space-y-1.5">
-                      {filtered.filter((g) => !g.checked_in).map((guest) => (
+                      {approvedFiltered.filter((g) => !g.checked_in).map((guest) => (
                         <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-2.5">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">

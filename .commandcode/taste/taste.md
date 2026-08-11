@@ -61,7 +61,7 @@
 - Use HTML entities (`&rsquo;`, `&apos;`, etc.) instead of raw apostrophes/quotes/quotation marks in JSX text content — `next build` enforces `react/no-unescaped-entities` as an error and fails the build otherwise. Confidence: 0.70
 
 # git
-- Run `npm run build` to verify a successful production build before committing and pushing changes to git. Confidence: 0.55
+- Run `npm run build` to verify a successful production build before committing and pushing changes to git. Confidence: 0.60
 
 # admin
 See [admin/taste.md](admin/taste.md)

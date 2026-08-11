@@ -12,5 +12,6 @@
 - In the RSVP form, add a "Will you be attending?" toggle: "Yes" shows the full form (title, name, email optional, WhatsApp, wish optional, adult agreement) while "No" shows only name + wish fields. Confidence: 0.70
 - Add an Edit (✏️) capability on each wish in the admin Wishes tab so the admin can fix a guest's grammar/spelling before approving & publishing the wish. Confidence: 0.70
 - Filter out any wishes containing hate speech or profane/bad words before approving them. Confidence: 0.65
-- Keep new features professional yet simple — avoid unnecessary complexity; user repeatedly emphasizes "professional and simple, not too complex" solutions. Confidence: 0.72
+- Keep new features professional yet simple — avoid unnecessary complexity; user repeatedly emphasizes "professional and simple, not too complex" solutions. Confidence: 0.76
+- In the admin panel, add a simple success/confirmation message when a guest is checked in or approved, so the admin gets visible feedback on the action. Confidence: 0.60
 - For one-time operations (e.g., resending pending RSVP notifications), do NOT add a permanent admin button/UI feature — execute the action directly as a one-off script instead. Confidence: 0.80

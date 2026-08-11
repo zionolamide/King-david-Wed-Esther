@@ -209,6 +209,8 @@ export default function AdminPage() {
             : g
         )
       );
+      // Success message
+      setMessage(newVal ? `✅ ${guest.full_name} checked in successfully` : `${guest.full_name} check-in removed`);
       // Notify on check-in
       if (newVal) {
         fetch("/api/admin/notify-checkin", {
@@ -347,7 +349,7 @@ export default function AdminPage() {
               tab === "checkin" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
-            Check In ({approvedGuests.length})
+            Check In ({Math.max(0, approvedGuests.length - checkedIn.length)})
           </button>
           <button
             onClick={() => setTab("wishes")}
@@ -508,20 +510,20 @@ export default function AdminPage() {
                   <div className="mb-2 flex items-center gap-2 px-1">
                     <span className="h-3 w-3 rounded-full bg-wine" />
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
-                      Awaiting wish approval — wish-only ({wishOnlyGuests.length})
+                      Awaiting wish approval — wish-only ({wishOnlyGuests.filter((g) => !g.wish_approved).length})
                     </p>
                   </div>
-                  {wishOnlyGuests.length === 0 ? (
-                    <div className="rounded-xl bg-white/40 px-4 py-3 text-sm text-ink/50">No wish-only guests yet.</div>
+                  {wishOnlyGuests.filter((g) => !g.wish_approved).length === 0 ? (
+                    <div className="rounded-xl bg-white/40 px-4 py-3 text-sm text-ink/50">No wish-only wishes awaiting approval — all published. ✅</div>
                   ) : (
                     <div className="space-y-2">
-                      {wishOnlyGuests.map((guest) => (
+                      {wishOnlyGuests.filter((g) => !g.wish_approved).map((guest) => (
                         <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-blush/20 bg-white px-4 py-3">
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium text-ink">{guest.full_name} 💌</p>
                             {guest.wish && <p className="mt-1 text-sm italic text-ink/60">&ldquo;{guest.wish.slice(0, 120)}{guest.wish.length > 120 ? "…" : ""}&rdquo;</p>}
                             <div className="mt-0.5 text-xs text-ink/40">
-                              {guest.wish_approved ? "✅ Published" : "⏳ Not published — approve in Wishes tab or via Telegram"}
+                              ⏳ Not published — approve in Wishes tab or via Telegram
                             </div>
                           </div>
                         </div>

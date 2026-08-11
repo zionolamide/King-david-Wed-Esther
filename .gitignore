@@ -41,3 +41,4 @@ history/*.json
 *.njsproj
 *.sln
 *.sw?
+"tmp_guests.json"  

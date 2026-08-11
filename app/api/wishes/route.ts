@@ -13,7 +13,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("rsvp_submissions")
-    .select("full_name, note")
+    .select("full_name, title, note")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -25,7 +25,10 @@ export async function GET() {
     .map((g: any) => {
       try {
         const meta = JSON.parse(g.note || "{}");
-        if (meta.wish && meta.wish_approved) return { name: g.full_name, wish: meta.wish };
+        if (meta.wish && meta.wish_approved) {
+          const title = g.title && g.title !== "(No Prefix)" ? `${g.title} ` : "";
+          return { name: title + g.full_name, wish: meta.wish };
+        }
       } catch {}
       return null;
     })

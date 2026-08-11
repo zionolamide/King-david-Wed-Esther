@@ -1831,20 +1831,39 @@ export default function Home() {
 
       {/* Wishes & Blessings */}
       {wishes.length > 0 && (
-        <section className="premium-section bg-white py-20 sm:py-24">
-          <div className="section-shell">
+        <section className="premium-section relative overflow-hidden bg-white py-20 sm:py-28">
+          <RomanticAmbience variant="soft" />
+          <div className="section-shell relative z-10">
             <FadeIn className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-wine">Wishes &amp; Blessings</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-wine">
+                Wishes &amp; Blessings
+              </p>
               <h2 className="mt-3 font-serif text-4xl leading-tight text-moss sm:text-5xl">
                 Messages from our guests
               </h2>
+              <p className="mt-4 font-script text-2xl text-terracotta sm:text-3xl">
+                Words of love &amp; joy for the couple
+              </p>
             </FadeIn>
-            <StaggerChildren className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <StaggerChildren className="mt-12 columns-1 gap-5 sm:columns-2 lg:columns-3 [column-fill:_balance]">
               {wishes.map((w, i) => (
-                <StaggerItem key={i}>
-                  <div className="rounded-2xl border border-blush/20 bg-ivory/60 p-5 shadow-soft">
-                    <p className="leading-relaxed text-ink/75 italic text-sm">&ldquo;{w.wish}&rdquo;</p>
-                    <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-wine">— {w.name}</p>
+                <StaggerItem key={i} className="mb-5 break-inside-avoid">
+                  <div className="group relative rounded-2xl border border-blush/25 bg-gradient-to-br from-ivory/90 to-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(110,13,27,0.12)]">
+                    {/* Decorative corner accent */}
+                    <span className="absolute right-4 top-3 font-serif text-6xl leading-none text-blush/40 transition-colors duration-300 group-hover:text-terracotta/40">
+                      &rdquo;
+                    </span>
+                    <p className="relative pr-6 font-serif text-[15px] leading-relaxed text-ink/80 italic">
+                      &ldquo;{w.wish}&rdquo;
+                    </p>
+                    <div className="mt-5 flex items-center gap-3 border-t border-blush/15 pt-4">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-wine to-terracotta font-serif text-xs font-bold text-ivory">
+                        {w.name.charAt(0)}
+                      </span>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
+                        — {w.name}
+                      </p>
+                    </div>
                   </div>
                 </StaggerItem>
               ))}

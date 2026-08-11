@@ -13,3 +13,4 @@
 - Add an Edit (✏️) capability on each wish in the admin Wishes tab so the admin can fix a guest's grammar/spelling before approving & publishing the wish. Confidence: 0.70
 - Filter out any wishes containing hate speech or profane/bad words before approving them. Confidence: 0.65
 - Keep new features professional yet simple — avoid unnecessary complexity; user repeatedly emphasizes "professional and simple, not too complex" solutions. Confidence: 0.72
+- For one-time operations (e.g., resending pending RSVP notifications), do NOT add a permanent admin button/UI feature — execute the action directly as a one-off script instead. Confidence: 0.75

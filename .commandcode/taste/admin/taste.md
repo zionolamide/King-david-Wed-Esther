@@ -1,5 +1,6 @@
 # admin
 - Before implementing any significant feature or change, first present the complete plan/recommendations and wait for explicit user approval before proceeding. Confidence: 0.85
+- When storing guest mutable state (wish, wish_approved, attending, approved, checked_in) in the `note` JSON column, the admin API GET handler must expose ALL parsed note fields to the client (e.g., `wish`, `wish_approved`, `attending`), not just `original` — otherwise wishes that exist in the DB stay hidden in the admin UI and appear as "no data". Confidence: 0.70
 - The "Reset Check-Ins" button must only reset check-in status (checked_in/checked_in_at); it must never touch approval status or entry codes. Confidence: 0.75
 - Guest approval and access card generation should happen only via Telegram, not through the admin panel — remove/disable the Approve/Approve All functionality from the admin UI (remove the pending/approve tab, approveGuest/approveAllPending functions, and related state). Confidence: 0.80
 - A guest with an entry_code is considered approved (entry codes are only generated on approval); derive the approved status from `approved` note flag OR presence of entry_code. Confidence: 0.75

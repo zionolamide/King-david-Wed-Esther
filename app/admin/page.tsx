@@ -178,7 +178,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (message) {
-      const t = setTimeout(() => setMessage(""), 3000);
+      const t = setTimeout(() => setMessage(""), 3500);
       return () => clearTimeout(t);
     }
   }, [message]);
@@ -433,6 +433,12 @@ export default function AdminPage() {
                               📷 Card
                             </a>
                           )}
+                          <button
+                            onClick={() => toggleCheckIn(guest)}
+                            className="rounded-full border border-sage/40 px-3 py-1.5 text-xs font-semibold text-sage transition hover:bg-sage/10"
+                          >
+                            ↩ Undo
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -698,7 +704,7 @@ export default function AdminPage() {
         )}
 
         {message && (
-          <div className="mt-6 rounded-2xl border border-wine/10 bg-wine/5 p-4 text-center text-xs text-wine">
+          <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2 rounded-full border border-moss/20 bg-moss px-6 py-3 text-sm font-semibold text-ivory shadow-soft backdrop-blur">
             {message}
           </div>
         )}

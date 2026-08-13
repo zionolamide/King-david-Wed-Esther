@@ -10,6 +10,7 @@
 
 # vercel
 - Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.85
+- Never build public/card-content URLs from `process.env.VERCEL_URL` — on preview deploys it returns an auto-generated random domain (e.g., `app-hash@sni-username-project...`) instead of the live domain, so links break. Hardcode a `LIVE_URL` constant (or `NEXT_PUBLIC_SITE_URL` set to the real domain) and use it for all user-facing links (WhatsApp card links, monogram URLs, webhook URLs). Confidence: 0.80
 
 # access-card
 - Use content-driven height (no fixed aspect ratio) for the access card — let the card be as tall as its content needs to be, with only a fixed width of 600px max. Confidence: 0.65

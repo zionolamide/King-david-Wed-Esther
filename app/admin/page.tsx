@@ -243,9 +243,9 @@ export default function AdminPage() {
 
   const filtered = guests.filter(
     (g) =>
-      g.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      g.entry_code.toLowerCase().includes(search.toLowerCase()) ||
-      g.email.toLowerCase().includes(search.toLowerCase())
+      (g.full_name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (g.entry_code || "").toLowerCase().includes(search.toLowerCase()) ||
+      (g.email || "").toLowerCase().includes(search.toLowerCase())
   );
 
   // All/Check In tabs only show approved guests; unapproved go to Awaiting tab
@@ -299,7 +299,7 @@ export default function AdminPage() {
               <strong className="text-wine">{remainingApprovals}</strong> slots left ·{" "}
               <strong className="text-amber-600">{unapprovedGuests.length}</strong> awaiting RSVP ·{" "}
               <strong className="text-ink">{wishOnlyGuests.length}</strong> wish-only ·{" "}
-              <strong className="text-ink">{guests.length}</strong> total
+              <strong className="text-ink">{guests.length}</strong> records total
             </p>
           </div>
           <div className="flex gap-3">
@@ -308,13 +308,6 @@ export default function AdminPage() {
               className="rounded-full border border-moss/20 bg-white/80 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-moss transition hover:bg-white"
             >
               Refresh
-            </button>
-            <button
-              onClick={resetAllCheckIns}
-              disabled={loading}
-              className="rounded-full border border-rose/30 bg-white/80 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-rose transition hover:bg-rose/5 disabled:opacity-40"
-            >
-              {loading ? "..." : "Reset Venue Check-Ins"}
             </button>
             <button
               onClick={() => setAuthed(false)}
@@ -326,18 +319,18 @@ export default function AdminPage() {
         </div>
 
         {/* Inline Tabs */}
-        <div className="mt-6 flex gap-1 rounded-2xl border border-wine/10 bg-white/70 p-1">
+        <div className="mt-6 flex gap-1 overflow-x-auto rounded-2xl border border-wine/10 bg-white/70 p-1">
           <button
             onClick={() => setTab("all")}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+            className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
               tab === "all" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
-            All Guests ({guests.length})
+            All Guests ({approvedGuests.length})
           </button>
           <button
             onClick={() => setTab("pending")}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+            className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
               tab === "pending" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
@@ -345,7 +338,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setTab("checkin")}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+            className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
               tab === "checkin" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
@@ -353,7 +346,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setTab("wishes")}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+            className={`flex-1 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
               tab === "wishes" ? "bg-wine text-ivory shadow-soft" : "text-ink/60 hover:text-ink"
             }`}
           >
@@ -704,7 +697,11 @@ export default function AdminPage() {
         )}
 
         {message && (
-          <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2 rounded-full border border-moss/20 bg-moss px-6 py-3 text-sm font-semibold text-ivory shadow-soft backdrop-blur">
+          <div className={`fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl px-5 py-3.5 text-center text-sm font-semibold shadow-[0_10px_40px_rgba(0,0,0,0.2)] backdrop-blur ${
+            message.startsWith("✅") || message.includes("successfully") || message.includes("approved") || message.includes("published") || message.includes("updated") || message.includes("deleted") || message.includes("reset")
+              ? "bg-moss text-ivory"
+              : "bg-wine text-ivory"
+          }`}>
             {message}
           </div>
         )}

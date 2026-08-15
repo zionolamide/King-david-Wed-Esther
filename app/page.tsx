@@ -1856,13 +1856,15 @@ export default function Home() {
                     <p className="relative pr-6 font-serif text-[15px] leading-relaxed text-ink/80 italic">
                       &ldquo;{w.wish}&rdquo;
                     </p>
-                    <div className="mt-5 flex items-center gap-3 border-t border-blush/15 pt-4">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-wine to-terracotta font-serif text-xs font-bold text-ivory">
-                        {w.name.charAt(0)}
-                      </span>
+                    <div className="mt-5 border-t border-blush/15 pt-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wine">
                         — {w.name}
                       </p>
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <span className="h-px w-6 bg-terracotta/40" />
+                        <span className="h-1 w-1 rounded-full bg-terracotta/50" />
+                        <span className="h-px w-6 bg-terracotta/40" />
+                      </div>
                     </div>
                   </div>
                 </StaggerItem>

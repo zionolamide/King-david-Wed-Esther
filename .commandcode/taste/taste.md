@@ -10,6 +10,7 @@
 
 # vercel
 - Use inline HTML/SVG for access card/image generation instead of Node.js native `canvas` module, which crashes on Vercel serverless (no native binary support). Confidence: 0.85
+- For this project, verify fixes work on the live Vercel deployment, not just locally — local builds often pass while runtime features (e.g., admin search) crash in production with client-side exceptions (both HTTP 200 but the browser crashes). Client-side runtime crashes in production are especially likely when real DB data contains null values for fields typed as non-nullable (e.g., guest email/phone/entry_code are null in the live data), so render nullable guest fields with `|| ""` fallbacks and guard `new Date(...)` calls with null checks. Confidence: 0.75
 - Never build public/card-content URLs from `process.env.VERCEL_URL` — on preview deploys it returns an auto-generated random domain (e.g., `app-hash@sni-username-project...`) instead of the live domain, so links break. Hardcode a `LIVE_URL` constant (or `NEXT_PUBLIC_SITE_URL` set to the real domain) and use it for all user-facing links (WhatsApp card links, monogram URLs, webhook URLs). Confidence: 0.80
 
 # access-card

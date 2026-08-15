@@ -1,8 +1,44 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Component } from "react";
 
 const ADMIN_PASSWORD = "KDE-admin2026";
+
+class AdminErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("Admin page error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main className="flex min-h-screen items-center justify-center bg-ivory p-6">
+          <div className="max-w-sm rounded-2xl border border-wine/10 bg-white/85 p-8 text-center shadow-soft">
+            <p className="text-4xl">😔</p>
+            <h1 className="mt-3 font-serif text-2xl text-moss">Something went wrong</h1>
+            <p className="mt-2 text-sm text-ink/60">Please refresh to try again.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-5 rounded-full bg-wine px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-ivory"
+            >
+              Refresh
+            </button>
+          </div>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 type Guest = {
   id: string;
@@ -22,6 +58,14 @@ type Guest = {
 };
 
 export default function AdminPage() {
+  return (
+    <AdminErrorBoundary>
+      <AdminPanel />
+    </AdminErrorBoundary>
+  );
+}
+
+function AdminPanel() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -412,8 +456,8 @@ export default function AdminPage() {
                               <p className="truncate text-sm font-medium text-ink">{guest.full_name}</p>
                             </div>
                             <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
-                              <span className="font-mono text-sage">{guest.entry_code}</span>
-                              <span>{guest.email}</span>
+                              <span className="font-mono text-sage">{guest.entry_code || ""}</span>
+                              <span>{guest.email || ""}</span>
                               {guest.checked_in_at && <span>at {new Date(guest.checked_in_at).toLocaleTimeString()}</span>}
                             </div>
                           </div>
@@ -455,8 +499,8 @@ export default function AdminPage() {
                               <p className="truncate text-sm font-medium text-ink">{guest.full_name}</p>
                             </div>
                             <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
-                              <span className="font-mono font-semibold text-wine">{guest.entry_code}</span>
-                              <span>{guest.email}</span>
+                              <span className="font-mono font-semibold text-wine">{guest.entry_code || ""}</span>
+                              <span>{guest.email || ""}</span>
                             </div>
                           </div>
                           <button
@@ -493,9 +537,9 @@ export default function AdminPage() {
                               {guest.title && guest.title !== "(No Prefix)" ? `${guest.title} ` : ""}{guest.full_name}
                             </p>
                             <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
-                              <span>{guest.email || "No email"}</span>
-                              <span>{guest.phone}</span>
-                              <span>Filled: {new Date(guest.created_at).toLocaleDateString()}</span>
+                              <span>{guest.email || ""}</span>
+                              <span>{guest.phone || ""}</span>
+                              <span>Filled: {guest.created_at ? new Date(guest.created_at).toLocaleDateString() : ""}</span>
                             </div>
                           </div>
                         </div>
@@ -540,8 +584,8 @@ export default function AdminPage() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-ink">{guest.full_name}</p>
                         <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
-                          <span className="font-mono font-semibold text-wine">{guest.entry_code}</span>
-                          <span>{guest.email}</span>
+                          <span className="font-mono font-semibold text-wine">{guest.entry_code || ""}</span>
+                          <span>{guest.email || ""}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

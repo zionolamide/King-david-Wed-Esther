@@ -338,7 +338,7 @@ function AdminPanel() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-serif text-4xl text-moss sm:text-5xl">Guest List</h1>
-            <p className="mt-1 text-sm text-ink/60">
+            <p className="mt-1 text-sm leading-relaxed text-ink/60">
               <strong className="text-moss">{approvedCount}</strong> approved (of 80) ·{" "}
               <strong className="text-wine">{remainingApprovals}</strong> slots left ·{" "}
               <strong className="text-amber-600">{unapprovedGuests.length}</strong> awaiting RSVP ·{" "}
@@ -428,11 +428,13 @@ function AdminPanel() {
           <div className="mt-8 text-center text-sm text-ink/60">Loading guests...</div>
         ) : displayGuests.length === 0 ? (
           <div className="mt-8 text-center text-sm text-ink/60">
-            {approvedGuests.length === 0
+            {search.trim()
+              ? "No guests match your search."
+              : approvedGuests.length === 0
               ? "No approved guests yet."
               : tab === "checkin"
               ? "All guests have been checked in!"
-              : "No guests match your search."}
+              : "No guests here yet."}
           </div>
         ) : (
           <div className="mt-4 space-y-2">
@@ -492,7 +494,7 @@ function AdminPanel() {
                     </div>
                     <div className="space-y-1.5">
                       {approvedFiltered.filter((g) => !g.checked_in).map((guest) => (
-                        <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-2.5">
+                        <div key={guest.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-2.5">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <span className="h-2 w-2 rounded-full bg-rose" />
@@ -580,7 +582,7 @@ function AdminPanel() {
               displayGuests.length > 0 ? (
                 <div className="space-y-2">
                   {displayGuests.map((guest) => (
-                    <div key={guest.id} className="flex items-center justify-between gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow">
+                    <div key={guest.id} className="flex flex-col gap-3 rounded-2xl border border-wine/10 bg-white px-4 py-3 shadow-sm transition hover:shadow sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-ink">{guest.full_name}</p>
                         <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink/50">
